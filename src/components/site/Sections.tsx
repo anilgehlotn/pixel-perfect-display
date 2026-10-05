@@ -127,7 +127,7 @@ export function Stars({ value, size = 16 }: { value: number; size?: number }) {
 
 export function FeaturedProduct() {
   const [img, setImg] = useState(0);
-  const [pack, setPack] = useState(packs[1].id);
+  const [pack, setPack] = useState("2");
   const [sub, setSub] = useState(false);
   const { add } = useCart();
   const p = packs.find((x) => x.id === pack)!;
