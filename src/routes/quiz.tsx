@@ -36,9 +36,9 @@ function Quiz() {
             <div className="mt-4 h-1 overflow-hidden rounded-full bg-blush">
               <div className="h-full origin-left bg-primary transition-transform duration-500" style={{ transform: `scaleX(${step / quiz.length})` }} />
             </div>
-            <h1 className="mt-10 text-4xl md:text-5xl">{quiz[step].q}</h1>
+            <h1 className="mt-10 text-4xl md:text-5xl">{quiz[step]!.q}</h1>
             <div className="mt-10 grid gap-3">
-              {quiz[step].options.map((o, k) => (
+              {quiz[step]!.options.map((o, k) => (
                 <button key={o} onClick={() => pick(k)} className="min-h-14 rounded-lg border bg-background px-5 text-left transition-colors hover:border-foreground">{o}</button>
               ))}
             </div>

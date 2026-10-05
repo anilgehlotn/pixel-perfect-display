@@ -139,7 +139,7 @@ export function FeaturedProduct() {
       <div className="container-x grid gap-12 lg:grid-cols-2 lg:gap-20">
         <Reveal>
           <div className="overflow-hidden rounded-lg bg-background">
-            <img src={product.gallery[img]} alt={product.name} className="aspect-[4/5] w-full object-cover" />
+            <img src={product.gallery[img] ?? images.pouch} alt={product.name} className="aspect-[4/5] w-full object-cover" />
           </div>
           <div className="mt-4 grid grid-cols-4 gap-3">
             {product.gallery.map((g, k) => (
