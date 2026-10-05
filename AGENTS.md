@@ -8,3 +8,7 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- All storefront content (products, prices, copy, image paths) lives in src/data/content.ts — so a backend/Shopify can replace it later.
+- Cart is in-memory React context (src/lib/cart.tsx) mounted in __root — frontend-only scope.
+- Shared site sections live in src/components/site/ (Chrome = header/footer/cart, Sections = homepage blocks).
