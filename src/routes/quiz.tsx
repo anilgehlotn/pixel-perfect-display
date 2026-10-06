@@ -28,7 +28,7 @@ function Quiz() {
   const pick = (k: number) => { setAnswers([...answers, k]); setStep(step + 1); };
 
   return (
-    <main className="section-y">
+    <main className="section-y pt-48">
       <div className="container-x max-w-2xl">
         {!done ? (
           <div key={step} className="reveal is-in">
@@ -47,13 +47,13 @@ function Quiz() {
         ) : (
           <div className="reveal is-in">
             <p className="label-caps text-teal">Your glow ritual</p>
-            <h1 className="mt-4 text-4xl md:text-5xl">One warm cup, <em className="italic text-brand">{timing[answers[3] ?? 0]}.</em></h1>
+            <h1 className="mt-4 text-4xl md:text-5xl">One warm cup, <span>{timing[answers[3] ?? 0]}.</span></h1>
             <div className="mt-10 grid items-center gap-8 rounded-banner bg-blush p-6 sm:grid-cols-[0.8fr_1fr] md:p-10">
               <img src={images.pouch} alt={product.name} className="aspect-[4/5] w-full rounded-lg object-cover" />
               <div>
                 <p className="label-caps text-[0.7rem]">{product.name}</p>
                 <p className="mt-3 text-muted-foreground">A gentle, caffeine-free blend of jujube, snow fungus and goji. We suggest the 2-pouch pack to settle into a 21-day ritual.</p>
-                <p className="mt-5"><span className="font-serif text-3xl">{inr(product.price)}</span> <span className="text-muted-foreground line-through">{inr(product.mrp)}</span></p>
+                <p className="mt-5"><span className="text-2xl">{inr(product.price)}</span> <span className="text-muted-foreground line-through">{inr(product.mrp)}</span></p>
                 <button onClick={() => add({ key: "1-false", name: product.short, image: images.pouch, packLabel: "1 Pouch", unitPrice: product.price, qty: 1, subscribe: false })} className="btn btn-primary mt-6 w-full">Add to cart</button>
                 <button onClick={() => { setStep(0); setAnswers([]); }} className="label-caps mt-4 w-full text-center text-muted-foreground">Retake quiz</button>
               </div>

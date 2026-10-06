@@ -13,7 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CartProvider } from "@/lib/cart";
-import { AnnouncementBar, Header, Footer, CartDrawer, WhatsAppButton } from "@/components/site/Chrome";
+import { Header, Footer, CartDrawer, WhatsAppButton, Toast, DiscountBadge } from "@/components/site/Chrome";
 
 function NotFoundComponent() {
   return (
@@ -90,7 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&family=Jost:wght@300;400;500&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
@@ -121,12 +121,15 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <AnnouncementBar />
-        <Header />
-        <Outlet />
-        <Footer />
+        <div className="overflow-x-hidden">
+          <Header />
+          <Outlet />
+          <Footer />
+        </div>
         <CartDrawer />
+        <Toast />
         <WhatsAppButton />
+        <DiscountBadge />
       </CartProvider>
     </QueryClientProvider>
   );
