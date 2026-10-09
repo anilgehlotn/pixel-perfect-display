@@ -102,7 +102,7 @@ function Quiz() {
                 <button
                   onClick={() =>
                     add({
-                      key: "1-false",
+                      key: "skin-glow-tea-1",
                       name: product.short,
                       image: images.pouch,
                       packLabel: "1 Pouch",
