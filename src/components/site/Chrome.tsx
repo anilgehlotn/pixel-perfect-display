@@ -29,6 +29,7 @@ import {
   type FooterLink,
 } from "@/data/content";
 import { useCart } from "@/lib/cart/context";
+import { useScrollLock } from "@/lib/scroll-lock";
 import { inr } from "@/lib/format";
 import { money } from "@/lib/shopify/types";
 import { ProductImage } from "./ProductImage";
@@ -94,9 +95,7 @@ export function Header() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  useEffect(() => {
-    document.body.style.overflow = menu ? "hidden" : "";
-  }, [menu]);
+  useScrollLock(menu);
 
   const solid = scrolled || !isHome;
   const tone = solid ? "text-foreground" : "text-on-image";
@@ -218,9 +217,7 @@ export function CartDrawer() {
   const { open, setOpen, lines, setQty, subtotal, checkoutUrl } = useCart();
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const pct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-  }, [open]);
+  useScrollLock(open);
   return (
     <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
       <div
@@ -258,7 +255,7 @@ export function CartDrawer() {
             />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-6">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain px-6">
           {lines.length === 0 && (
             <p className="py-16 text-center text-muted-foreground">Your cart is empty.</p>
           )}
@@ -402,6 +399,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
 
 export function DiscountBadge() {
   const [open, setOpen] = useState(false);
+  useScrollLock(open);
   return (
     <>
       <button

@@ -10,7 +10,7 @@ export function renderErrorPage(): string {
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" />
     <style>
-      body { font: 17px/1.6 "Jost", system-ui, sans-serif; background: #fbf7f2; color: #1f1f1f; display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 1.5rem; -webkit-font-smoothing: antialiased; }
+      body { font: 17px/1.6 "Jost", system-ui, sans-serif; background: #fbf7f2; color: #1f1f1f; display: grid; place-items: center; min-height: 100dvh; margin: 0; padding: 1.5rem; -webkit-font-smoothing: antialiased; }
       .card { max-width: 28rem; width: 100%; text-align: center; }
       h1 { font-size: 1.25rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.2em; line-height: 1.25; margin: 0 0 1.25rem; }
       p { color: #6b635c; margin: 0 0 2rem; }
