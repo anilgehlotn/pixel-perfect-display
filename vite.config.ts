@@ -4,7 +4,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, isPreview }) => ({
   server: { port: 8080 },
   css: { transformer: "lightningcss" },
   resolve: {
@@ -24,8 +24,10 @@ export default defineConfig(({ command }) => ({
     }),
     // Nitro packages the SSR server for the host. It detects Vercel during a Vercel build
     // (output in .vercel/output) and builds a plain Node server everywhere else
-    // (output in .output, run with `npm run preview`).
-    command === "build" && nitro(),
+    // (output in .output, run with `npm run preview`). The Vercel Function runtime is pinned
+    // to match "engines" in package.json; otherwise Nitro copies the build machine's Node.
+    (command === "build" || isPreview) &&
+      nitro({ vercel: { functions: { runtime: "nodejs24.x" } } }),
     viteReact(),
   ],
 }));
