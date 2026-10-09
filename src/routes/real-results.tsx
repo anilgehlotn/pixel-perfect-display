@@ -110,7 +110,7 @@ function Gallery() {
     <section id="results" className="section-y scroll-mt-32">
       <div className="container-x">
         <Reveal className="text-center"><h2 className="text-xl md:text-3xl">{g.title}</h2></Reveal>
-        <Reveal delay={60} className="mt-8 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Filter by duration">
+        <Reveal delay={60} className="mt-8 flex flex-wrap justify-center gap-2" aria-label="Filter by duration">
           {g.filters.map((f) => (
             <button key={f} role="tab" aria-selected={filter === f} onClick={() => setFilter(f)}
               className={`label-caps border px-4 py-2 text-[0.68rem] transition-colors ${filter === f ? "border-primary bg-primary text-primary-foreground" : "border-input hover:border-foreground"}`}>
