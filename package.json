@@ -1,5 +1,5 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "skinfusion",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -27,12 +27,10 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.1",
-    "vite-tsconfig-paths": "^6.0.2"
+    "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@lovable.dev/vite-tanstack-config": "2.25.3",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.16.5",
