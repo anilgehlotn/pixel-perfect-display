@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
+import { getProduct, getProducts } from "@/lib/shopify/products";
 import {
   Hero,
   PopularTeas,
@@ -12,6 +14,14 @@ import {
 } from "@/components/site/Sections";
 
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    const [products, featured] = await Promise.all([
+      getProducts(),
+      getProduct(FEATURED_PRODUCT_HANDLE),
+    ]);
+    if (!featured) throw notFound();
+    return { products, featured };
+  },
   head: () => ({
     meta: [
       { title: "SkinFusion | Sip. Glow. Repeat. Skin Glow Tea" },
@@ -33,11 +43,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { products, featured } = Route.useLoaderData();
   return (
     <main>
       <Hero />
-      <PopularTeas />
-      <FeaturedProduct />
+      <PopularTeas products={products} />
+      <FeaturedProduct product={featured} />
       <WhatsInside />
       <UsVsThem />
       <OurStandards />

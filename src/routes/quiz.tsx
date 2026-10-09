@@ -1,10 +1,18 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { quiz, product, images } from "@/data/content";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { quiz, FEATURED_PRODUCT_HANDLE } from "@/data/content";
+import { getProduct } from "@/lib/shopify/products";
+import { money } from "@/lib/shopify/types";
+import { ProductImage } from "@/components/site/ProductImage";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
 
 export const Route = createFileRoute("/quiz")({
+  loader: async () => {
+    const product = await getProduct(FEATURED_PRODUCT_HANDLE);
+    if (!product) throw notFound();
+    return { product };
+  },
   head: () => ({
     meta: [
       { title: "Skin Quiz | Find your glow ritual | SkinFusion" },
@@ -32,6 +40,8 @@ function Quiz() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const { add } = useCart();
+  const { product } = Route.useLoaderData();
+  const variant = product.variants[0];
   const done = step >= quiz.length;
 
   const pick = (k: number) => {
@@ -84,33 +94,32 @@ function Quiz() {
               One warm cup, <span>{timing[answers[3] ?? 0]}.</span>
             </h1>
             <div className="mt-10 grid items-center gap-8 rounded-banner bg-blush p-6 sm:grid-cols-[0.8fr_1fr] md:p-10">
-              <img
-                src={images.pouch}
-                alt={product.name}
-                className="aspect-[4/5] w-full rounded-lg object-cover"
-              />
+              {product.featuredImage && (
+                <ProductImage
+                  image={product.featuredImage}
+                  alt={product.title}
+                  className="aspect-[4/5] w-full rounded-lg"
+                />
+              )}
               <div>
-                <p className="label-caps text-[0.7rem]">{product.name}</p>
+                <p className="label-caps text-[0.7rem]">{product.title}</p>
                 <p className="mt-3 text-muted-foreground">
                   A gentle, caffeine-free blend of jujube, snow fungus and goji. We suggest the
                   2-pouch pack to settle into a 21-day ritual.
                 </p>
-                <p className="mt-5">
-                  <span className="text-2xl">{inr(product.price)}</span>{" "}
-                  <span className="text-muted-foreground line-through">{inr(product.mrp)}</span>
-                </p>
+                {variant && (
+                  <p className="mt-5">
+                    <span className="text-2xl">{inr(money(variant.price))}</span>{" "}
+                    {variant.compareAtPrice && (
+                      <span className="text-muted-foreground line-through">
+                        {inr(money(variant.compareAtPrice))}
+                      </span>
+                    )}
+                  </p>
+                )}
                 <button
-                  onClick={() =>
-                    add({
-                      key: "skin-glow-tea-1",
-                      name: product.short,
-                      image: images.pouch,
-                      packLabel: "1 Pouch",
-                      unitPrice: product.price,
-                      qty: 1,
-                      subscribe: false,
-                    })
-                  }
+                  onClick={() => variant && add(product, variant)}
+                  disabled={!variant?.availableForSale}
                   className="btn btn-primary mt-6 w-full"
                 >
                   Add to cart

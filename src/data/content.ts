@@ -1,5 +1,6 @@
-// All storefront content lives here so a backend or Shopify can replace it later.
-// Images set to null render as a soft beige placeholder with a label.
+// All storefront content lives here: product data (until Shopify is connected) and the
+// marketing copy. Images set to null render as a soft beige placeholder with a label.
+import type { Money, Product, ProductVariant, ShopifyImage } from "@/lib/shopify/types";
 import pouch from "@/assets/skinfusion-pouch.jpg.asset.json";
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
@@ -11,7 +12,7 @@ import ingGinger from "@/assets/ing-ginger.jpg";
 import brew3 from "@/assets/brew-3.jpg";
 import journal3 from "@/assets/journal-3.jpg";
 
-export const images = { pouch: pouch.url, hero: hero1, hero2, ritual, inside: ritual };
+export const images = { hero: hero1, hero2, ritual, inside: ritual };
 
 export const brand = {
   name: "SkinFusion",
@@ -50,82 +51,137 @@ export const hero = {
   quizCta: "Take the skin quiz",
 };
 
-export const product = {
-  id: "skin-glow-tea",
-  name: "TCM Edition Skin Glow Tea",
-  short: "Skin Glow Tea",
-  size: "20 tea bags · 100g",
-  price: 649,
-  mrp: 799,
-  rating: 4.8,
-  reviewCount: 1024,
-  description:
-    "A gentle caffeine-free blend of jujubes, snow fungus and goji berries, with a warm hint of ginger. Traditionally used to support digestive and skin wellness.",
+/* ---------------------------------------------------------------------------
+   PRODUCTS (local stand-in for Shopify)
+   Shaped like the Shopify Storefront API (see src/lib/shopify/types.ts). Components never
+   import these directly: they go through getProducts() / getProduct(handle) in
+   src/lib/shopify/products.ts, which is the one place to switch to live Shopify data.
+   Prices are decimal strings like Shopify returns them. "images: []" shows a placeholder.
+--------------------------------------------------------------------------- */
+
+export const FEATURED_PRODUCT_HANDLE = "skin-glow-tea";
+
+const inr = (amount: string): Money => ({ amount, currencyCode: "INR" });
+
+const pouchImage: ShopifyImage = {
+  url: pouch.url,
+  altText: "SkinFusion TCM Edition Skin Glow Tea pouch with jujubes, goji and snow fungus",
+  width: 1200,
+  height: 1500,
 };
 
-export type Product = {
-  id: string;
-  name: string;
-  price: number;
-  mrp: number;
-  rating: number;
-  reviews: number;
-  image: string | null;
-  hoverImage: string | null;
-  badge?: "Best Seller";
-  tag?: string;
+const brewImage: ShopifyImage = {
+  url: brew3,
+  altText: "A cup of Skin Glow Tea with whole jujubes and goji",
+  width: 1024,
+  height: 1024,
 };
 
-export const products: Product[] = [
+// Single-variant products: Shopify gives these one variant titled "Default Title".
+const singleVariant = (handle: string, price: string, compareAt: string): ProductVariant[] => [
   {
-    id: "skin-glow-tea",
-    name: "TCM Edition Skin Glow Tea",
-    price: 649,
-    mrp: 799,
-    rating: 4.8,
-    reviews: 1024,
-    image: pouch.url,
-    hoverImage: brew3,
-    badge: "Best Seller",
-  },
-  {
-    id: "calm-night",
-    name: "Calm Night Blend",
-    price: 599,
-    mrp: 699,
-    rating: 4.7,
-    reviews: 214,
-    image: null,
-    hoverImage: null,
-  },
-  {
-    id: "gut-balance",
-    name: "Gut Balance Tea",
-    price: 599,
-    mrp: 699,
-    rating: 4.6,
-    reviews: 187,
-    image: null,
-    hoverImage: null,
-  },
-  {
-    id: "glow-bundle",
-    name: "Glow Ritual Bundle",
-    price: 1499,
-    mrp: 1799,
-    rating: 4.9,
-    reviews: 96,
-    image: null,
-    hoverImage: null,
-    tag: "Save 10%",
+    id: `local-variant:${handle}:1`,
+    title: "1 Pouch",
+    availableForSale: true,
+    price: inr(price),
+    compareAtPrice: inr(compareAt),
+    selectedOptions: [{ name: "Pack", value: "1 Pouch" }],
+    note: null,
   },
 ];
 
-export const packs = [
-  { id: "1", qty: 1, label: "1 Pouch", discount: 0, note: "" },
-  { id: "2", qty: 2, label: "2 Pouches", discount: 0.1, note: "10% off" },
-  { id: "4", qty: 4, label: "4 Pouches", discount: 0.15, note: "15% off + free shipping" },
+export const localProducts: Product[] = [
+  {
+    id: "local-product:skin-glow-tea",
+    handle: "skin-glow-tea",
+    title: "TCM Edition Skin Glow Tea",
+    description:
+      "A gentle caffeine-free blend of jujubes, snow fungus and goji berries, with a warm hint of ginger. Traditionally used to support digestive and skin wellness.",
+    tags: ["best-seller"],
+    featuredImage: pouchImage,
+    images: [pouchImage, brewImage],
+    priceRange: { minVariantPrice: inr("649.00") },
+    compareAtPriceRange: { minVariantPrice: inr("799.00") },
+    subtitle: "20 tea bags · 100g",
+    rating: { value: 4.8, count: 1024 },
+    // Pack prices: 1 x 649, 2 x 649 less 10%, 4 x 649 less 15%
+    variants: [
+      {
+        id: "local-variant:skin-glow-tea:1",
+        title: "1 Pouch",
+        availableForSale: true,
+        price: inr("649.00"),
+        compareAtPrice: inr("799.00"),
+        selectedOptions: [{ name: "Pack", value: "1 Pouch" }],
+        note: null,
+      },
+      {
+        id: "local-variant:skin-glow-tea:2",
+        title: "2 Pouches",
+        availableForSale: true,
+        price: inr("1168.20"),
+        compareAtPrice: inr("1598.00"),
+        selectedOptions: [{ name: "Pack", value: "2 Pouches" }],
+        note: "10% off",
+      },
+      {
+        id: "local-variant:skin-glow-tea:4",
+        title: "4 Pouches",
+        availableForSale: true,
+        price: inr("2206.60"),
+        compareAtPrice: inr("3196.00"),
+        selectedOptions: [{ name: "Pack", value: "4 Pouches" }],
+        note: "15% off + free shipping",
+      },
+    ],
+  },
+  {
+    id: "local-product:calm-night",
+    handle: "calm-night",
+    title: "Calm Night Blend",
+    description: "",
+    tags: [],
+    featuredImage: null,
+    images: [],
+    priceRange: { minVariantPrice: inr("599.00") },
+    compareAtPriceRange: { minVariantPrice: inr("699.00") },
+    subtitle: null,
+    rating: { value: 4.7, count: 214 },
+    variants: singleVariant("calm-night", "599.00", "699.00"),
+  },
+  {
+    id: "local-product:gut-balance",
+    handle: "gut-balance",
+    title: "Gut Balance Tea",
+    description: "",
+    tags: [],
+    featuredImage: null,
+    images: [],
+    priceRange: { minVariantPrice: inr("599.00") },
+    compareAtPriceRange: { minVariantPrice: inr("699.00") },
+    subtitle: null,
+    rating: { value: 4.6, count: 187 },
+    variants: singleVariant("gut-balance", "599.00", "699.00"),
+  },
+  {
+    id: "local-product:glow-bundle",
+    handle: "glow-bundle",
+    title: "Glow Ritual Bundle",
+    description: "",
+    tags: ["label:Save 10%"],
+    featuredImage: null,
+    images: [],
+    priceRange: { minVariantPrice: inr("1499.00") },
+    compareAtPriceRange: { minVariantPrice: inr("1799.00") },
+    subtitle: null,
+    rating: { value: 4.9, count: 96 },
+    variants: singleVariant("glow-bundle", "1499.00", "1799.00"),
+  },
 ];
+
+/* ---------------------------------------------------------------------------
+   MARKETING COPY (stays here after Shopify is connected)
+--------------------------------------------------------------------------- */
 
 export const inside = {
   kicker: "A daily cup for calm, glowing skin",

@@ -15,20 +15,18 @@ import {
 import {
   images,
   hero,
-  product,
-  products,
-  packs,
   inside,
   comparison,
   standards,
   mission,
   reviews,
   journal,
-  type Product,
 } from "@/data/content";
+import { cornerLabel, hasTag, money, type Product } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/context";
 import { rs } from "@/lib/format";
 import { Reveal } from "./Reveal";
+import { ProductImage } from "./ProductImage";
 
 export function Stars({ value, size = 14 }: { value: number; size?: number }) {
   return (
@@ -40,24 +38,14 @@ export function Stars({ value, size = 14 }: { value: number; size?: number }) {
   );
 }
 
-function Img({
-  src,
-  alt,
-  className = "",
-}: {
-  src: string | null;
-  alt: string;
-  className?: string;
-}) {
-  if (!src)
-    return (
-      <div role="img" aria-label={alt} className={`grid place-items-center bg-beige ${className}`}>
-        <span className="label-caps px-4 text-center text-[0.65rem] text-muted-foreground">
-          {alt}
-        </span>
-      </div>
-    );
-  return <img src={src} alt={alt} loading="lazy" className={`object-cover ${className}`} />;
+function Placeholder({ label, className = "" }: { label: string; className?: string }) {
+  return (
+    <div role="img" aria-label={label} className={`grid place-items-center bg-beige ${className}`}>
+      <span className="label-caps px-4 text-center text-[0.65rem] text-muted-foreground">
+        {label}
+      </span>
+    </div>
+  );
 }
 
 function Heading({
@@ -111,6 +99,11 @@ export function Hero() {
 /* 3. POPULAR TEAS */
 function ProductCard({ p, delay }: { p: Product; delay: number }) {
   const { add } = useCart();
+  const variant = p.variants[0];
+  const hoverImage = p.images[1];
+  const badge = hasTag(p, "best-seller") ? "Best Seller" : null;
+  const label = cornerLabel(p);
+  const compareAt = p.compareAtPriceRange?.minVariantPrice;
   return (
     <Reveal
       delay={delay}
@@ -118,59 +111,60 @@ function ProductCard({ p, delay }: { p: Product; delay: number }) {
       className="w-[80%] shrink-0 snap-start sm:w-[45%] lg:w-[calc(25%-18px)]"
     >
       <div className="group relative aspect-[4/5] overflow-hidden bg-beige">
-        <Img
-          src={p.image}
-          alt={p.image ? `${p.name} pouch` : `${p.name} image coming soon`}
-          className="absolute inset-0 h-full w-full transition-[transform,opacity] duration-700 group-hover:scale-[1.04]"
-        />
-        {p.hoverImage && (
-          <img
-            src={p.hoverImage}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-[transform,opacity] duration-700 group-hover:scale-[1.04] group-hover:opacity-100"
+        {p.featuredImage ? (
+          <ProductImage
+            image={p.featuredImage}
+            alt={`${p.title} pouch`}
+            className="absolute inset-0 h-full w-full transition-[transform,opacity] duration-700 group-hover:scale-[1.04]"
+          />
+        ) : (
+          <Placeholder
+            label={`${p.title} image coming soon`}
+            className="absolute inset-0 h-full w-full"
           />
         )}
-        {p.badge && (
+        {hoverImage && (
+          <ProductImage
+            image={hoverImage}
+            alt=""
+            className="absolute inset-0 h-full w-full opacity-0 transition-[transform,opacity] duration-700 group-hover:scale-[1.04] group-hover:opacity-100"
+          />
+        )}
+        {badge && (
           <span className="label-caps absolute left-3 top-3 grid h-16 w-16 place-items-center rounded-full bg-primary text-center text-[0.55rem] leading-tight text-primary-foreground">
-            {p.badge}
+            {badge}
           </span>
         )}
-        {p.tag && (
+        {label && (
           <span className="label-caps absolute right-3 top-3 bg-primary px-2.5 py-1 text-[0.6rem] text-primary-foreground">
-            {p.tag}
+            {label}
           </span>
         )}
       </div>
-      <h3 className="mt-5 text-center text-sm">{p.name}</h3>
-      <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-        <Stars value={p.rating} /> ({p.reviews})
-      </div>
+      <h3 className="mt-5 text-center text-sm">{p.title}</h3>
+      {p.rating && (
+        <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Stars value={p.rating.value} /> ({p.rating.count})
+        </div>
+      )}
       <p className="mt-2 text-center">
-        <span>{rs(p.price)}</span>{" "}
-        <span className="ml-2 text-muted-foreground line-through">{rs(p.mrp)}</span>
+        <span>{rs(money(p.priceRange.minVariantPrice))}</span>{" "}
+        {compareAt && (
+          <span className="ml-2 text-muted-foreground line-through">{rs(money(compareAt))}</span>
+        )}
       </p>
       <button
-        onClick={() =>
-          add({
-            key: `${p.id}-1`,
-            name: p.name,
-            image: p.image,
-            packLabel: "1 Pouch",
-            unitPrice: p.price,
-            qty: 1,
-            subscribe: false,
-          })
-        }
+        onClick={() => variant && add(p, variant)}
+        disabled={!variant?.availableForSale}
         className="btn btn-primary mt-4 w-full"
       >
-        Add to cart
+        {variant?.availableForSale ? "Add to cart" : "Sold out"}
       </button>
     </Reveal>
   );
 }
 
-export function PopularTeas() {
+export function PopularTeas({ products }: { products: Product[] }) {
   const track = useRef<HTMLDivElement>(null);
   const scroll = () => {
     const el = track.current;
@@ -210,71 +204,74 @@ export function PopularTeas() {
 }
 
 /* 4. FEATURED */
-export function FeaturedProduct() {
-  const [pack, setPack] = useState("1");
+export function FeaturedProduct({ product }: { product: Product }) {
+  const [variantId, setVariantId] = useState(product.variants[0]?.id);
   const { add } = useCart();
-  const p = packs.find((x) => x.id === pack) ?? packs[0]!;
-  const total = product.price * (1 - p.discount) * p.qty;
+  const variant = product.variants.find((v) => v.id === variantId) ?? product.variants[0];
+  const first = product.variants[0];
   return (
     <section id="featured" className="section-y scroll-mt-32 border-t">
       <div className="container-x">
-        <Heading kicker="Meet your new daily ritual" title={product.name} />
+        <Heading kicker="Meet your new daily ritual" title={product.title} />
         <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-20">
           <Reveal className="bg-beige">
-            <img
-              src={images.pouch}
-              alt="SkinFusion TCM Edition Skin Glow Tea pouch with jujubes, goji and snow fungus"
-              className="aspect-[4/5] w-full object-cover"
-            />
+            {product.featuredImage && (
+              <ProductImage
+                image={product.featuredImage}
+                loading="eager"
+                className="aspect-[4/5] w-full"
+              />
+            )}
           </Reveal>
           <Reveal delay={80} className="self-center">
-            <h3 className="text-lg md:text-xl">{product.name}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{product.size}</p>
-            <div className="mt-4 flex items-center gap-3 text-sm text-muted-foreground">
-              <Stars value={product.rating} /> {product.rating} · {product.reviewCount} reviews
-            </div>
-            <p className="mt-5 text-xl">
-              {rs(product.price)}{" "}
-              <span className="ml-2 text-base text-muted-foreground line-through">
-                {rs(product.mrp)}
-              </span>
-            </p>
+            <h3 className="text-lg md:text-xl">{product.title}</h3>
+            {product.subtitle && (
+              <p className="mt-1 text-sm text-muted-foreground">{product.subtitle}</p>
+            )}
+            {product.rating && (
+              <div className="mt-4 flex items-center gap-3 text-sm text-muted-foreground">
+                <Stars value={product.rating.value} /> {product.rating.value} ·{" "}
+                {product.rating.count} reviews
+              </div>
+            )}
+            {first && (
+              <p className="mt-5 text-xl">
+                {rs(money(first.price))}{" "}
+                {first.compareAtPrice && (
+                  <span className="ml-2 text-base text-muted-foreground line-through">
+                    {rs(money(first.compareAtPrice))}
+                  </span>
+                )}
+              </p>
+            )}
             <p className="mt-5 max-w-[65ch] text-muted-foreground">{product.description}</p>
             <div className="mt-8 grid grid-cols-3 gap-3" role="radiogroup" aria-label="Pack size">
-              {packs.map((x) => (
+              {product.variants.map((x) => (
                 <button
                   key={x.id}
                   role="radio"
-                  aria-checked={pack === x.id}
-                  onClick={() => setPack(x.id)}
-                  className={`min-h-20 border px-2 py-3 text-center transition-colors ${pack === x.id ? "border-primary bg-primary text-primary-foreground" : "border-input hover:border-foreground"}`}
+                  aria-checked={variant?.id === x.id}
+                  onClick={() => setVariantId(x.id)}
+                  className={`min-h-20 border px-2 py-3 text-center transition-colors ${variant?.id === x.id ? "border-primary bg-primary text-primary-foreground" : "border-input hover:border-foreground"}`}
                 >
-                  <span className="label-caps block text-[0.65rem]">{x.label}</span>
+                  <span className="label-caps block text-[0.65rem]">{x.title}</span>
                   {x.note && (
                     <span className="mt-1 block text-[0.7rem] leading-tight">{x.note}</span>
                   )}
                 </button>
               ))}
             </div>
-            <button
-              onClick={() =>
-                add(
-                  {
-                    key: `skin-glow-tea-${pack}`,
-                    name: product.short,
-                    image: images.pouch,
-                    packLabel: p.label,
-                    unitPrice: total,
-                    qty: 1,
-                    subscribe: false,
-                  },
-                  { openDrawer: true },
-                )
-              }
-              className="btn btn-primary mt-6 w-full"
-            >
-              Add to cart · {rs(total)}
-            </button>
+            {variant && (
+              <button
+                onClick={() => add(product, variant, 1, { openDrawer: true })}
+                disabled={!variant.availableForSale}
+                className="btn btn-primary mt-6 w-full"
+              >
+                {variant.availableForSale
+                  ? `Add to cart · ${rs(money(variant.price))}`
+                  : "Sold out"}
+              </button>
+            )}
             <a href="#inside" className="label-caps mt-5 inline-block underline underline-offset-4">
               View product details
             </a>

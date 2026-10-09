@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent, type PointerEvent } from "react";
 import {
   Check,
@@ -10,13 +10,21 @@ import {
   CaretLeft,
   CaretRight,
 } from "@phosphor-icons/react";
-import { realResults, product, images } from "@/data/content";
+import { realResults, FEATURED_PRODUCT_HANDLE } from "@/data/content";
+import { getProduct } from "@/lib/shopify/products";
+import { money } from "@/lib/shopify/types";
+import { ProductImage } from "@/components/site/ProductImage";
 import { useCart } from "@/lib/cart/context";
 import { rs } from "@/lib/format";
 import { Reveal } from "@/components/site/Reveal";
 import { Stars } from "@/components/site/Sections";
 
 export const Route = createFileRoute("/real-results")({
+  loader: async () => {
+    const product = await getProduct(FEATURED_PRODUCT_HANDLE);
+    if (!product) throw notFound();
+    return { product };
+  },
   head: () => ({
     meta: [
       { title: "Real Results — SkinFusion" },
@@ -611,6 +619,8 @@ function ShareGlow() {
 /* 7. FINAL CTA */
 function FinalCta() {
   const { add } = useCart();
+  const { product } = Route.useLoaderData();
+  const variant = product.variants[0];
   return (
     <section className="section-y">
       <div className="container-x max-w-4xl">
@@ -621,37 +631,30 @@ function FinalCta() {
           delay={80}
           className="mx-auto mt-12 grid max-w-2xl items-center gap-8 border p-6 sm:grid-cols-[200px_1fr] sm:p-8"
         >
-          <img
-            src={images.pouch}
-            alt="SkinFusion TCM Edition Skin Glow Tea pouch"
-            className="aspect-[4/5] w-full bg-beige object-cover"
-          />
+          {product.featuredImage && (
+            <ProductImage image={product.featuredImage} className="aspect-[4/5] w-full bg-beige" />
+          )}
           <div className="text-center sm:text-left">
-            <h3 className="text-lg">{product.name}</h3>
-            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground sm:justify-start">
-              <Stars value={product.rating} /> {product.rating} · {product.reviewCount} reviews
-            </div>
-            <p className="mt-4 text-xl">
-              {rs(product.price)}{" "}
-              <span className="ml-2 text-base text-muted-foreground line-through">
-                {rs(product.mrp)}
-              </span>
-            </p>
+            <h3 className="text-lg">{product.title}</h3>
+            {product.rating && (
+              <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground sm:justify-start">
+                <Stars value={product.rating.value} /> {product.rating.value} ·{" "}
+                {product.rating.count} reviews
+              </div>
+            )}
+            {variant && (
+              <p className="mt-4 text-xl">
+                {rs(money(variant.price))}{" "}
+                {variant.compareAtPrice && (
+                  <span className="ml-2 text-base text-muted-foreground line-through">
+                    {rs(money(variant.compareAtPrice))}
+                  </span>
+                )}
+              </p>
+            )}
             <button
-              onClick={() =>
-                add(
-                  {
-                    key: "skin-glow-tea-1",
-                    name: product.short,
-                    image: images.pouch,
-                    packLabel: "1 Pouch",
-                    unitPrice: product.price,
-                    qty: 1,
-                    subscribe: false,
-                  },
-                  { openDrawer: true },
-                )
-              }
+              onClick={() => variant && add(product, variant, 1, { openDrawer: true })}
+              disabled={!variant?.availableForSale}
               className="btn btn-primary mt-6 w-full sm:w-auto"
             >
               Add to cart
