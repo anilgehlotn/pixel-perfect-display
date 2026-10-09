@@ -44,7 +44,7 @@ export const nav = {
 export const FREE_SHIPPING_THRESHOLD = 699;
 
 export const hero = {
-  kicker: "Hydration that works for your skin.",
+  kicker: "A warm, hydrating cup for your daily ritual.",
   title: "Sip. Glow. Repeat.",
   cta: "Shop best seller",
   quizCta: "Take the skin quiz",
@@ -293,7 +293,7 @@ export const realResults = {
         city: "Mumbai",
         weeks: 8,
         duration: "8 weeks, 1 cup daily",
-        quote: "Customers noticed a fresher, more rested look by week six.",
+        quote: "Six weeks in, my evening cup is the calmest part of my day.",
         before: null,
         after: null,
       },
@@ -333,7 +333,7 @@ export const realResults = {
         city: "Chennai",
         weeks: 2,
         duration: "2 weeks, 1 cup daily",
-        quote: "Two weeks in and my morning puffiness feels reduced.",
+        quote: "Naturally sweet with a soft ginger warmth. My morning cup is a habit now.",
         before: null,
         after: null,
       },
@@ -427,7 +427,7 @@ export const realResults = {
       points: [
         "Whole ingredients you can see: jujube, snow fungus, goji, ginger",
         "Part of a daily drinking ritual",
-        "Supports hydration from within",
+        "A hydrating daily ritual",
         "Caffeine free, no preservatives",
         "Cost per cup: coming soon",
       ],
@@ -435,11 +435,11 @@ export const realResults = {
     table: {
       columns: ["Serums", "SkinFusion"],
       rows: [
-        { label: "How it works", values: ["On the skin's surface", "From within, as a warm cup"] },
+        { label: "How it works", values: ["On the skin's surface", "As a warm daily cup"] },
         { label: "Ingredients", values: ["Often long lists", "4 whole ingredients"] },
         { label: "Daily routine", values: ["Apply 1–2 times", "One enjoyable cup"] },
         { label: "Preservatives", values: [false, true] },
-        { label: "Hydration", values: ["Surface only", "From within"] },
+        { label: "Hydration", values: ["Surface only", "A hydrating daily cup"] },
         { label: "Cost per day", values: ["Coming soon", "Coming soon"] },
       ] as { label: string; values: (string | boolean)[] }[],
     },
