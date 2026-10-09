@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus } from "@phosphor-icons/react";
@@ -24,6 +25,9 @@ type Editing = { kind: "new" } | { kind: "edit"; id: string } | null;
 
 function Addresses() {
   const addresses = Route.useLoaderData();
+  // Set up after this page hydrates (the layout must not touch a page still hydrating).
+  const scope = useRef<HTMLElement & HTMLDivElement>(null);
+  useScrollAnimations(scope);
   const router = useRouter();
   const { notify } = useNotify();
   const [editing, setEditing] = useState<Editing>(null);
@@ -61,7 +65,7 @@ function Addresses() {
     );
 
   return (
-    <section aria-labelledby="addresses-title" className="grid gap-6">
+    <section ref={scope} aria-labelledby="addresses-title" className="grid gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="addresses-title" className="text-sm md:text-base">
           Saved addresses

@@ -1,4 +1,5 @@
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
+import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { fetchOrders } from "@/lib/customer/functions";
@@ -19,6 +20,9 @@ export const Route = createFileRoute("/account/_dashboard/orders/")({
 
 function Orders() {
   const first = Route.useLoaderData();
+  // Set up after this page hydrates (the layout must not touch a page still hydrating).
+  const scope = useRef<HTMLElement & HTMLDivElement>(null);
+  useScrollAnimations(scope);
   const loadMore = useServerFn(fetchOrders);
   const [orders, setOrders] = useState<OrderSummary[]>(first.orders);
   const [cursor, setCursor] = useState(first.endCursor);
@@ -53,7 +57,7 @@ function Orders() {
     );
 
   return (
-    <section aria-labelledby="orders-title">
+    <section ref={scope} aria-labelledby="orders-title">
       <h2 id="orders-title" className="text-sm md:text-base">
         Order history
       </h2>

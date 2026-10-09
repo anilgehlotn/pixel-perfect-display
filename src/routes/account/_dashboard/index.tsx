@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "@phosphor-icons/react";
 import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
@@ -34,9 +36,12 @@ const LINKS = [
 
 function Overview() {
   const { overview, product } = Route.useLoaderData();
+  // Set up after this page hydrates (the layout must not touch a page still hydrating).
+  const scope = useRef<HTMLElement & HTMLDivElement>(null);
+  useScrollAnimations(scope);
   const { latestOrder, defaultAddress } = overview;
   return (
-    <div className="grid gap-10">
+    <div ref={scope} className="grid gap-10">
       <div data-anim="cards" className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
         <Panel
           title="Latest order"
@@ -118,7 +123,7 @@ function ShopAgain({ product }: { product: Product }) {
   return (
     <section
       aria-labelledby="shop-again"
-      className="grid items-center gap-6 bg-blush p-6 sm:grid-cols-[9rem_1fr] md:p-8"
+      className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-5 bg-blush p-6 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6 md:p-8"
     >
       {product.featuredImage ? (
         <div className="overflow-hidden bg-beige">

@@ -8,7 +8,6 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { fetchCustomer, fetchSession } from "@/lib/customer/functions";
-import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { AccountNav } from "@/components/account/AccountNav";
 import { SkeletonBlock } from "@/components/account/ui";
 
@@ -43,7 +42,6 @@ function AccountLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const content = useRef<HTMLDivElement>(null);
   const first = useRef(true);
-  useScrollAnimations(content, [pathname]);
 
   // Move focus to the content after switching sections (screen reader users hear the change).
   useEffect(() => {
@@ -68,7 +66,7 @@ function AccountLayout() {
           </h1>
           <p className="mt-2 break-all text-muted-foreground">{customer.email}</p>
         </header>
-        <div className="mt-10 grid gap-10 lg:mt-14 lg:grid-cols-[13rem_1fr] lg:gap-16">
+        <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-10 lg:mt-14 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-16">
           <AccountNav />
           <div ref={content} tabIndex={-1} className="min-w-0 outline-none">
             <Outlet />
@@ -85,7 +83,7 @@ function LayoutSkeleton() {
       <div className="container-x" aria-busy="true" aria-label="Loading your account">
         <SkeletonBlock className="h-9 w-56 md:h-11" />
         <SkeletonBlock className="mt-3 h-5 w-64" />
-        <div className="mt-10 grid gap-10 lg:mt-14 lg:grid-cols-[13rem_1fr] lg:gap-16">
+        <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-10 lg:mt-14 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-16">
           <div className="flex gap-4 lg:grid">
             {[0, 1, 2, 3].map((i) => (
               <SkeletonBlock key={i} className="h-11 w-24 lg:w-40" />
