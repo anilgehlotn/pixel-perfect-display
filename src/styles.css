@@ -1,11 +1,12 @@
+@import "@fontsource-variable/jost/wght.css"; /* self-hosted Jost, weights 100-900 */
 @import "tailwindcss" source(none);
 @source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-serif: "Jost", system-ui, sans-serif;
-  --font-sans: "Jost", system-ui, sans-serif;
+  --font-serif: "Jost Variable", "Jost", system-ui, sans-serif;
+  --font-sans: "Jost Variable", "Jost", system-ui, sans-serif;
   --radius-sm: 2px;
   --radius-md: 4px;
   --radius-lg: 4px;

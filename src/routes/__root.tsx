@@ -11,6 +11,7 @@ import {
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import jostLatin from "@fontsource-variable/jost/files/jost-latin-wght-normal.woff2?url";
 import { absoluteUrl, site } from "@/lib/seo";
 import { CartProvider } from "@/lib/cart/CartProvider";
 import { AnimationRuntime } from "@/components/site/AnimationRuntime";
@@ -95,12 +96,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap",
-      },
+      // Self-hosted Jost (latin subset preloaded; other subsets load only if a page needs them)
+      { rel: "preload", href: jostLatin, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
