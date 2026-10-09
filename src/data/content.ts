@@ -237,10 +237,27 @@ export const journal = {
   ],
 };
 
-export const footer = {
-  menu: ["Shop All", "Blog", "Our Story"],
-  support: ["FAQs", "Contact Us", "Shipping & Returns"],
-  join: ["Wholesale", "Creators & Affiliates"],
+export type FooterLink = { label: string; href?: string };
+
+export const footer: {
+  menu: FooterLink[];
+  support: FooterLink[];
+  join: FooterLink[];
+  legal: string;
+  disclaimer: string;
+} = {
+  // Links without href have no page yet and render as plain text until one exists.
+  menu: [
+    { label: "Shop All", href: "/#shop" },
+    { label: "Blog", href: "/#journal" },
+    { label: "Our Story", href: "/#mission" },
+  ],
+  support: [
+    { label: "FAQs" },
+    { label: "Contact Us", href: brand.whatsapp },
+    { label: "Shipping & Returns" },
+  ],
+  join: [{ label: "Wholesale" }, { label: "Creators & Affiliates" }],
   legal: "© 2026 SkinFusion. All rights reserved.",
   disclaimer:
     "Our teas are food products and are not intended to diagnose, treat, cure or prevent any disease.",

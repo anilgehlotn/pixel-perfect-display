@@ -20,7 +20,14 @@ import {
   CaretDown,
   CheckCircle,
 } from "@phosphor-icons/react";
-import { announcement, brand, nav, footer, FREE_SHIPPING_THRESHOLD } from "@/data/content";
+import {
+  announcement,
+  brand,
+  nav,
+  footer,
+  FREE_SHIPPING_THRESHOLD,
+  type FooterLink,
+} from "@/data/content";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
 
@@ -423,15 +430,23 @@ export function DiscountBadge() {
 }
 
 export function Footer() {
-  const Col = ({ title, links }: { title: string; links: string[] }) => (
+  const Col = ({ title, links }: { title: string; links: FooterLink[] }) => (
     <div>
       <p className="label-caps">{title}</p>
       <ul className="mt-5 space-y-3">
         {links.map((l) => (
-          <li key={l}>
-            <a href="#" className="text-muted-foreground hover:text-foreground">
-              {l}
-            </a>
+          <li key={l.label}>
+            {l.href ? (
+              <a
+                href={l.href}
+                {...(l.href.startsWith("http") && { target: "_blank", rel: "noreferrer" })}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                {l.label}
+              </a>
+            ) : (
+              <span className="text-muted-foreground">{l.label}</span>
+            )}
           </li>
         ))}
       </ul>
