@@ -34,6 +34,11 @@ export type CartCtx = {
     quantity?: number,
     opts?: { openDrawer?: boolean },
   ) => void;
+  /** Adds several lines at once (e.g. "Buy again" from a past order). */
+  addLines: (
+    lines: { merchandise: CartLine["merchandise"]; quantity: number }[],
+    opts?: { openDrawer?: boolean },
+  ) => void;
   setQty: (lineId: string, quantity: number) => void;
   toast: string | null;
 };

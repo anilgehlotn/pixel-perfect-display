@@ -58,6 +58,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (timer.current) clearTimeout(timer.current);
         timer.current = setTimeout(() => setToast(null), 2600);
       },
+      addLines: (lines, opts) => {
+        if (!lines.length) return;
+        run(async (c) => {
+          let next = c;
+          for (const l of lines) next = await store.add(next, l.merchandise, l.quantity);
+          return next;
+        });
+        if (opts?.openDrawer) setOpen(true);
+        const count = lines.reduce((n, l) => n + l.quantity, 0);
+        setToast(`Added ${count} ${count === 1 ? "item" : "items"} to your cart`);
+        if (timer.current) clearTimeout(timer.current);
+        timer.current = setTimeout(() => setToast(null), 2600);
+      },
       setQty: (lineId, quantity) => run((c) => store.update(c, lineId, quantity)),
     }),
     // run reads refs only; cart is listed so the memo stays in step with renders.

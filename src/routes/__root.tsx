@@ -4,17 +4,21 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import jostLatin from "@fontsource-variable/jost/files/jost-latin-wght-normal.woff2?url";
 import { absoluteUrl, site } from "@/lib/seo";
 import { CartProvider } from "@/lib/cart/CartProvider";
 import { AnimationRuntime } from "@/components/site/AnimationRuntime";
+import { fetchSession } from "@/lib/customer/functions";
+import { NotifyProvider } from "@/lib/notify";
+import { useNotify } from "@/lib/notify-context";
 import { IntroLoader } from "@/components/site/IntroLoader";
 import { introCss, introScript } from "@/lib/animations/intro";
 import {
@@ -24,6 +28,7 @@ import {
   WhatsAppButton,
   Toast,
   DiscountBadge,
+  Notice,
 } from "@/components/site/Chrome";
 
 function NotFoundComponent() {
@@ -102,6 +107,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),
+  // Signed-in state for the header (cookies only, no API call). Loaded once per page load;
+  // sign-in and sign-out are full page loads, and saving account details calls
+  // router.invalidate() to refresh it.
+  loader: () => fetchSession(),
+  staleTime: Infinity,
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -132,17 +142,51 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <div className="overflow-x-clip">
-          <Header />
-          <Outlet />
-          <Footer />
-        </div>
-        <CartDrawer />
-        <AnimationRuntime />
-        <Toast />
-        <WhatsAppButton />
-        <DiscountBadge />
+        <NotifyProvider>
+          <a
+            href="#main"
+            className="sr-only z-[60] bg-ink px-4 py-3 text-background focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+          >
+            Skip to content
+          </a>
+          <div className="overflow-x-clip">
+            <Header />
+            <div id="main" tabIndex={-1} className="outline-none">
+              <Outlet />
+            </div>
+            <Footer />
+          </div>
+          <CartDrawer />
+          <AnimationRuntime />
+          <SignedOutNotice />
+          <Notice />
+          <Toast />
+          <WhatsAppButton />
+          <DiscountBadge />
+        </NotifyProvider>
       </CartProvider>
     </QueryClientProvider>
   );
+}
+
+// After /account/logout the visitor lands on /?signed_out=1: confirm it, then tidy the URL.
+function SignedOutNotice() {
+  const router = useRouter();
+  const signedOut = useRouterState({
+    select: (s) => (s.location.search as Record<string, unknown>)["signed_out"] !== undefined,
+  });
+  const { notify } = useNotify();
+  useEffect(() => {
+    if (!signedOut) return;
+    notify("You've been signed out");
+    void router.navigate({
+      to: ".",
+      search: (prev: Record<string, unknown>) => {
+        const { signed_out: _drop, ...rest } = prev;
+        return rest;
+      },
+      replace: true,
+    });
+  }, [signedOut, notify, router]);
+  return null;
 }

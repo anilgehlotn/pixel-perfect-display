@@ -6,7 +6,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useLoaderData, useRouterState } from "@tanstack/react-router";
 import {
   MagnifyingGlass,
   User,
@@ -30,6 +30,7 @@ import {
 } from "@/data/content";
 import { useCart } from "@/lib/cart/context";
 import { useScrollLock } from "@/lib/scroll-lock";
+import { useNotify } from "@/lib/notify-context";
 import { gsap, useGSAP } from "@/lib/animations/gsap";
 import { MOTION_CONDITIONS } from "@/lib/animations/media";
 import { footerReveal } from "@/lib/animations/presets";
@@ -93,6 +94,7 @@ export function Header() {
   const [explore, setExplore] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
   const { count, setOpen } = useCart();
+  const session = useLoaderData({ from: "__root__" });
 
   useEffect(() => {
     const el = sentinel.current;
@@ -133,9 +135,7 @@ export function Header() {
               <Logo />
             </Link>
             <div className="flex items-center justify-end">
-              <button aria-label="Account" className="hidden h-11 w-11 place-items-center sm:grid">
-                <User size={ICON} weight="light" />
-              </button>
+              <AccountLink />
               <button aria-label="Search" className="grid h-11 w-11 place-items-center">
                 <MagnifyingGlass size={ICON} weight="light" />
               </button>
@@ -216,6 +216,31 @@ export function Header() {
                 {n.label}
               </NavLink>
             ))}
+            {session.signedIn ? (
+              <>
+                <Link
+                  to="/account"
+                  onClick={() => setMenu(false)}
+                  className="label-caps animate-fade-up border-b py-5 text-base"
+                >
+                  My account
+                </Link>
+                <a
+                  href="/account/logout"
+                  className="label-caps animate-fade-up border-b py-5 text-base"
+                >
+                  Sign out
+                </a>
+              </>
+            ) : (
+              <Link
+                to="/account/login"
+                onClick={() => setMenu(false)}
+                className="label-caps animate-fade-up border-b py-5 text-base"
+              >
+                Sign in
+              </Link>
+            )}
           </nav>
         </div>
       )}
@@ -324,6 +349,56 @@ export function CartDrawer() {
           </button>
         </div>
       </aside>
+    </div>
+  );
+}
+
+// Header account icon: sign-in page when signed out, the account with an initial badge when
+// signed in. Session comes from the root loader (httpOnly cookies, read on the server).
+function AccountLink() {
+  const session = useLoaderData({ from: "__root__" });
+  const initial = session.firstName?.trim().charAt(0).toUpperCase();
+  return session.signedIn ? (
+    <Link
+      to="/account"
+      aria-label={session.firstName ? `My account, ${session.firstName}` : "My account"}
+      className="relative hidden h-11 w-11 place-items-center sm:grid"
+    >
+      <User size={ICON} weight="light" />
+      {initial ? (
+        <span
+          aria-hidden="true"
+          className="absolute right-0.5 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-ink px-1 text-[10px] leading-none text-background"
+        >
+          {initial}
+        </span>
+      ) : null}
+    </Link>
+  ) : (
+    <Link
+      to="/account/login"
+      aria-label="Sign in"
+      className="hidden h-11 w-11 place-items-center sm:grid"
+    >
+      <User size={ICON} weight="light" />
+    </Link>
+  );
+}
+
+/** Short confirmations from useNotify ("Address saved", "You've been signed out"). */
+export function Notice() {
+  const { notice } = useNotify();
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className={`fixed bottom-40 left-1/2 z-50 -translate-x-1/2 transition-[transform,opacity] duration-500 ${notice ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"}`}
+    >
+      {notice ? (
+        <p className="flex items-center gap-3 bg-ink px-5 py-3 text-sm whitespace-nowrap text-background">
+          <CheckCircle size={20} weight="light" aria-hidden="true" /> {notice}
+        </p>
+      ) : null}
     </div>
   );
 }
