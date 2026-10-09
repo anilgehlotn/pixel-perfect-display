@@ -68,6 +68,7 @@ export function Header() {
           </div>
           <nav className="hidden justify-center gap-12 pb-4 lg:flex" aria-label="Main">
             {nav.main.map((n) => <a key={n.label} href={n.href} className="label-caps py-2 hover:opacity-70">{n.label}</a>)}
+            <Link to="/real-results" className="label-caps py-2 hover:opacity-70">Real Results</Link>
             <div className="relative" onMouseLeave={() => setExplore(false)}>
               <button onClick={() => setExplore(!explore)} onMouseEnter={() => setExplore(true)} aria-expanded={explore} className="label-caps flex items-center gap-1.5 py-2 hover:opacity-70">
                 Explore <CaretDown size={12} weight="light" />
