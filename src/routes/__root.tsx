@@ -13,6 +13,7 @@ import type { ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { absoluteUrl, site } from "@/lib/seo";
 import { CartProvider } from "@/lib/cart/CartProvider";
+import { AnimationRuntime } from "@/components/site/AnimationRuntime";
 import {
   Header,
   Footer,
@@ -24,7 +25,7 @@ import {
 
 function NotFoundComponent() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6">
+    <main className="flex min-h-dvh items-center justify-center bg-background px-6">
       <div className="max-w-md text-center">
         <p className="label-caps text-muted-foreground">Error 404</p>
         <h1 className="mt-4 text-xl md:text-3xl">Page not found</h1>
@@ -44,7 +45,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6">
+    <main className="flex min-h-dvh items-center justify-center bg-background px-6">
       <div className="max-w-md text-center">
         <h1 className="text-xl md:text-3xl">This page didn't load</h1>
         <p className="mt-5 text-muted-foreground">
@@ -128,12 +129,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <div className="overflow-x-hidden">
+        <div className="overflow-x-clip">
           <Header />
           <Outlet />
           <Footer />
         </div>
         <CartDrawer />
+        <AnimationRuntime />
         <Toast />
         <WhatsAppButton />
         <DiscountBadge />

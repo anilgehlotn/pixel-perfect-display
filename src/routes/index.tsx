@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
 import { getProduct, getProducts } from "@/lib/shopify/products";
 import {
@@ -28,8 +30,10 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { products, featured } = Route.useLoaderData();
+  const scope = useRef<HTMLElement>(null);
+  useScrollAnimations(scope);
   return (
-    <main>
+    <main ref={scope}>
       <Hero />
       <PopularTeas products={products} />
       <FeaturedProduct product={featured} />

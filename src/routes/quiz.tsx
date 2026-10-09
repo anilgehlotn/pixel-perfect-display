@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { quiz, FEATURED_PRODUCT_HANDLE } from "@/data/content";
 import { getProduct } from "@/lib/shopify/products";
@@ -43,6 +44,8 @@ function Quiz() {
   const { product } = Route.useLoaderData();
   const variant = product.variants[0];
   const done = step >= quiz.length;
+  const scope = useRef<HTMLElement>(null);
+  useScrollAnimations(scope, [step]);
 
   const pick = (k: number) => {
     setAnswers([...answers, k]);
@@ -50,10 +53,10 @@ function Quiz() {
   };
 
   return (
-    <main className="section-y pt-48">
+    <main ref={scope} className="section-y pt-48">
       <div className="container-x max-w-2xl">
         {!done ? (
-          <div key={step} className="reveal is-in">
+          <div key={step}>
             <p className="label-caps text-teal">
               Question {step + 1} of {quiz.length}
             </p>
@@ -63,8 +66,10 @@ function Quiz() {
                 style={{ transform: `scaleX(${step / quiz.length})` }}
               />
             </div>
-            <h1 className="mt-10 text-4xl md:text-5xl">{quiz[step]!.q}</h1>
-            <div className="mt-10 grid gap-3">
+            <h1 data-anim="fade" className="mt-10 text-4xl md:text-5xl">
+              {quiz[step]!.q}
+            </h1>
+            <div data-anim="cards" className="mt-10 grid gap-3">
               {quiz[step]!.options.map((o, k) => (
                 <button
                   key={o}
@@ -88,12 +93,15 @@ function Quiz() {
             )}
           </div>
         ) : (
-          <div className="reveal is-in">
+          <div>
             <p className="label-caps text-teal">Your glow ritual</p>
-            <h1 className="mt-4 text-4xl md:text-5xl">
+            <h1 data-anim="fade" className="mt-4 text-4xl md:text-5xl">
               One warm cup, <span>{timing[answers[3] ?? 0]}.</span>
             </h1>
-            <div className="mt-10 grid items-center gap-8 rounded-banner bg-blush p-6 sm:grid-cols-[0.8fr_1fr] md:p-10">
+            <div
+              data-anim="fade"
+              className="mt-10 grid items-center gap-8 rounded-banner bg-blush p-6 sm:grid-cols-[0.8fr_1fr] md:p-10"
+            >
               {product.featuredImage && (
                 <ProductImage
                   image={product.featuredImage}

@@ -189,17 +189,6 @@
   }
 }
 
-.reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition:
-    opacity 700ms var(--ease-soft),
-    transform 700ms var(--ease-soft);
-}
-.reveal.is-in {
-  opacity: 1;
-  transform: none;
-}
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -225,6 +214,21 @@
   animation: marquee 30s linear infinite;
 }
 
+/* Lenis smooth scroll (desktop only, see src/lib/animations/smooth-scroll.ts) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+html.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -239,9 +243,5 @@
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
-  }
-  .reveal {
-    opacity: 1;
-    transform: none;
   }
 }

@@ -16,8 +16,9 @@ import { money } from "@/lib/shopify/types";
 import { ProductImage } from "@/components/site/ProductImage";
 import { useCart } from "@/lib/cart/context";
 import { rs } from "@/lib/format";
-import { Reveal } from "@/components/site/Reveal";
 import { Stars } from "@/components/site/Sections";
+import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
+import { useScrollLock } from "@/lib/scroll-lock";
 
 export const Route = createFileRoute("/real-results")({
   loader: async () => {
@@ -62,9 +63,11 @@ function PageHero() {
   const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   return (
     <section className="bg-blush px-6 pb-20 pt-40 text-center md:pb-28 md:pt-52">
-      <Reveal>
+      <div>
         <p className="label-caps text-muted-foreground">{h.kicker}</p>
-        <h1 className="mt-4 text-2xl md:text-4xl">{h.title}</h1>
+        <h1 data-anim="heading" className="mt-4 text-2xl md:text-4xl">
+          {h.title}
+        </h1>
         <p className="mx-auto mt-5 max-w-[55ch] text-muted-foreground">{h.line}</p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <button onClick={() => go("results")} className="btn btn-primary w-full sm:w-auto">
@@ -77,7 +80,7 @@ function PageHero() {
             {h.ctaStories}
           </button>
         </div>
-      </Reveal>
+      </div>
     </section>
   );
 }
@@ -186,11 +189,14 @@ function Gallery() {
   return (
     <section id="results" className="section-y scroll-mt-32">
       <div className="container-x">
-        <Reveal className="text-center">
-          <h2 className="text-xl md:text-3xl">{g.title}</h2>
-        </Reveal>
-        <Reveal
-          delay={60}
+        <div className="text-center">
+          <h2 data-anim="heading" className="text-xl md:text-3xl">
+            {g.title}
+          </h2>
+        </div>
+        <div
+          role="tablist"
+          data-anim="fade"
           className="mt-8 flex flex-wrap justify-center gap-2"
           aria-label="Filter by duration"
         >
@@ -205,10 +211,10 @@ function Gallery() {
               {f}
             </button>
           ))}
-        </Reveal>
-        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((i, k) => (
-            <Reveal key={i.name} delay={(k % 3) * 80} as="article">
+        </div>
+        <div data-anim="cards" className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((i) => (
+            <article key={i.name}>
               <BeforeAfter before={i.before} after={i.after} name={i.name} />
               <p className="label-caps mt-5 text-[0.7rem]">
                 {i.name}, {i.age}, {i.city}
@@ -218,7 +224,7 @@ function Gallery() {
               <p className="mt-4 inline-flex items-center gap-1.5 border px-2.5 py-1 text-[0.68rem] text-muted-foreground">
                 <CheckCircle size={14} weight="light" className="text-primary" /> Verified buyer
               </p>
-            </Reveal>
+            </article>
           ))}
         </div>
         <p className="mx-auto mt-12 max-w-[60ch] text-center text-xs text-muted-foreground">
@@ -299,12 +305,9 @@ function VideoModal({ v, onClose }: { v: VideoItem; onClose: () => void }) {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
+    return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
+  useScrollLock(true);
   const youtubeEmbed = v.youtube?.match(
     /(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]+)/,
   )?.[1];
@@ -357,12 +360,15 @@ function VideoStories() {
   return (
     <section id="stories" className="section-y scroll-mt-32 border-t">
       <div className="container-x">
-        <Reveal className="text-center">
-          <h2 className="text-xl md:text-3xl">{t.title}</h2>
-        </Reveal>
+        <div className="text-center">
+          <h2 data-anim="heading" className="text-xl md:text-3xl">
+            {t.title}
+          </h2>
+        </div>
         <div className="relative mt-12">
           <div
             ref={track}
+            data-anim="cards"
             className="no-scrollbar -mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 sm:mx-0 sm:px-0"
           >
             {t.items.map((v) => (
@@ -404,17 +410,17 @@ function SerumVs() {
   return (
     <section className="section-y border-t">
       <div className="container-x max-w-5xl">
-        <Reveal className="text-center">
-          <p className="label-caps text-muted-foreground">{s.kicker}</p>
-          <h2 className="mt-3 text-xl md:text-3xl">{s.title}</h2>
-        </Reveal>
-        <div className="mt-12 grid gap-6 md:grid-cols-2">
+        <div className="text-center">
+          <p data-anim="fade" className="label-caps text-muted-foreground">
+            {s.kicker}
+          </p>
+          <h2 data-anim="heading" className="mt-3 text-xl md:text-3xl">
+            {s.title}
+          </h2>
+        </div>
+        <div data-anim="cards" className="mt-12 grid gap-6 md:grid-cols-2">
           {[s.left, s.right].map((c, k) => (
-            <Reveal
-              key={c.title}
-              delay={k * 80}
-              className={`border p-8 ${k ? "border-primary" : ""}`}
-            >
+            <div key={c.title} className={`border p-8 ${k ? "border-primary" : ""}`}>
               <h3 className="label-caps text-[0.75rem]">{c.title}</h3>
               <ul className="mt-6 space-y-3">
                 {c.points.map((p) => (
@@ -428,10 +434,10 @@ function SerumVs() {
                   </li>
                 ))}
               </ul>
-            </Reveal>
+            </div>
           ))}
         </div>
-        <Reveal delay={120} className="mt-10 overflow-x-auto">
+        <div data-anim="fade" className="mt-10 overflow-x-auto">
           <table className="w-full min-w-[560px] border-collapse text-left">
             <thead>
               <tr className="border-b">
@@ -459,7 +465,7 @@ function SerumVs() {
               ))}
             </tbody>
           </table>
-        </Reveal>
+        </div>
         <p className="mx-auto mt-10 max-w-[55ch] text-center text-muted-foreground">{s.closing}</p>
       </div>
     </section>
@@ -472,12 +478,14 @@ function Spotlight() {
   return (
     <section className="section-y border-t">
       <div className="container-x">
-        <Reveal className="text-center">
-          <h2 className="text-xl md:text-3xl">{s.title}</h2>
-        </Reveal>
-        <div className="mt-12 grid grid-cols-2 gap-6 lg:grid-cols-4">
-          {s.items.map((i, k) => (
-            <Reveal key={i.name} delay={k * 80} className="text-center">
+        <div className="text-center">
+          <h2 data-anim="heading" className="text-xl md:text-3xl">
+            {s.title}
+          </h2>
+        </div>
+        <div data-anim="cards" className="mt-12 grid grid-cols-2 gap-6 lg:grid-cols-4">
+          {s.items.map((i) => (
+            <div key={i.name} className="text-center">
               <div className="overflow-hidden bg-beige">
                 <img
                   src={i.image}
@@ -488,7 +496,7 @@ function Spotlight() {
               </div>
               <h3 className="label-caps mt-5 text-[0.72rem]">{i.name}</h3>
               <p className="mx-auto mt-2 max-w-[24ch] text-sm text-muted-foreground">{i.line}</p>
-            </Reveal>
+            </div>
           ))}
         </div>
       </div>
@@ -506,13 +514,13 @@ function ShareGlow() {
     e.preventDefault();
     setDone(true);
   };
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-  }, [open]);
+  useScrollLock(open);
   return (
     <section className="section-y bg-blush">
-      <Reveal className="container-x max-w-2xl text-center">
-        <h2 className="text-xl md:text-3xl">{s.title}</h2>
+      <div className="container-x max-w-2xl text-center">
+        <h2 data-anim="heading" className="text-xl md:text-3xl">
+          {s.title}
+        </h2>
         <p className="mx-auto mt-5 max-w-[50ch] text-muted-foreground">{s.text}</p>
         <button
           onClick={() => {
@@ -523,10 +531,11 @@ function ShareGlow() {
         >
           {s.cta}
         </button>
-      </Reveal>
+      </div>
       {open && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center overflow-y-auto p-4"
+          data-lenis-prevent
+          className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="share-title"
@@ -624,11 +633,13 @@ function FinalCta() {
   return (
     <section className="section-y">
       <div className="container-x max-w-4xl">
-        <Reveal className="text-center">
-          <h2 className="text-xl md:text-3xl">{realResults.finalCta.title}</h2>
-        </Reveal>
-        <Reveal
-          delay={80}
+        <div className="text-center">
+          <h2 data-anim="heading" className="text-xl md:text-3xl">
+            {realResults.finalCta.title}
+          </h2>
+        </div>
+        <div
+          data-anim="fade"
           className="mx-auto mt-12 grid max-w-2xl items-center gap-8 border p-6 sm:grid-cols-[200px_1fr] sm:p-8"
         >
           {product.featuredImage && (
@@ -660,15 +671,17 @@ function FinalCta() {
               Add to cart
             </button>
           </div>
-        </Reveal>
+        </div>
       </div>
     </section>
   );
 }
 
 function RealResultsPage() {
+  const scope = useRef<HTMLElement>(null);
+  useScrollAnimations(scope);
   return (
-    <main>
+    <main ref={scope}>
       <PageHero />
       <Gallery />
       <VideoStories />

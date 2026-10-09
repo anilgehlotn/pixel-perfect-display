@@ -26,8 +26,8 @@ export function riseOnce(
     duration: opts.duration ?? (desktop ? 0.9 : 0.6),
     stagger: opts.stagger ?? (desktop ? 0.1 : 0.05),
     transition: "none", // CSS transitions on the same props would fight GSAP
-    willChange: "transform, opacity",
     scrollTrigger: { trigger, start: opts.start ?? "top 88%", once: true },
+    onStart: () => gsap.set(targets, { willChange: "transform, opacity" }),
     onComplete: () => gsap.set(targets, { clearProps: CLEAR_PROPS }),
   });
   return failsafe(trigger, tween);
@@ -185,8 +185,8 @@ export function pop(el: HTMLElement, mode: MotionMode): Cleanup {
     scale: 0.85,
     opacity: 0,
     duration: mode === "desktop" ? 1.2 : 0.8,
-    willChange: "transform, opacity",
     scrollTrigger: { trigger: el, start: "top 88%", once: true },
+    onStart: () => gsap.set(el, { willChange: "transform, opacity" }),
     onComplete: () => gsap.set(el, { clearProps: CLEAR_PROPS }),
   });
   return failsafe(el, tween);

@@ -25,7 +25,6 @@ import {
 import { cornerLabel, hasTag, money, type Product } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/context";
 import { rs } from "@/lib/format";
-import { Reveal } from "./Reveal";
 import { ProductImage } from "./ProductImage";
 
 export function Stars({ value, size = 14 }: { value: number; size?: number }) {
@@ -58,10 +57,16 @@ function Heading({
   center?: boolean;
 }) {
   return (
-    <Reveal className={center ? "text-center" : ""}>
-      {kicker && <p className="label-caps text-muted-foreground">{kicker}</p>}
-      <h2 className="mt-3 text-xl md:text-3xl">{title}</h2>
-    </Reveal>
+    <div className={center ? "text-center" : ""}>
+      {kicker && (
+        <p data-anim="fade" className="label-caps text-muted-foreground">
+          {kicker}
+        </p>
+      )}
+      <h2 data-anim="heading" className="mt-3 text-xl md:text-3xl">
+        {title}
+      </h2>
+    </div>
   );
 }
 
@@ -77,7 +82,7 @@ export function Hero() {
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-hero-scrim" />
-      <div className="absolute bottom-[18%] left-[6%] right-[6%] max-w-xl animate-fade-up text-on-image md:bottom-[22%]">
+      <div className="absolute bottom-[18%] left-[6%] right-[6%] max-w-xl text-on-image md:bottom-[22%]">
         <p className="label-caps text-[0.7rem]">{hero.kicker}</p>
         <h1 className="mt-4 text-[28px] md:text-[40px]">{hero.title}</h1>
         <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row">
@@ -97,7 +102,7 @@ export function Hero() {
 }
 
 /* 3. POPULAR TEAS */
-function ProductCard({ p, delay }: { p: Product; delay: number }) {
+function ProductCard({ p }: { p: Product }) {
   const { add } = useCart();
   const variant = p.variants[0];
   const hoverImage = p.images[1];
@@ -105,11 +110,7 @@ function ProductCard({ p, delay }: { p: Product; delay: number }) {
   const label = cornerLabel(p);
   const compareAt = p.compareAtPriceRange?.minVariantPrice;
   return (
-    <Reveal
-      delay={delay}
-      as="article"
-      className="w-[80%] shrink-0 snap-start sm:w-[45%] lg:w-[calc(25%-18px)]"
-    >
+    <article className="w-[80%] shrink-0 snap-start sm:w-[45%] lg:w-[calc(25%-18px)]">
       <div className="group relative aspect-[4/5] overflow-hidden bg-beige">
         {p.featuredImage ? (
           <ProductImage
@@ -160,7 +161,7 @@ function ProductCard({ p, delay }: { p: Product; delay: number }) {
       >
         {variant?.availableForSale ? "Add to cart" : "Sold out"}
       </button>
-    </Reveal>
+    </article>
   );
 }
 
@@ -179,10 +180,11 @@ export function PopularTeas({ products }: { products: Product[] }) {
         <div className="relative mt-12">
           <div
             ref={track}
+            data-anim="cards"
             className="no-scrollbar -mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 lg:mx-0 lg:px-0"
           >
-            {products.map((p, k) => (
-              <ProductCard key={p.id} p={p} delay={k * 80} />
+            {products.map((p) => (
+              <ProductCard key={p.id} p={p} />
             ))}
           </div>
           <button
@@ -214,7 +216,7 @@ export function FeaturedProduct({ product }: { product: Product }) {
       <div className="container-x">
         <Heading kicker="Meet your new daily ritual" title={product.title} />
         <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-20">
-          <Reveal className="bg-beige">
+          <div data-anim="fade" className="bg-beige">
             {product.featuredImage && (
               <ProductImage
                 image={product.featuredImage}
@@ -222,8 +224,8 @@ export function FeaturedProduct({ product }: { product: Product }) {
                 className="aspect-[4/5] w-full"
               />
             )}
-          </Reveal>
-          <Reveal delay={80} className="self-center">
+          </div>
+          <div data-anim="fade" className="self-center">
             <h3 className="text-lg md:text-xl">{product.title}</h3>
             {product.subtitle && (
               <p className="mt-1 text-sm text-muted-foreground">{product.subtitle}</p>
@@ -275,7 +277,7 @@ export function FeaturedProduct({ product }: { product: Product }) {
             <a href="#inside" className="label-caps mt-5 inline-block underline underline-offset-4">
               View product details
             </a>
-          </Reveal>
+          </div>
         </div>
       </div>
     </section>
@@ -287,10 +289,14 @@ export function WhatsInside() {
   return (
     <section id="inside" className="grid scroll-mt-32 lg:grid-cols-2">
       <div className="flex items-center bg-background px-6 py-16 lg:px-16 lg:py-32 xl:px-24">
-        <Reveal className="max-w-xl">
-          <p className="label-caps text-muted-foreground">{inside.kicker}</p>
-          <h2 className="mt-3 text-xl md:text-3xl">{inside.title}</h2>
-          <ul className="mt-8 space-y-4">
+        <div className="max-w-xl">
+          <p data-anim="fade" className="label-caps text-muted-foreground">
+            {inside.kicker}
+          </p>
+          <h2 data-anim="heading" className="mt-3 text-xl md:text-3xl">
+            {inside.title}
+          </h2>
+          <ul data-anim="cards" className="mt-8 space-y-4">
             {inside.items.map((i) => (
               <li key={i.name} className="max-w-[65ch] text-muted-foreground">
                 <span className="label-caps mr-2 text-foreground">{i.name}.</span>
@@ -298,10 +304,14 @@ export function WhatsInside() {
               </li>
             ))}
           </ul>
-          <a href="#featured" className="label-caps mt-8 inline-block underline underline-offset-4">
+          <a
+            href="#featured"
+            data-anim="fade"
+            className="label-caps mt-8 inline-block underline underline-offset-4"
+          >
             Try the Skin Glow Tea
           </a>
-        </Reveal>
+        </div>
       </div>
       <img
         src={images.inside}
@@ -319,7 +329,7 @@ export function UsVsThem() {
     <section className="section-y">
       <div className="container-x max-w-4xl">
         <Heading title={comparison.title} />
-        <Reveal delay={80} className="mt-12">
+        <div data-anim="fade" className="mt-12">
           <div className="grid grid-cols-[1.4fr_1fr_1fr] border-b pb-4">
             <span />
             {comparison.columns.map((c, k) => (
@@ -348,7 +358,7 @@ export function UsVsThem() {
               ))}
             </div>
           ))}
-        </Reveal>
+        </div>
       </div>
     </section>
   );
@@ -376,22 +386,21 @@ export function OurStandards() {
     <section className="section-y border-t">
       <div className="container-x">
         <Heading title="Our standards" />
-        <div className="mt-14 grid grid-cols-2 gap-y-12 sm:grid-cols-3 lg:grid-cols-6">
-          {standards.map((s, k) => {
+        <div
+          data-anim="cards"
+          className="mt-14 grid grid-cols-2 gap-y-12 sm:grid-cols-3 lg:grid-cols-6"
+        >
+          {standards.map((s) => {
             const I = stdIcons[s.icon];
             return (
-              <Reveal
-                key={s.label}
-                delay={k * 80}
-                className="flex flex-col items-center text-center"
-              >
+              <div key={s.label} className="flex flex-col items-center text-center">
                 <span
                   className={`grid h-24 w-24 place-items-center rounded-full ${stdTones[s.tone]}`}
                 >
                   <I size={34} weight="light" />
                 </span>
                 <span className="label-caps mt-5 max-w-[12ch] text-[0.68rem]">{s.label}</span>
-              </Reveal>
+              </div>
             );
           })}
         </div>
@@ -404,13 +413,21 @@ export function OurStandards() {
 export function OurMission() {
   return (
     <section id="mission" className="section-y scroll-mt-32 bg-blush">
-      <Reveal className="container-x max-w-3xl text-center">
-        <h2 className="text-xl md:text-3xl">Our mission</h2>
-        <p className="mx-auto mt-8 text-lg leading-relaxed md:text-xl">{mission}</p>
-        <a href="#journal" className="label-caps mt-8 inline-block underline underline-offset-4">
+      <div className="container-x max-w-3xl text-center">
+        <h2 data-anim="heading" className="text-xl md:text-3xl">
+          Our mission
+        </h2>
+        <p data-anim="fade" className="mx-auto mt-8 text-lg leading-relaxed md:text-xl">
+          {mission}
+        </p>
+        <a
+          href="#journal"
+          data-anim="fade"
+          className="label-caps mt-8 inline-block underline underline-offset-4"
+        >
           Learn more
         </a>
-      </Reveal>
+      </div>
     </section>
   );
 }
@@ -421,8 +438,8 @@ export function Reviews() {
     <section className="section-y">
       <div className="container-x">
         <Heading title="What our customers say" />
-        <Reveal
-          delay={80}
+        <div
+          data-anim="fade"
           className="mx-auto mt-12 grid max-w-3xl items-center gap-10 md:grid-cols-2"
         >
           <div className="text-center">
@@ -450,17 +467,17 @@ export function Reviews() {
               </div>
             ))}
           </div>
-        </Reveal>
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {reviews.items.map((r, k) => (
-            <Reveal key={r.name} delay={k * 80} as="article" className="border bg-background p-7">
+        </div>
+        <div data-anim="cards" className="mt-14 grid gap-6 md:grid-cols-3">
+          {reviews.items.map((r) => (
+            <article key={r.name} className="border bg-background p-7">
               <Stars value={r.rating} />
               <h3 className="mt-4 text-sm">{r.title}</h3>
               <p className="mt-3 text-muted-foreground">{r.text}</p>
               <p className="label-caps mt-6 text-[0.65rem]">
                 {r.name} · {r.city}
               </p>
-            </Reveal>
+            </article>
           ))}
         </div>
       </div>
@@ -474,9 +491,9 @@ export function Journal() {
     <section id="journal" className="section-y scroll-mt-32 border-t">
       <div className="container-x">
         <Heading kicker={journal.kicker} title={journal.title} />
-        <div className="mt-12 grid gap-10 md:grid-cols-3">
-          {journal.items.map((j, k) => (
-            <Reveal key={j.title} delay={k * 80} as="article" className="group">
+        <div data-anim="tilt" className="mt-12 grid gap-10 md:grid-cols-3">
+          {journal.items.map((j) => (
+            <article key={j.title} className="group">
               <div className="overflow-hidden bg-beige">
                 <img
                   src={j.image}
@@ -494,7 +511,7 @@ export function Journal() {
               >
                 Read more
               </a>
-            </Reveal>
+            </article>
           ))}
         </div>
         <div className="mt-12 text-center">
