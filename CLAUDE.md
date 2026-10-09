@@ -1,122 +1,201 @@
 # SkinFusion storefront
 
-Frontend for SkinFusion, a premium skin-wellness tea brand (TCM-inspired, India, prices in INR).
-Frontend only: no backend, no real checkout. All content is static and lives in one file so a
-backend or Shopify can replace it later.
+Frontend for SkinFusion, a premium skin-wellness tea brand (TCM-inspired, Mumbai, prices in INR).
+Server-rendered with TanStack Start and deployed on Vercel. The backend will be headless Shopify
+(Storefront API for products and cart, Shopify's hosted checkout for payment). Until the store is
+connected, products come from `src/data/content.ts` and the cart is saved in the browser.
+
+This project is built and maintained with Claude Code only. It is no longer connected to Lovable.
 
 ## Tech stack
 
-| Tool                     | Version                          | What it does here                                                               |
-| ------------------------ | -------------------------------- | ------------------------------------------------------------------------------- |
-| Node.js                  | 20.x (20.19+ required by Vite 8) | Runs the tooling                                                                |
-| React                    | 19.2                             | UI library                                                                      |
-| TanStack Start           | 1.168                            | Framework on top of Vite: server-side rendering (SSR) + file-based routing      |
-| TanStack Router          | 1.170                            | Routing (`<Link>`, `createFileRoute`). This is NOT React Router                 |
-| TanStack Query           | 5.x                              | Mounted in the root, not used for data yet                                      |
-| Vite                     | 8.1                              | Dev server and bundler                                                          |
-| Nitro                    | 3.0 beta                         | Packages the SSR server for a hosting platform (the "preset")                   |
-| Tailwind CSS             | 4.x                              | Styling. Configured in CSS (`src/styles.css`), there is no `tailwind.config.js` |
-| TypeScript               | 5.8                              | Strict mode on                                                                  |
-| Phosphor Icons           | 2.x                              | All site icons, always `weight="light"`                                         |
-| Vitest + Testing Library | 4.x                              | Tests (`src/test/`)                                                             |
-| ESLint 9 + Prettier 3    |                                  | Lint and formatting (Prettier runs as an ESLint rule)                           |
+| Tool                     | Version  | What it does here                                                                    |
+| ------------------------ | -------- | ------------------------------------------------------------------------------------ |
+| Node.js                  | 24.x     | Pinned in `package.json` engines. Local dev also works on 20.19+                     |
+| npm                      | 10+      | Package manager (`package-lock.json`)                                                |
+| React                    | 19.2     | UI library                                                                           |
+| TanStack Start           | 1.168    | Framework on top of Vite: server-side rendering (SSR), route loaders, file routing   |
+| TanStack Router          | 1.170    | Routing (`<Link>`, `createFileRoute`). This is NOT React Router                      |
+| TanStack Query           | 5.x      | Mounted in the root, not used for data yet                                           |
+| Vite                     | 8.1      | Dev server and bundler (`vite.config.ts`)                                            |
+| Nitro                    | 3.0 beta | Packages the SSR server: Vercel Function on Vercel, Node server locally              |
+| Tailwind CSS             | 4.x      | Styling. Configured in CSS (`src/styles.css`), there is no `tailwind.config.js`      |
+| TypeScript               | 5.8      | Strict mode on                                                                       |
+| Phosphor Icons           | 2.x      | All site icons, always `weight="light"`                                              |
+| Vitest + Testing Library | 4.x      | Tests (`src/test/`)                                                                  |
+| ESLint 9 + Prettier 3    |          | Lint and formatting (Prettier runs as an ESLint rule, so `npm run lint` checks both) |
 
-Important: this is a server-rendered TanStack Start app, not a plain single-page app.
-There is no `index.html`. The HTML shell, `<title>` and meta tags are built in
-`src/routes/__root.tsx` (site-wide) and in each route's `head()` (per page).
+Important: this is a server-rendered app, not a single-page app. There is no `index.html`.
+The HTML shell, `<title>` and meta tags are built in `src/routes/__root.tsx` (site-wide) and in
+each route's `head()` (per page).
 
 ## Folder structure
 
 ```
 .
-├── public/                  Static files served as-is at the site root (favicon, robots.txt)
+├── public/                    Served as-is at the site root: favicon.svg, og-image.jpg, robots.txt
 ├── src/
-│   ├── assets/              Images imported by content.ts (Vite gives them hashed URLs)
-│   ├── components/
-│   │   ├── site/            The real site components
-│   │   │   ├── Chrome.tsx   Header, announcement bar, footer, cart drawer, toast, WhatsApp button, 10%-off popup
-│   │   │   ├── Sections.tsx Homepage blocks (hero, product grid, featured product, reviews, journal...)
-│   │   │   └── Reveal.tsx   Wrapper that fades/slides content in when it scrolls into view
-│   │   └── ui/              shadcn/ui component library. Currently NOT used by any page
-│   ├── data/content.ts      ALL storefront content: products, prices, copy, image imports
-│   ├── hooks/               use-mobile.tsx (only used by ui/sidebar)
+│   ├── assets/                Images imported by content.ts (Vite gives them hashed URLs)
+│   ├── components/site/
+│   │   ├── Chrome.tsx         Header, announcement bar, footer, cart drawer, toast, WhatsApp
+│   │   │                      button, 10%-off popup
+│   │   ├── Sections.tsx       Homepage blocks (hero, product carousel, featured product, reviews...)
+│   │   ├── ProductImage.tsx   Product photo: WebP source + JPG fallback, fixed width/height
+│   │   └── Reveal.tsx         Fades/slides content in when it scrolls into view
+│   ├── data/content.ts        Product data (until Shopify) and ALL marketing copy
 │   ├── lib/
-│   │   ├── cart.tsx         Cart state (React context) + price formatters inr() and rs()
-│   │   ├── utils.ts         cn() helper for merging Tailwind classes
-│   │   ├── error-capture.ts Server-side error logging helper
-│   │   └── error-page.ts    Plain HTML shown if server rendering crashes
-│   ├── routes/              One file per page (file-based routing)
-│   ├── routeTree.gen.ts     AUTO-GENERATED route list. Never edit by hand
-│   ├── router.tsx           Creates the router
-│   ├── server.ts            SSR server entry (wraps errors in error-page.ts)
-│   ├── start.ts             TanStack Start middleware (error handling, CSRF)
-│   ├── styles.css           Tailwind setup, design tokens, custom utilities, animations
-│   └── test/                Vitest setup and a routing smoke test
-├── components.json          shadcn/ui settings
-├── eslint.config.js         Lint rules
-├── tsconfig.json            TypeScript settings, `@/` alias -> `src/`
-├── vite.config.ts           Build config
-└── vitest.config.ts         Test config
+│   │   ├── shopify/
+│   │   │   ├── types.ts       Product / variant / image / money types shaped like Shopify
+│   │   │   ├── products.ts    getProducts() and getProduct(handle): the only way to read products
+│   │   │   ├── client.ts      storefrontFetch(): Storefront API GraphQL helper (unused until connected)
+│   │   │   └── config.ts      Reads the VITE_SHOPIFY_* environment variables
+│   │   ├── cart/
+│   │   │   ├── context.ts     Cart types (Shopify Cart shape) and the useCart() hook
+│   │   │   ├── store.ts       CartStore interface + localStorage implementation
+│   │   │   └── CartProvider.tsx  Cart state, mounted in __root.tsx
+│   │   ├── format.ts          inr() and rs() price formatters
+│   │   ├── seo.ts             Site title, description, share image, VITE_SITE_URL
+│   │   ├── utils.ts           cn() helper for merging Tailwind classes
+│   │   ├── error-capture.ts   Server-side error logging helper
+│   │   └── error-page.ts      Plain HTML shown if server rendering crashes (site styles inlined)
+│   ├── routes/                One file per page (file-based routing), see src/routes/README.md
+│   ├── routeTree.gen.ts       AUTO-GENERATED route list. Never edit by hand
+│   ├── router.tsx             Creates the router
+│   ├── server.ts              SSR server entry (wraps crashes in error-page.ts)
+│   ├── start.ts               TanStack Start middleware (error handling, CSRF)
+│   ├── styles.css             Tailwind setup, design tokens, custom utilities, animations
+│   ├── vite-env.d.ts          Types for the VITE_* environment variables
+│   └── test/                  Vitest setup, routing smoke test, cart store tests
+├── .env.example               All environment variables, no values. Copy to .env.local
+├── components.json            shadcn/ui settings (no shadcn components are installed now)
+├── eslint.config.js           Lint rules
+├── tsconfig.json              TypeScript settings, `@/` alias -> `src/`
+├── vite.config.ts             Build config (Tailwind, TanStack Start, React, Nitro)
+└── vitest.config.ts           Test config
 ```
 
 ## Pages and routes
 
-| URL             | File                             | What it shows                                                                                      |
-| --------------- | -------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `/`             | `src/routes/index.tsx`           | Homepage: all blocks from `Sections.tsx`                                                           |
-| `/real-results` | `src/routes/real-results.tsx`    | Before/after sliders, video stories, serum comparison, ingredient spotlight, story submission form |
-| `/quiz`         | `src/routes/quiz.tsx`            | 4-question skin quiz with a product recommendation (not linked from the nav)                       |
-| anything else   | `__root.tsx` `NotFoundComponent` | 404 page                                                                                           |
+| URL             | File                           | What it shows                                                                                        |
+| --------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `/`             | `src/routes/index.tsx`         | Homepage: all blocks from `Sections.tsx`. Loader: all products + featured product                    |
+| `/real-results` | `src/routes/real-results.tsx`  | Before/after sliders, video stories, serum comparison, ingredient spotlight, story form, product CTA |
+| `/quiz`         | `src/routes/quiz.tsx`          | 4-question skin quiz with a product recommendation. Linked from the hero and the Explore menu        |
+| anything else   | `__root.tsx` NotFoundComponent | 404 page (inside the normal header/footer)                                                           |
 
-There is no separate product page. Homepage sections are reached with anchors:
-`/#shop`, `/#featured`, `/#inside`, `/#mission`, `/#journal`.
+**There is no product page yet** (no `/product/...` or `/products/...` route). Building it is a
+separate task. When it is built, it should be `src/routes/products/$handle.tsx` with a loader
+calling `getProduct(params.handle)`.
+
+Homepage sections are reached with anchors: `/#shop`, `/#featured`, `/#inside`, `/#mission`,
+`/#journal`.
 
 To add a page: create `src/routes/<name>.tsx` with `createFileRoute("/<name>")`. The dev server
-regenerates `routeTree.gen.ts` automatically. See `src/routes/README.md` for dynamic routes.
+regenerates `routeTree.gen.ts` automatically.
 
 ## Main components
 
-- `__root.tsx`: the app shell. Loads the Jost font and `styles.css`, sets site-wide meta tags, and
-  wraps every page in `CartProvider` + `Header` + `Footer`, with the cart drawer, toast, WhatsApp
-  button and 10%-off badge floating on top.
-- `Header` (Chrome.tsx): fixed at the top. Transparent over the hero on the homepage, turns solid
-  blush once you scroll (or on any other page). Mobile menu is a full-screen overlay.
-- `CartDrawer`: slides in from the right, shows a free-shipping progress bar, quantity controls
-  and subtotal. The Checkout button does nothing yet.
-- `Sections.tsx`: `Hero`, `PopularTeas` (product carousel), `FeaturedProduct` (pack-size picker),
+- `__root.tsx`: the app shell. Loads the Jost font and `styles.css`, sets site-wide meta tags from
+  `lib/seo.ts`, and wraps every page in `CartProvider` + `Header` + `Footer`, with the cart
+  drawer, toast, WhatsApp button and 10%-off badge floating on top. Also holds the 404 and error
+  screens.
+- `Header` (Chrome.tsx): fixed at the top. Transparent over the hero on the homepage, solid blush
+  once you scroll or on any other page. Menu links come from `nav` in content.ts; page routes
+  use the router `Link`, `/#section` anchors stay plain links. Mobile menu is a full-screen overlay.
+- `CartDrawer`: slides in from the right, free-shipping progress bar, quantity controls, subtotal,
+  Checkout button.
+- `Sections.tsx`: `Hero`, `PopularTeas({ products })`, `FeaturedProduct({ product })`,
   `WhatsInside`, `UsVsThem`, `OurStandards`, `OurMission`, `Reviews`, `Journal`. Also exports
-  `Stars` (rating stars) which real-results reuses.
-- `Reveal`: put content inside it to get the scroll-in animation. `delay` staggers items.
+  `Stars`. Product sections get their data as props from the route loader.
+- `ProductImage`: use for every product photo. Pass a `ShopifyImage`.
+- `Reveal`: wrap content to get the scroll-in animation. `delay` staggers items.
+
+## Products: how data flows
+
+1. Product data lives in `localProducts` in `src/data/content.ts`, shaped like the Shopify
+   Storefront API (`src/lib/shopify/types.ts`): `handle`, `title`, `description`, `tags`,
+   `featuredImage`, `images`, `priceRange`, `compareAtPriceRange`, `variants`.
+2. `getProducts()` / `getProduct(handle)` in `src/lib/shopify/products.ts` return them. **Nothing
+   else imports product data.**
+3. Routes call those functions in their `loader`, so the server renders pages with the data.
+   Components read it with `Route.useLoaderData()` or get it as props.
+
+Details:
+
+- Prices are decimal strings (`"649.00"`) like Shopify. Use `money(price)` to get a number, then
+  `inr()` / `rs()` to display.
+- Skin Glow Tea has 3 variants: 1, 2 and 4 pouches, each with its own price. The pack discount
+  is baked into the variant price (2 pouches = 1168.20, 4 = 2206.60). `note` is the line shown
+  under each pack button.
+- Badges come from tags: `best-seller` shows the round "Best Seller" badge, `label:<text>` shows a
+  small corner label (e.g. `label:Save 10%`).
+- `subtitle` ("20 tea bags · 100g") and `rating` map to Shopify metafields `custom.subtitle`,
+  `reviews.rating` and `reviews.rating_count`. Variant `note` maps to `custom.pack_note`.
+- `images: []` / `featuredImage: null` shows a beige "image coming soon" box.
+- `FEATURED_PRODUCT_HANDLE` in content.ts picks the product for the featured section, quiz result
+  and real-results CTA.
 
 ## How the cart works
 
-`src/lib/cart.tsx` holds the cart in React state (memory only). Refreshing the page empties it.
+- `useCart()` (`src/lib/cart/context.ts`) gives: `lines`, `count`, `subtotal`, `checkoutUrl`,
+  `add(product, variant, quantity?, { openDrawer })`, `setQty(lineId, quantity)`,
+  `open`/`setOpen` (drawer) and `toast`.
+- Lines mirror Shopify's `CartLine`: `{ id, quantity, merchandise: { id (variant id), title,
+price, image, product: { handle, title } } }`. Adding the same variant again increases its
+  quantity; different packs are separate lines. Quantity 0 removes the line.
+- `CartProvider` never touches storage directly. It calls a `CartStore` (`src/lib/cart/store.ts`)
+  with `load`, `add` and `update`. The current `localCartStore` saves lines in localStorage
+  (`skinfusion-cart-v1`), so the cart survives a refresh.
+- The cart loads after the page hydrates, so the server-rendered HTML always shows an empty cart.
+- Checkout redirects to `checkoutUrl`. The local cart has none, so the button does nothing yet.
+- Free-shipping threshold: `FREE_SHIPPING_THRESHOLD` in content.ts (699).
 
-- `useCart()` gives: `items`, `count`, `subtotal`, `add(item, { openDrawer })`, `setQty(key, qty)`,
-  `open`/`setOpen` (drawer), and `toast` (the "Added to cart" message, auto-hides after 2.6s).
-- Each cart line has a `key`. Adding an item with an existing key increases its quantity.
-  Setting quantity to 0 removes the line.
-- Free-shipping threshold is `FREE_SHIPPING_THRESHOLD` in content.ts (699).
-- Money formatting: `inr(649)` -> `₹649`, `rs(649)` -> `Rs. 649`.
+## Shopify plan (not connected yet)
+
+Environment variables (see `.env.example`, set them in `.env.local` locally and in Vercel):
+`VITE_SHOPIFY_STORE_DOMAIN`, `VITE_SHOPIFY_STOREFRONT_PUBLIC_TOKEN`, optional
+`VITE_SHOPIFY_API_VERSION` (default `2026-07`).
+
+Rules:
+
+- Only the Storefront API **public** access token. Never an Admin API token (`shpat_...`)
+  anywhere in this project: every `VITE_` variable ends up in the browser bundle.
+- `.env` and `.env.*` are git-ignored, except `.env.example`.
+
+Steps to connect:
+
+1. Products: replace the bodies of `getProducts()` and `getProduct(handle)` with
+   `storefrontFetch()` queries (`products(first:)`, `product(handle:)`), flatten `edges/nodes`
+   and map the response to the `Product` type (metafields for subtitle, rating, pack note).
+   Nothing else needs to change.
+2. Cart: write `shopifyCartStore` implementing `CartStore`. `load` reads a saved cart id from
+   localStorage and queries `cart(id:)`; `add` calls `cartCreate` (first item) or
+   `cartLinesAdd`; `update` calls `cartLinesUpdate`. Map the response to `Cart`, including
+   `checkoutUrl`. Then switch `const store = localCartStore` in `CartProvider.tsx`.
+3. Checkout: already redirects to `checkoutUrl` (Shopify hosted checkout).
+4. Remove `localProducts` from content.ts once Shopify is live. Marketing copy stays there.
 
 ## Editing content (src/data/content.ts)
 
-Everything a shop owner would change is in this one file:
+Marketing copy stays in this file even after Shopify is connected:
 
 - `brand`: name, tagline, city, WhatsApp and Instagram links
 - `announcement`: the scrolling top-bar messages
-- `nav`: menu links
-- `product`: the hero product (name, size, price, MRP, rating, description)
-- `products`: the cards in "Popular teas". `image: null` shows a beige "coming soon" box
-- `packs`: 1 / 2 / 4 pouch options and their discounts
-- `inside`, `comparison`, `standards`, `mission`, `reviews`, `journal`, `footer`: homepage copy
+- `nav`: menu links (`main` shows in the desktop bar, `explore` in the dropdown, both on mobile)
+- `hero`: hero kicker, title and both button labels
+- `inside`, `comparison`, `standards`, `mission`, `reviews`, `journal`: homepage copy
+- `footer`: footer columns. A link without `href` shows as plain text (FAQs, Shipping &
+  Returns, Wholesale, Creators & Affiliates have no page yet). Add `href` when the page exists
 - `realResults`: everything on /real-results. `before`, `after`, `poster`, `video`, `youtube`
   are `null` until real customer media exists
 - `quiz`: quiz questions
 
-To change an image: put the file in `src/assets/`, import it at the top of content.ts
-(`import myPic from "@/assets/my-pic.jpg";`) and use the variable. File names are
-case-sensitive on the server, so match the exact spelling.
+To change an image: put the file in `src/assets/`, import it at the top of content.ts and use
+the variable. File names are case-sensitive on Vercel, so match the exact spelling.
+
+SEO: site title, description, theme colour and share image are in `src/lib/seo.ts`. The share
+image is `public/og-image.jpg` (1200 x 630). Set `VITE_SITE_URL` in production so share tags
+use absolute URLs. The favicon is `public/favicon.svg` (placeholder "S"; replace with the logo).
 
 ## Design system
 
@@ -130,6 +209,7 @@ Colors (Tailwind class names in brackets):
 - Ink / text `#1f1f1f` (`text-foreground`, `bg-ink`)
 - Muted text `#6b635c` (`text-muted-foreground`)
 - Coral primary `#e8807a`, hover `#d96e68` (`bg-primary`, `text-primary`): the ONLY accent color
+- White on images (`text-on-image`, `border-on-image`)
 - Pastels for the standards icons: `bg-pastel-peach|pink|blue|green|orange|yellow`
 - Borders are very light: `rgba(0,0,0,0.06)`
 
@@ -153,6 +233,7 @@ Buttons:
 - `btn btn-primary`: square coral button, uppercase, wide letter-spacing, min height 48px,
   shrinks to 98% on press
 - `btn btn-outline`: square 1px ink border, fills ink on hover
+- On photos: `btn border border-on-image text-on-image hover:bg-on-image hover:text-ink`
 - Text links: `label-caps underline underline-offset-4`
 
 Animation:
@@ -172,21 +253,38 @@ Animation:
 - Headings: uppercase Jost with wide letter-spacing (already global for h1-h4, keep it).
 - Buttons: square coral (`btn btn-primary`). No rounded pill buttons.
 - Animate only `transform` and `opacity`. Never animate width, height, top, left, margin or
-  colors of layout. Progress bars use `scaleX`, not width.
+  layout. Progress bars use `scaleX`, not width.
 - Mobile first: write base classes for phones, then add `sm:` / `md:` / `lg:`.
-- No medical claims. Do not say the tea treats, cures, heals or prevents anything, or promise
-  results. Use "traditionally used", "supports", "customers say". Keep the existing disclaimers.
-- All content goes in `src/data/content.ts`, not hardcoded in components.
+- No medical claims. Do not say the tea treats, cures, heals, reduces or prevents anything, or
+  promise visible results. Use "traditionally used", "a daily ritual", "customers say". Keep the
+  existing disclaimers.
+- Marketing copy goes in `src/data/content.ts`. Products are read only through
+  `getProducts()` / `getProduct()`.
+- Product photos use `ProductImage` with width/height so nothing jumps while loading.
+- Never put an Admin API token or any secret in the frontend or in a `VITE_` variable.
 - Do not edit `src/routeTree.gen.ts` by hand.
+- Keep each change in its own commit with a clear message.
 
 ## Run and build
 
 ```sh
 npm install        # install dependencies
-npm run dev        # local dev server with hot reload
-npm run build      # production build
+npm run dev        # dev server with hot reload, http://localhost:8080
+npm run build      # production build (.output/, or .vercel/output/ on Vercel)
 npm run preview    # serve the production build locally
 npm run lint       # ESLint + Prettier check
 npm run format     # auto-format all files with Prettier
 npm test           # run tests
+npx tsc --noEmit   # type check
 ```
+
+## Deployment (Vercel)
+
+- Import the GitHub repo in Vercel. Framework preset: TanStack Start. Build command
+  `npm run build`, install command `npm install`, output directory left empty (default).
+- Node.js 24.x comes from `engines` in package.json. Vercel no longer accepts Node 20.
+- Nitro detects Vercel and writes `.vercel/output`: static files go to the CDN, every other path
+  goes to one SSR Vercel Function (runtime pinned to `nodejs24.x` in vite.config.ts). Direct
+  visits and refreshes on any route are rendered by that function, so no `vercel.json` rewrites
+  are needed. Do not add SPA-style rewrites to `/index.html`; there is no index.html.
+- Add the variables from `.env.example` under Project Settings > Environment Variables.
