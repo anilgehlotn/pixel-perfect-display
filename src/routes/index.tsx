@@ -14,6 +14,7 @@ import {
   Reviews,
   Journal,
 } from "@/components/site/Sections";
+import { TiltedMarquee } from "@/components/site/TiltedMarquee";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
@@ -43,6 +44,7 @@ function Index() {
       <OurMission />
       <Reviews />
       <Journal />
+      <TiltedMarquee />
     </main>
   );
 }

@@ -294,6 +294,9 @@ export const journal = {
   ],
 };
 
+// Tilted double marquee before the footer (homepage). Words alternate solid / light.
+export const marquee = ["Sip", "Glow", "Repeat"];
+
 export type FooterLink = { label: string; href?: string };
 
 export const footer: {
