@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { absoluteUrl, site } from "@/lib/seo";
 import { CartProvider } from "@/lib/cart/CartProvider";
 import { AnimationRuntime } from "@/components/site/AnimationRuntime";
+import { IntroLoader } from "@/components/site/IntroLoader";
+import { introCss, introScript } from "@/lib/animations/intro";
 import {
   Header,
   Footer,
@@ -111,11 +113,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    // The intro script may add data-intro to <html> before React hydrates.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <style dangerouslySetInnerHTML={{ __html: introCss }} />
+        <script dangerouslySetInnerHTML={{ __html: introScript }} />
       </head>
       <body>
+        <IntroLoader />
         {children}
         <Scripts />
       </body>

@@ -108,7 +108,7 @@ export function Header() {
         aria-hidden
         className="pointer-events-none absolute left-0 top-0 h-32 w-px"
       />
-      <div className="fixed inset-x-0 top-0 z-40">
+      <div data-hero="header" className="fixed inset-x-0 top-0 z-40">
         <AnnouncementBar />
         <header
           className={`relative transition-colors duration-500 ${solid ? "bg-blush" : "bg-header-scrim"} ${tone}`}
@@ -148,7 +148,11 @@ export function Header() {
               </button>
             </div>
           </div>
-          <nav className="hidden justify-center gap-12 pb-4 lg:flex" aria-label="Main">
+          <nav
+            data-hero="nav"
+            className="hidden justify-center gap-12 pb-4 lg:flex"
+            aria-label="Main"
+          >
             {nav.main.map((n) => (
               <NavLink key={n.label} href={n.href} className="label-caps py-2 hover:opacity-70">
                 {n.label}
@@ -404,6 +408,7 @@ export function DiscountBadge() {
   return (
     <>
       <button
+        data-hero="badge"
         onClick={() => setOpen(true)}
         className="label-caps fixed bottom-5 right-5 z-30 grid h-20 w-20 place-items-center rounded-full bg-ink text-center text-[0.62rem] leading-tight text-background transition-transform active:scale-95"
       >

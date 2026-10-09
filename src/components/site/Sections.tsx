@@ -26,6 +26,12 @@ import { cornerLabel, hasTag, money, type Product } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/context";
 import { rs } from "@/lib/format";
 import { ProductImage } from "./ProductImage";
+import { gsap, useGSAP } from "@/lib/animations/gsap";
+import { heroEntrance, type HeroParts } from "@/lib/animations/hero";
+import { isHydrated } from "@/lib/animations/hydration";
+import { takeIntroDelay } from "@/lib/animations/intro";
+import { MOTION_CONDITIONS } from "@/lib/animations/media";
+import { safely } from "@/lib/animations/safety";
 
 export function Stars({ value, size = 14 }: { value: number; size?: number }) {
   return (
@@ -72,20 +78,66 @@ function Heading({
 
 /* 2. HERO */
 export function Hero() {
+  const section = useRef<HTMLElement>(null);
+  const image = useRef<HTMLImageElement>(null);
+  const kicker = useRef<HTMLParagraphElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const actions = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const delayMs = takeIntroDelay();
+      // First page load without the intro: the hero is already on screen, keep it static.
+      if (delayMs === null && !isHydrated()) return;
+      const parts = {
+        section: section.current,
+        image: image.current,
+        kicker: kicker.current,
+        heading: heading.current,
+        actions: actions.current,
+      };
+      if (Object.values(parts).some((el) => !el)) return;
+      let played = false;
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_CONDITIONS, (ctx) => {
+        const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
+        // Play once; crossing a breakpoint later must not replay it.
+        if (isReduced || played) return;
+        played = true;
+        let cleanup = () => {};
+        safely("hero", Object.values(parts), () => {
+          cleanup = heroEntrance(parts as HeroParts, isDesktop ? "desktop" : "mobile", {
+            delayMs: delayMs ?? 0,
+            withChrome: delayMs !== null,
+          });
+        });
+        return cleanup;
+      });
+      return () => mm.revert();
+    },
+    { scope: section },
+  );
+
   return (
-    <section className="relative min-h-[100dvh] overflow-hidden bg-beige">
+    <section ref={section} className="relative min-h-[100dvh] overflow-hidden bg-beige">
       <img
+        ref={image}
         src={images.hero}
         alt="Glass cups of golden tea with jujubes, snow fungus, goji berries and pink blossoms on a peach surface"
         width={1920}
         height={1088}
+        fetchPriority="high"
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-hero-scrim" />
       <div className="absolute bottom-[18%] left-[6%] right-[6%] max-w-xl text-on-image md:bottom-[22%]">
-        <p className="label-caps text-[0.7rem]">{hero.kicker}</p>
-        <h1 className="mt-4 text-[28px] md:text-[40px]">{hero.title}</h1>
-        <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row">
+        <p ref={kicker} className="label-caps text-[0.7rem]">
+          {hero.kicker}
+        </p>
+        <h1 ref={heading} className="mt-4 text-[28px] md:text-[40px]">
+          {hero.title}
+        </h1>
+        <div ref={actions} className="mt-8 flex flex-col items-start gap-3 sm:flex-row">
           <a href="#featured" className="btn btn-primary">
             {hero.cta}
           </a>
