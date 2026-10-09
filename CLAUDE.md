@@ -9,21 +9,24 @@ This project is built and maintained with Claude Code only.
 
 ## Tech stack
 
-| Tool                     | Version  | What it does here                                                                    |
-| ------------------------ | -------- | ------------------------------------------------------------------------------------ |
-| Node.js                  | 24.x     | Pinned in `package.json` engines. Local dev also works on 20.19+                     |
-| npm                      | 10+      | Package manager (`package-lock.json`)                                                |
-| React                    | 19.2     | UI library                                                                           |
-| TanStack Start           | 1.168    | Framework on top of Vite: server-side rendering (SSR), route loaders, file routing   |
-| TanStack Router          | 1.170    | Routing (`<Link>`, `createFileRoute`). This is NOT React Router                      |
-| TanStack Query           | 5.x      | Mounted in the root, not used for data yet                                           |
-| Vite                     | 8.1      | Dev server and bundler (`vite.config.ts`)                                            |
-| Nitro                    | 3.0 beta | Packages the SSR server: Vercel Function on Vercel, Node server locally              |
-| Tailwind CSS             | 4.x      | Styling. Configured in CSS (`src/styles.css`), there is no `tailwind.config.js`      |
-| TypeScript               | 5.8      | Strict mode on                                                                       |
-| Phosphor Icons           | 2.x      | All site icons, always `weight="light"`                                              |
-| Vitest + Testing Library | 4.x      | Tests (`src/test/`)                                                                  |
-| ESLint 9 + Prettier 3    |          | Lint and formatting (Prettier runs as an ESLint rule, so `npm run lint` checks both) |
+| Tool                      | Version  | What it does here                                                                    |
+| ------------------------- | -------- | ------------------------------------------------------------------------------------ |
+| Node.js                   | 24.x     | Pinned in `package.json` engines. Local dev also works on 20.19+                     |
+| npm                       | 10+      | Package manager (`package-lock.json`)                                                |
+| React                     | 19.2     | UI library                                                                           |
+| TanStack Start            | 1.168    | Framework on top of Vite: server-side rendering (SSR), route loaders, file routing   |
+| TanStack Router           | 1.170    | Routing (`<Link>`, `createFileRoute`). This is NOT React Router                      |
+| TanStack Query            | 5.x      | Mounted in the root, not used for data yet                                           |
+| Vite                      | 8.1      | Dev server and bundler (`vite.config.ts`)                                            |
+| Nitro                     | 3.0 beta | Packages the SSR server: Vercel Function on Vercel, Node server locally              |
+| Tailwind CSS              | 4.x      | Styling. Configured in CSS (`src/styles.css`), there is no `tailwind.config.js`      |
+| TypeScript                | 5.8      | Strict mode on                                                                       |
+| Phosphor Icons            | 2.x      | All site icons, always `weight="light"`                                              |
+| GSAP + @gsap/react        | 3.15     | Scroll animations: ScrollTrigger, SplitText (free since 3.13), useGSAP               |
+| Lenis                     | 1.3      | Smooth scrolling, desktop with a mouse only                                          |
+| @fontsource-variable/jost | 5.x      | Self-hosted Jost (no Google Fonts request)                                           |
+| Vitest + Testing Library  | 4.x      | Tests (`src/test/`)                                                                  |
+| ESLint 9 + Prettier 3     |          | Lint and formatting (Prettier runs as an ESLint rule, so `npm run lint` checks both) |
 
 Important: this is a server-rendered app, not a single-page app. There is no `index.html`.
 The HTML shell, `<title>` and meta tags are built in `src/routes/__root.tsx` (site-wide) and in
@@ -41,9 +44,14 @@ each route's `head()` (per page).
 │   │   │                      button, 10%-off popup
 │   │   ├── Sections.tsx       Homepage blocks (hero, product carousel, featured product, reviews...)
 │   │   ├── ProductImage.tsx   Product photo: WebP source + JPG fallback, fixed width/height
-│   │   └── Reveal.tsx         Fades/slides content in when it scrolls into view
+│   │   ├── GlowBadge.tsx      Round photo with rotating text ring (What's Inside)
+│   │   ├── TiltedMarquee.tsx  Tilted double "SIP · GLOW · REPEAT" marquee before the footer
+│   │   ├── IntroLoader.tsx    Markup for the CSS intro loader
+│   │   └── AnimationRuntime.tsx  Page-wide animation housekeeping (Lenis, ScrollTrigger refresh)
 │   ├── data/content.ts        Product data (until Shopify) and ALL marketing copy
 │   ├── lib/
+│   │   ├── animations/        All animation code, see "Animations" below
+│   │   ├── scroll-lock.ts     useScrollLock(): shared page scroll lock for drawers/menus/modals
 │   │   ├── shopify/
 │   │   │   ├── types.ts       Product / variant / image / money types shaped like Shopify
 │   │   │   ├── products.ts    getProducts() and getProduct(handle): the only way to read products
@@ -108,7 +116,9 @@ regenerates `routeTree.gen.ts` automatically.
   `WhatsInside`, `UsVsThem`, `OurStandards`, `OurMission`, `Reviews`, `Journal`. Also exports
   `Stars`. Product sections get their data as props from the route loader.
 - `ProductImage`: use for every product photo. Pass a `ShopifyImage`.
-- `Reveal`: wrap content to get the scroll-in animation. `delay` staggers items.
+- Scroll animations: add a `data-anim` attribute in the markup (see "Animations").
+- Any overlay (drawer, menu, modal) calls `useScrollLock(open)`. Never set `body.style.overflow`
+  directly.
 
 ## Products: how data flows
 
@@ -215,7 +225,8 @@ Colors (Tailwind class names in brackets):
 
 Typography:
 
-- One font: Jost (300, 400, 500) from Google Fonts. Body 17px, line-height 1.6
+- One font: Jost, self-hosted from `@fontsource-variable/jost` (latin subset preloaded in
+  `__root.tsx`). Weights used: 300, 400, 500. Body 17px, line-height 1.6
 - All `h1`-`h4` are uppercase, `letter-spacing: 0.2em`, weight 400 (set globally)
 - `label-caps`: small uppercase labels, 0.75rem, `letter-spacing: 0.22em`, weight 500
 - Section titles: `text-xl md:text-3xl`. Body copy max width around `max-w-[65ch]`
@@ -236,13 +247,84 @@ Buttons:
 - On photos: `btn border border-on-image text-on-image hover:bg-on-image hover:text-ink`
 - Text links: `label-caps underline underline-offset-4`
 
-Animation:
+Animation: see the "Animations" section below.
 
-- Easing `--ease-soft` = `cubic-bezier(0.16, 1, 0.3, 1)`
-- `Reveal` / `.reveal`: fade + 16px slide up, 700ms, staggered by 60-80ms
-- `.animate-fade-up` (hero, menus), `.animate-marquee` (mobile announcement bar)
-- Image hover: `scale-[1.04]` over 700ms
-- `prefers-reduced-motion` turns all animation off (already handled globally)
+## Animations
+
+Built with GSAP (ScrollTrigger, SplitText, `useGSAP`) and Lenis. Everything lives in
+`src/lib/animations/`:
+
+| File                     | What it does                                                                                                           |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `gsap.ts`                | The only place plugins are registered. Always import `gsap`, `ScrollTrigger`, `SplitText`, `useGSAP` from here         |
+| `media.ts`               | `MOTION_CONDITIONS` for `gsap.matchMedia()`: `isDesktop` (>=1024px + mouse), `isMobile` (everything else), `isReduced` |
+| `presets.ts`             | The reusable animations: `heading`, `fade`, `cards`, `tilt`, `draw`, `pop`, `countUp`, `footerReveal`                  |
+| `useScrollAnimations.ts` | Hook used by each page: runs the preset named in every `data-anim` (and every `data-count`) inside the page            |
+| `hero.ts`                | Homepage hero entrance timeline                                                                                        |
+| `intro.ts`               | Intro loader: timings, the inline `<head>` script and its CSS                                                          |
+| `smooth-scroll.ts`       | Lenis setup (desktop only) and stop/start for the scroll lock                                                          |
+| `hydration.ts`           | Waits for the first load to settle and skips content already on screen (no flashes)                                    |
+| `safety.ts`              | `safely()` try/catch wrapper and the 3-second `failsafe()`                                                             |
+| `usePauseWhenHidden.ts`  | Pauses endless CSS animations off-screen and in hidden tabs                                                            |
+
+### How to animate something
+
+Add an attribute in the markup. No refs or effects needed on pages that already call
+`useScrollAnimations` (home, real-results, quiz):
+
+| Attribute             | Effect                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `data-anim="heading"` | Section heading. Desktop: words fill from 15% to full ink while scrolling. Mobile: fades up once      |
+| `data-anim="fade"`    | Block fades up once                                                                                   |
+| `data-anim="cards"`   | Direct children rise in with a stagger (mobile: first 6 only)                                         |
+| `data-anim="tilt"`    | Exactly 3 children: sides slide in and settle at -6/6deg, center rises, photo parallax (desktop only) |
+| `data-anim="draw"`    | SVG paths draw themselves once                                                                        |
+| `data-anim="pop"`     | Scales in from 0.85 once                                                                              |
+| `data-count`          | The number in this element's text counts up once (final value is in the server HTML)                  |
+
+A new page opts in with `const scope = useRef<HTMLElement>(null); useScrollAnimations(scope);`
+and `<main ref={scope}>`.
+
+### What plays where
+
+| Animation                             | Desktop (>=1024px, mouse)                                                                    | Mobile and tablet                                     |
+| ------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                                        | Same, max 1s                                          |
+| Hero entrance                         | Header/nav fade down, image curtain wipe + scale, heading words rise from a mask, badge pops | Text fades up, image fades in from 1.04, buttons last |
+| Section headings                      | Scrubbed ink fill per word                                                                   | Fade up once                                          |
+| Cards                                 | y 48, stagger 0.1                                                                            | y 20, stagger 0.05, max 6 per group                   |
+| Journal cards (tilt)                  | Slide in, settle at -6/6deg, parallax                                                        | Plain fade up                                         |
+| Glow badge                            | Scales in, ring rotates (20s/turn)                                                           | Same, smaller                                         |
+| Marquee                               | Speeds up while scrolling                                                                    | Constant speed                                        |
+| Footer                                | Slides up, columns fade in one by one                                                        | Same, smaller distances                               |
+| Smooth scroll                         | Lenis                                                                                        | Native                                                |
+| Arrow nudge on hover                  | Yes                                                                                          | No                                                    |
+
+Reduced motion: no loader, no movement, no marquee or badge rotation, no smooth scroll,
+everything visible immediately. Without JavaScript: everything visible, no loader.
+
+### Rules that keep it safe in production
+
+- Mobile: no scrub, pinning, parallax, rotation, clip-path or filter animations; everything plays
+  once; only transform and opacity.
+- Start states are set by GSAP in the browser only. Server HTML is always the finished page.
+- Every setup runs inside `useGSAP` (cleaned up on unmount/route change) and `safely()`
+  (errors are logged and the content is shown).
+- Play-once entrances have a `failsafe()`: if not finished about 3s after becoming visible, they
+  jump to the end.
+- `will-change` is set only while an animation runs, then cleared with `clearProps`.
+- First page load: scroll animations start after `load` (max 3s) so refresh and back/forward
+  scroll restoration has happened; anything already on screen is left alone.
+- After route changes, refresh triggers one by one (`st.refresh()`), never a global
+  `ScrollTrigger.refresh()`: it undoes the router's back/forward scroll restoration.
+- Endless animations (marquee, badge, announcement bar) are CSS transform animations paused
+  with `usePauseWhenHidden`.
+- Elements animated by GSAP must not have a CSS `transition` on the same property
+  (presets set `transition: none` while animating).
+- Overlays use `useScrollLock`, which also stops Lenis.
+- GSAP, SplitText and Lenis build into their own `animations` chunk (vite.config.ts).
+- Use `dvh`, never `100vh`. The page wrapper uses `overflow-x: clip`; nothing may scroll
+  sideways at 360px.
 
 ## Rules for all future work
 
@@ -253,7 +335,11 @@ Animation:
 - Headings: uppercase Jost with wide letter-spacing (already global for h1-h4, keep it).
 - Buttons: square coral (`btn btn-primary`). No rounded pill buttons.
 - Animate only `transform` and `opacity`. Never animate width, height, top, left, margin or
-  layout. Progress bars use `scaleX`, not width.
+  layout. Progress bars use `scaleX`, not width. (Only exceptions: the desktop hero's
+  clip-path wipe and word colour, and the SVG squiggle's stroke-dashoffset, all play once.)
+- Content must be visible in the server HTML. Never hide content with CSS (`opacity: 0`,
+  `opacity-0`, `invisible`) waiting for JavaScript; use `data-anim` and let GSAP set the start
+  state in the browser.
 - Mobile first: write base classes for phones, then add `sm:` / `md:` / `lg:`.
 - No medical claims. Do not say the tea treats, cures, heals, reduces or prevents anything, or
   promise visible results. Use "traditionally used", "a daily ritual", "customers say". Keep the
