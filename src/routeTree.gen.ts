@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as QuizRouteImport } from './routes/quiz'
+import { Route as RealResultsRouteImport } from './routes/real-results'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const QuizRoute = QuizRouteImport.update({
   path: '/quiz',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RealResultsRoute = RealResultsRouteImport.update({
+  id: '/real-results',
+  path: '/real-results',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/quiz': typeof QuizRoute
+  '/real-results': typeof RealResultsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/quiz': typeof QuizRoute
+  '/real-results': typeof RealResultsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/quiz': typeof QuizRoute
+  '/real-results': typeof RealResultsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/quiz'
+  fullPaths: '/' | '/quiz' | '/real-results'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/quiz'
-  id: '__root__' | '/' | '/quiz'
+  to: '/' | '/quiz' | '/real-results'
+  id: '__root__' | '/' | '/quiz' | '/real-results'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   QuizRoute: typeof QuizRoute
+  RealResultsRoute: typeof RealResultsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/real-results': {
+      id: '/real-results'
+      path: '/real-results'
+      fullPath: '/real-results'
+      preLoaderRoute: typeof RealResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   QuizRoute: QuizRoute,
+  RealResultsRoute: RealResultsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
