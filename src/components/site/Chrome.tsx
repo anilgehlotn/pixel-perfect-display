@@ -33,6 +33,7 @@ import { useScrollLock } from "@/lib/scroll-lock";
 import { gsap, useGSAP } from "@/lib/animations/gsap";
 import { MOTION_CONDITIONS } from "@/lib/animations/media";
 import { footerReveal } from "@/lib/animations/presets";
+import { afterInitialLoad } from "@/lib/animations/hydration";
 import { safely } from "@/lib/animations/safety";
 import { inr } from "@/lib/format";
 import { money } from "@/lib/shopify/types";
@@ -453,20 +454,27 @@ export function DiscountBadge() {
 export function Footer() {
   const ref = useRef<HTMLElement>(null);
   useGSAP(
-    () => {
+    (_ctx, contextSafe) => {
       const footer = ref.current;
-      if (!footer) return;
-      const mm = gsap.matchMedia();
-      mm.add(MOTION_CONDITIONS, (ctx) => {
-        const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
-        if (isReduced) return;
-        let cleanup = () => {};
-        safely("footer", footer, () => {
-          cleanup = footerReveal(footer, isDesktop ? "desktop" : "mobile");
+      if (!footer || !contextSafe) return;
+      let mm: gsap.MatchMedia | undefined;
+      const setup = contextSafe(() => {
+        mm = gsap.matchMedia();
+        mm.add(MOTION_CONDITIONS, (ctx) => {
+          const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
+          if (isReduced) return;
+          let cleanup = () => {};
+          safely("footer", footer, () => {
+            cleanup = footerReveal(footer, isDesktop ? "desktop" : "mobile");
+          });
+          return cleanup;
         });
-        return cleanup;
       });
-      return () => mm.revert();
+      const cancel = afterInitialLoad(setup);
+      return () => {
+        cancel();
+        mm?.revert();
+      };
     },
     { scope: ref },
   );
