@@ -649,8 +649,9 @@ function FinalCta() {
             <h3 className="text-lg">{product.title}</h3>
             {product.rating && (
               <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground sm:justify-start">
-                <Stars value={product.rating.value} /> {product.rating.value} ·{" "}
-                {product.rating.count} reviews
+                <Stars value={product.rating.value} />{" "}
+                <span data-count>{product.rating.value}</span> ·{" "}
+                <span data-count>{product.rating.count}</span> reviews
               </div>
             )}
             {variant && (

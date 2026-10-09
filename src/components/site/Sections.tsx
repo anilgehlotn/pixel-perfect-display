@@ -29,7 +29,7 @@ import { ProductImage } from "./ProductImage";
 
 export function Stars({ value, size = 14 }: { value: number; size?: number }) {
   return (
-    <span className="inline-flex text-primary" aria-label={`${value} out of 5 stars`}>
+    <span role="img" className="inline-flex text-primary" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((s) => (
         <Star key={s} size={size} weight={s <= Math.round(value) ? "fill" : "light"} />
       ))}
@@ -145,7 +145,7 @@ function ProductCard({ p }: { p: Product }) {
       <h3 className="mt-5 text-center text-sm">{p.title}</h3>
       {p.rating && (
         <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Stars value={p.rating.value} /> ({p.rating.count})
+          <Stars value={p.rating.value} /> (<span data-count>{p.rating.count}</span>)
         </div>
       )}
       <p className="mt-2 text-center">
@@ -232,8 +232,9 @@ export function FeaturedProduct({ product }: { product: Product }) {
             )}
             {product.rating && (
               <div className="mt-4 flex items-center gap-3 text-sm text-muted-foreground">
-                <Stars value={product.rating.value} /> {product.rating.value} ·{" "}
-                {product.rating.count} reviews
+                <Stars value={product.rating.value} />{" "}
+                <span data-count>{product.rating.value}</span> ·{" "}
+                <span data-count>{product.rating.count}</span> reviews
               </div>
             )}
             {first && (
@@ -443,12 +444,18 @@ export function Reviews() {
           className="mx-auto mt-12 grid max-w-3xl items-center gap-10 md:grid-cols-2"
         >
           <div className="text-center">
-            <p className="text-6xl font-light">{reviews.average}</p>
+            <p data-count className="text-6xl font-light">
+              {reviews.average}
+            </p>
             <div className="mt-3">
               <Stars value={reviews.average} size={20} />
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">{reviews.totalLabel}</p>
-            <p className="label-caps mt-4 text-[0.68rem]">{reviews.recommend}</p>
+            <p data-count className="mt-2 text-sm text-muted-foreground">
+              {reviews.totalLabel}
+            </p>
+            <p data-count className="label-caps mt-4 text-[0.68rem]">
+              {reviews.recommend}
+            </p>
           </div>
           <div className="space-y-2">
             {reviews.bars.map((b) => (
@@ -463,7 +470,9 @@ export function Reviews() {
                     style={{ transform: `scaleX(${b.pct / 100})` }}
                   />
                 </div>
-                <span className="text-right text-muted-foreground">{b.pct}%</span>
+                <span className="text-right text-muted-foreground">
+                  <span data-count>{b.pct}</span>%
+                </span>
               </div>
             ))}
           </div>

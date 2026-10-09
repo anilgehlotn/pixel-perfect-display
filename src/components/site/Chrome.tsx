@@ -41,7 +41,8 @@ export function AnnouncementBar() {
   return (
     <div className="overflow-hidden bg-primary text-primary-foreground">
       <p className="label-caps hidden py-2.5 text-center text-[0.68rem] md:block">{text}</p>
-      <div className="flex w-max animate-marquee py-2.5 md:hidden" aria-label={text}>
+      <p className="sr-only md:hidden">{text}</p>
+      <div className="flex w-max animate-marquee py-2.5 md:hidden" aria-hidden="true">
         {[0, 1].map((k) => (
           <span
             key={k}
