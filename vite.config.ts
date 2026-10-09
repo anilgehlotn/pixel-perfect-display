@@ -42,7 +42,11 @@ export default defineConfig(({ command, isPreview }) => ({
     // (output in .output, run with `npm run preview`). The Vercel Function runtime is pinned
     // to match "engines" in package.json; otherwise Nitro copies the build machine's Node.
     (command === "build" || isPreview) &&
-      nitro({ vercel: { functions: { runtime: "nodejs24.x" } } }),
+      nitro({
+        vercel: { functions: { runtime: "nodejs24.x" } },
+        // Account pages hold personal data: never cache them at the edge or in the browser.
+        routeRules: { "/account/**": { headers: { "cache-control": "private, no-store" } } },
+      }),
     viteReact(),
   ],
 }));
