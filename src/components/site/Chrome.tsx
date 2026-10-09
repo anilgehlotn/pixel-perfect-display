@@ -30,6 +30,10 @@ import {
 } from "@/data/content";
 import { useCart } from "@/lib/cart/context";
 import { useScrollLock } from "@/lib/scroll-lock";
+import { gsap, useGSAP } from "@/lib/animations/gsap";
+import { MOTION_CONDITIONS } from "@/lib/animations/media";
+import { footerReveal } from "@/lib/animations/presets";
+import { safely } from "@/lib/animations/safety";
 import { inr } from "@/lib/format";
 import { money } from "@/lib/shopify/types";
 import { ProductImage } from "./ProductImage";
@@ -447,6 +451,25 @@ export function DiscountBadge() {
 }
 
 export function Footer() {
+  const ref = useRef<HTMLElement>(null);
+  useGSAP(
+    () => {
+      const footer = ref.current;
+      if (!footer) return;
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_CONDITIONS, (ctx) => {
+        const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
+        if (isReduced) return;
+        let cleanup = () => {};
+        safely("footer", footer, () => {
+          cleanup = footerReveal(footer, isDesktop ? "desktop" : "mobile");
+        });
+        return cleanup;
+      });
+      return () => mm.revert();
+    },
+    { scope: ref },
+  );
   const Col = ({ title, links }: { title: string; links: FooterLink[] }) => (
     <div>
       <p className="label-caps">{title}</p>
@@ -470,8 +493,11 @@ export function Footer() {
     </div>
   );
   return (
-    <footer className="bg-blush text-foreground">
-      <div className="container-x grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[1fr_0.8fr_0.8fr_0.8fr_1.6fr] lg:py-24">
+    <footer ref={ref} className="overflow-clip bg-blush text-foreground">
+      <div
+        data-footer-columns
+        className="container-x grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[1fr_0.8fr_0.8fr_0.8fr_1.6fr] lg:py-24"
+      >
         <div>
           <Logo />
           <p className="mt-4 text-muted-foreground">{brand.city}</p>

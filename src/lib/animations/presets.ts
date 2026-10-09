@@ -204,3 +204,23 @@ export const presets = {
 } satisfies Record<string, (el: HTMLElement, mode: MotionMode) => Cleanup>;
 
 export type PresetName = keyof typeof presets;
+
+/** Footer: content slides up slightly into place, then the columns fade in one by one. */
+export function footerReveal(footer: HTMLElement, mode: MotionMode): Cleanup {
+  const inner = footer.querySelector<HTMLElement>("[data-footer-columns]");
+  if (!inner || alreadySeen(footer)) return noop;
+  const columns = Array.from(inner.children);
+  const all = [inner, ...columns];
+  const desktop = mode === "desktop";
+  const tl = gsap.timeline({
+    scrollTrigger: { trigger: footer, start: "top 92%", once: true },
+    onStart: () => gsap.set(all, { willChange: "transform, opacity" }),
+    onComplete: () => gsap.set(all, { clearProps: CLEAR_PROPS }),
+  });
+  tl.from(inner, { y: desktop ? 48 : 24, duration: desktop ? 0.9 : 0.6 }, 0).from(
+    columns,
+    { opacity: 0, y: desktop ? 16 : 10, duration: 0.6, stagger: desktop ? 0.1 : 0.05 },
+    0.15,
+  );
+  return failsafe(footer, tl);
+}
