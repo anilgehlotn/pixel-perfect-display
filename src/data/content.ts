@@ -29,6 +29,7 @@ export const nav = {
     { label: "Our Story", href: "/#mission" },
     { label: "Ingredients", href: "/#inside" },
     { label: "Journal", href: "/#journal" },
+    { label: "Real Results", href: "/real-results" },
   ],
 };
 
@@ -140,6 +141,83 @@ export const footer = {
   join: ["Wholesale", "Creators & Affiliates"],
   legal: "© 2026 SkinFusion. All rights reserved.",
   disclaimer: "Our teas are food products and are not intended to diagnose, treat, cure or prevent any disease.",
+};
+
+/* /real-results page. Photos and videos are placeholders until real customer
+   content arrives: set image/poster/video to null to show the labelled box. */
+export const realResults = {
+  hero: {
+    kicker: "Real people. Real rituals.",
+    title: "The glow, in their words",
+    line: "Unfiltered stories from customers who made SkinFusion part of their day.",
+    ctaResults: "See results",
+    ctaStories: "Watch stories",
+  },
+  gallery: {
+    title: "Before & After",
+    filters: ["All", "2 weeks", "4 weeks", "8 weeks"],
+    items: [
+      { name: "Priya", age: 28, city: "Bengaluru", weeks: 4, duration: "4 weeks, 1 cup daily", quote: "My skin feels calmer and I look forward to my evening cup.", before: null, after: null },
+      { name: "Ananya", age: 34, city: "Mumbai", weeks: 8, duration: "8 weeks, 1 cup daily", quote: "Customers noticed a fresher, more rested look by week six.", before: null, after: null },
+      { name: "Ritika", age: 26, city: "Delhi", weeks: 2, duration: "2 weeks, 1 cup daily", quote: "It replaced my second chai and my afternoons feel lighter.", before: null, after: null },
+      { name: "Meera", age: 41, city: "Pune", weeks: 8, duration: "8 weeks, 1 cup daily", quote: "A small ritual that stuck. My skin feels more hydrated.", before: null, after: null },
+      { name: "Sana", age: 30, city: "Hyderabad", weeks: 4, duration: "4 weeks, 1 cup daily", quote: "Naturally sweet, no sugar, and my skin feels softer.", before: null, after: null },
+      { name: "Kavya", age: 24, city: "Chennai", weeks: 2, duration: "2 weeks, 1 cup daily", quote: "Two weeks in and my morning puffiness feels reduced.", before: null, after: null },
+    ] as { name: string; age: number; city: string; weeks: number; duration: string; quote: string; before: string | null; after: string | null }[],
+    disclaimer: "Shared with permission by SkinFusion customers. Individual results vary. Photos are unedited.",
+  },
+  videos: {
+    title: "Watch their stories",
+    items: [
+      { name: "Priya", city: "Bengaluru", caption: "My 4-week evening ritual", poster: null, video: null, youtube: null },
+      { name: "Ananya", city: "Mumbai", caption: "Why I swapped my second chai", poster: null, video: null, youtube: null },
+      { name: "Ritika", city: "Delhi", caption: "One cup before bed", poster: null, video: null, youtube: null },
+      { name: "Meera", city: "Pune", caption: "8 weeks of SkinFusion", poster: null, video: null, youtube: null },
+      { name: "Sana", city: "Hyderabad", caption: "My morning glow routine", poster: null, video: null, youtube: null },
+      { name: "Kavya", city: "Chennai", caption: "A calm pause in my day", poster: null, video: null, youtube: null },
+    ] as { name: string; city: string; caption: string; poster: string | null; video: string | null; youtube: string | null }[],
+  },
+  serum: {
+    kicker: "Inside-out vs on-the-skin",
+    title: "Serums or real ingredients?",
+    left: {
+      title: "Topical serums",
+      points: ["Work on the skin's surface", "Applied 1–2 times a day", "Often many ingredients and preservatives", "Cost per month: coming soon"],
+    },
+    right: {
+      title: "SkinFusion tea",
+      points: ["Whole ingredients you can see: jujube, snow fungus, goji, ginger", "Part of a daily drinking ritual", "Supports hydration from within", "Caffeine free, no preservatives", "Cost per cup: coming soon"],
+    },
+    table: {
+      columns: ["Serums", "SkinFusion"],
+      rows: [
+        { label: "How it works", values: ["On the skin's surface", "From within, as a warm cup"] },
+        { label: "Ingredients", values: ["Often long lists", "4 whole ingredients"] },
+        { label: "Daily routine", values: ["Apply 1–2 times", "One enjoyable cup"] },
+        { label: "Preservatives", values: [false, true] },
+        { label: "Hydration", values: ["Surface only", "From within"] },
+        { label: "Cost per day", values: ["Coming soon", "Coming soon"] },
+      ] as { label: string; values: (string | boolean)[] }[],
+    },
+    closing: "Many of our customers use both: serum on the outside, SkinFusion on the inside.",
+  },
+  spotlight: {
+    title: "Ingredient spotlight",
+    items: [
+      { name: "Jujube", image: ingJujube, line: "Traditionally used to nourish and warm." },
+      { name: "Snow fungus", image: ingSnow, line: "Traditionally prized for its silky, hydrating texture." },
+      { name: "Goji berry", image: ingGoji, line: "Traditionally enjoyed in daily radiance rituals." },
+      { name: "Ginger", image: ingGinger, line: "Traditionally used to support comfortable digestion." },
+    ],
+  },
+  share: {
+    title: "Share your glow story",
+    text: "Been sipping SkinFusion? Send us your photos and videos — we'd love to feature your ritual here.",
+    cta: "Submit your story",
+    success: "Thank you for sharing. We'll be in touch soon.",
+  },
+  finalCta: { title: "Start your glow ritual" },
+  disclaimer: "SkinFusion is a herbal tea, not a medicine. Results shown are individual customer experiences and may vary. Consult a doctor for any skin or health condition.",
 };
 
 // Kept for the /quiz page
