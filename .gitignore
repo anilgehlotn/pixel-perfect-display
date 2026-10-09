@@ -34,3 +34,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Archives (e.g. downloaded skill bundles) are never committed
+*.zip

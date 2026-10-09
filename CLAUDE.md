@@ -326,6 +326,40 @@ everything visible immediately. Without JavaScript: everything visible, no loade
 - Use `dvh`, never `100vh`. The page wrapper uses `overflow-x: clip`; nothing may scroll
   sideways at 360px.
 
+## Design skills and priority rules
+
+Design skills are installed in `.claude/skills/` (17 skills: design-taste-frontend,
+high-end-visual-design, minimalist-ui, redesign-existing-projects, ui-ux-pro-max, ui-styling,
+design-system, brand, web-design-guidelines, writing-guidelines, full-output-enforcement,
+vercel-react-best-practices, vercel-composition-patterns, gsap-core, gsap-react,
+gsap-scrolltrigger, gsap-performance). Use them for every UI task. Some include helper
+scripts; do not run them unless a task needs one.
+
+When rules conflict, this order wins:
+
+1. The client-approved SkinFusion design system in this file.
+2. Accessibility, performance and mobile rules.
+3. Skill defaults.
+
+Approved overrides (ignore any skill rule that bans these):
+
+- Square, rectangular coral buttons, never pill buttons.
+- Jost font with UPPERCASE, wide-spaced headings, labels and buttons.
+- Cream / blush palette with one coral accent.
+- The Qi-inspired layout.
+
+Ignore every "variance" or "randomize the layout" rule: SkinFusion pages must stay
+consistent with each other.
+
+Always keep from the skills: no emojis, no AI clichés, no Inter / Roboto / Arial, no generic
+purple or blue gradients, no heavy shadows, 44px touch targets, 4.5:1 text contrast, visible
+focus states, zero layout shift, transform/opacity-only animation, reduced-motion support,
+complete code with no placeholders.
+
+Known open conflict: white text on the coral button (`#e8807a`) is 2.69:1, below 4.5:1. The
+coral button is approved, so it stays until the client chooses a fix (darker coral `#bf5049`
+gives 4.71:1, or ink text on coral gives 6.12:1). Do not use white-on-coral for small body text.
+
 ## Rules for all future work
 
 - No emojis anywhere (UI, copy, code comments, commits).
