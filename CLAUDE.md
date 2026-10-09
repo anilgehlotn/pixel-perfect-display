@@ -5,7 +5,7 @@ Server-rendered with TanStack Start and deployed on Vercel. The backend will be 
 (Storefront API for products and cart, Shopify's hosted checkout for payment). Until the store is
 connected, products come from `src/data/content.ts` and the cart is saved in the browser.
 
-This project is built and maintained with Claude Code only. It is no longer connected to Lovable.
+This project is built and maintained with Claude Code only.
 
 ## Tech stack
 
