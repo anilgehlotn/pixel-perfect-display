@@ -228,7 +228,7 @@ export function CartDrawer() {
   const pct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
   useScrollLock(open);
   return (
-    <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
+    <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} inert={!open}>
       <div
         onClick={() => setOpen(false)}
         className={`absolute inset-0 bg-ink/30 transition-opacity duration-500 ${open ? "opacity-100" : "opacity-0"}`}

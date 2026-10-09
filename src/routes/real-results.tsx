@@ -455,7 +455,9 @@ function SerumVs() {
             <tbody>
               {s.table.rows.map((r) => (
                 <tr key={r.label} className="border-b">
-                  <td className="py-4 pr-4 text-sm">{r.label}</td>
+                  <th scope="row" className="py-4 pr-4 text-left text-sm font-normal">
+                    {r.label}
+                  </th>
                   {r.values.map((v, k) => (
                     <td key={k} className="py-4 text-center">
                       {cell(v)}
