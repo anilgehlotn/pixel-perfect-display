@@ -5,6 +5,9 @@ import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
 import ritual from "@/assets/ritual.jpg";
 import ingSnow from "@/assets/ing-snowfungus.jpg";
+import ingJujube from "@/assets/ing-jujube.jpg";
+import ingGoji from "@/assets/ing-goji.jpg";
+import ingGinger from "@/assets/ing-ginger.jpg";
 import brew3 from "@/assets/brew-3.jpg";
 import journal3 from "@/assets/journal-3.jpg";
 
