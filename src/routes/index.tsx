@@ -22,23 +22,7 @@ export const Route = createFileRoute("/")({
     if (!featured) throw notFound();
     return { products, featured };
   },
-  head: () => ({
-    meta: [
-      { title: "SkinFusion | Sip. Glow. Repeat. Skin Glow Tea" },
-      {
-        name: "description",
-        content:
-          "TCM Edition Skin Glow Tea with jujube, snow fungus and goji. Caffeine free, 100% natural skin-wellness teas from India.",
-      },
-      { property: "og:title", content: "SkinFusion | Sip. Glow. Repeat." },
-      {
-        property: "og:description",
-        content: "Caffeine-free TCM skin-wellness teas for a calm daily ritual.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  // Uses the site-wide title, description and share image from __root.tsx.
   component: Index,
 });
 

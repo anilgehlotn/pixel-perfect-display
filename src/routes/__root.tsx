@@ -11,6 +11,7 @@ import {
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { absoluteUrl, site } from "@/lib/seo";
 import { CartProvider } from "@/lib/cart/CartProvider";
 import {
   Header,
@@ -73,17 +74,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SkinFusion | Glow from within" },
-      {
-        name: "description",
-        content: "SkinFusion skin-wellness teas inspired by Traditional Chinese Medicine.",
-      },
-      { property: "og:title", content: "SkinFusion | Glow from within" },
-      {
-        property: "og:description",
-        content: "SkinFusion skin-wellness teas inspired by Traditional Chinese Medicine.",
-      },
+      { title: site.title },
+      { name: "description", content: site.description },
+      { name: "theme-color", content: site.themeColor },
+      { property: "og:site_name", content: site.name },
+      { property: "og:title", content: site.title },
+      { property: "og:description", content: site.description },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "en_IN" },
+      { property: "og:image", content: absoluteUrl(site.ogImage.path) },
+      { property: "og:image:width", content: String(site.ogImage.width) },
+      { property: "og:image:height", content: String(site.ogImage.height) },
+      { property: "og:image:alt", content: site.ogImage.alt },
+      { name: "twitter:title", content: site.title },
+      { name: "twitter:description", content: site.description },
+      { name: "twitter:image", content: absoluteUrl(site.ogImage.path) },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
