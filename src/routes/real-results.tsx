@@ -11,7 +11,8 @@ import {
   CaretRight,
 } from "@phosphor-icons/react";
 import { realResults, product, images } from "@/data/content";
-import { useCart, rs } from "@/lib/cart";
+import { useCart } from "@/lib/cart/context";
+import { rs } from "@/lib/format";
 import { Reveal } from "@/components/site/Reveal";
 import { Stars } from "@/components/site/Sections";
 

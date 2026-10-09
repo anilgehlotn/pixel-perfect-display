@@ -25,7 +25,8 @@ import {
   journal,
   type Product,
 } from "@/data/content";
-import { useCart, rs } from "@/lib/cart";
+import { useCart } from "@/lib/cart/context";
+import { rs } from "@/lib/format";
 import { Reveal } from "./Reveal";
 
 export function Stars({ value, size = 14 }: { value: number; size?: number }) {

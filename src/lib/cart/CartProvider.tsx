@@ -1,27 +1,5 @@
-import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
-
-export type CartItem = {
-  key: string;
-  name: string;
-  image: string | null;
-  packLabel: string;
-  unitPrice: number;
-  qty: number;
-  subscribe: boolean;
-};
-
-type CartCtx = {
-  items: CartItem[];
-  open: boolean;
-  setOpen: (v: boolean) => void;
-  add: (item: CartItem, opts?: { openDrawer?: boolean }) => void;
-  setQty: (key: string, qty: number) => void;
-  count: number;
-  subtotal: number;
-  toast: string | null;
-};
-
-const Ctx = createContext<CartCtx | null>(null);
+import { useMemo, useRef, useState, type ReactNode } from "react";
+import { CartContext, type CartCtx, type CartItem } from "./context";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -59,14 +37,5 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [items, open, toast],
   );
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
-
-export function useCart() {
-  const c = useContext(Ctx);
-  if (!c) throw new Error("useCart must be inside CartProvider");
-  return c;
-}
-
-export const inr = (n: number) => "₹" + Math.round(n).toLocaleString("en-IN");
-export const rs = (n: number) => "Rs. " + Math.round(n).toLocaleString("en-IN");

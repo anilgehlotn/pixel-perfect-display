@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { quiz, product, images } from "@/data/content";
-import { useCart, inr } from "@/lib/cart";
+import { useCart } from "@/lib/cart/context";
+import { inr } from "@/lib/format";
 
 export const Route = createFileRoute("/quiz")({
   head: () => ({

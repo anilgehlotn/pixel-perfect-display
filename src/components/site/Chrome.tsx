@@ -14,7 +14,8 @@ import {
   CheckCircle,
 } from "@phosphor-icons/react";
 import { announcement, brand, nav, footer, FREE_SHIPPING_THRESHOLD } from "@/data/content";
-import { useCart, inr } from "@/lib/cart";
+import { useCart } from "@/lib/cart/context";
+import { inr } from "@/lib/format";
 
 const ICON = 22;
 
