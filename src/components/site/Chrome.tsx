@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { MagnifyingGlass, User, Handbag, List, X, Plus, Minus, WhatsappLogo, InstagramLogo, CaretDown, CheckCircle } from "@phosphor-icons/react";
+import {
+  MagnifyingGlass,
+  User,
+  Handbag,
+  List,
+  X,
+  Plus,
+  Minus,
+  WhatsappLogo,
+  InstagramLogo,
+  CaretDown,
+  CheckCircle,
+} from "@phosphor-icons/react";
 import { announcement, brand, nav, footer, FREE_SHIPPING_THRESHOLD } from "@/data/content";
 import { useCart, inr } from "@/lib/cart";
 
@@ -13,7 +25,13 @@ export function AnnouncementBar() {
       <p className="label-caps hidden py-2.5 text-center text-[0.68rem] md:block">{text}</p>
       <div className="flex w-max animate-marquee py-2.5 md:hidden" aria-label={text}>
         {[0, 1].map((k) => (
-          <span key={k} aria-hidden className="label-caps shrink-0 whitespace-pre px-4 text-[0.68rem]">{text}  ·  {text}  ·  </span>
+          <span
+            key={k}
+            aria-hidden
+            className="label-caps shrink-0 whitespace-pre px-4 text-[0.68rem]"
+          >
+            {text} · {text} ·{" "}
+          </span>
         ))}
       </div>
     </div>
@@ -21,7 +39,11 @@ export function AnnouncementBar() {
 }
 
 export function Logo({ className = "" }: { className?: string }) {
-  return <span className={`text-xl font-medium uppercase tracking-[0.3em] md:text-2xl ${className}`}>SkinFusion</span>;
+  return (
+    <span className={`text-xl font-medium uppercase tracking-[0.3em] md:text-2xl ${className}`}>
+      SkinFusion
+    </span>
+  );
 }
 
 export function Header() {
@@ -40,42 +62,90 @@ export function Header() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  useEffect(() => { document.body.style.overflow = menu ? "hidden" : ""; }, [menu]);
+  useEffect(() => {
+    document.body.style.overflow = menu ? "hidden" : "";
+  }, [menu]);
 
   const solid = scrolled || !isHome;
   const tone = solid ? "text-foreground" : "text-on-image";
 
   return (
     <>
-      <div ref={sentinel} aria-hidden className="pointer-events-none absolute left-0 top-0 h-32 w-px" />
+      <div
+        ref={sentinel}
+        aria-hidden
+        className="pointer-events-none absolute left-0 top-0 h-32 w-px"
+      />
       <div className="fixed inset-x-0 top-0 z-40">
         <AnnouncementBar />
-        <header className={`relative transition-colors duration-500 ${solid ? "bg-blush" : "bg-header-scrim"} ${tone}`}>
+        <header
+          className={`relative transition-colors duration-500 ${solid ? "bg-blush" : "bg-header-scrim"} ${tone}`}
+        >
           <div className="container-x grid h-16 grid-cols-[1fr_auto_1fr] items-center md:h-20">
             <div className="flex items-center">
-              <button aria-label="Open menu" onClick={() => setMenu(true)} className="-ml-3 grid h-11 w-11 place-items-center lg:hidden"><List size={ICON} weight="light" /></button>
+              <button
+                aria-label="Open menu"
+                onClick={() => setMenu(true)}
+                className="-ml-3 grid h-11 w-11 place-items-center lg:hidden"
+              >
+                <List size={ICON} weight="light" />
+              </button>
               <span className="label-caps hidden lg:inline">INR ₹</span>
             </div>
-            <Link to="/" aria-label="SkinFusion home"><Logo /></Link>
+            <Link to="/" aria-label="SkinFusion home">
+              <Logo />
+            </Link>
             <div className="flex items-center justify-end">
-              <button aria-label="Account" className="hidden h-11 w-11 place-items-center sm:grid"><User size={ICON} weight="light" /></button>
-              <button aria-label="Search" className="grid h-11 w-11 place-items-center"><MagnifyingGlass size={ICON} weight="light" /></button>
-              <button aria-label={`Open cart, ${count} items`} onClick={() => setOpen(true)} className="relative -mr-3 grid h-11 w-11 place-items-center">
+              <button aria-label="Account" className="hidden h-11 w-11 place-items-center sm:grid">
+                <User size={ICON} weight="light" />
+              </button>
+              <button aria-label="Search" className="grid h-11 w-11 place-items-center">
+                <MagnifyingGlass size={ICON} weight="light" />
+              </button>
+              <button
+                aria-label={`Open cart, ${count} items`}
+                onClick={() => setOpen(true)}
+                className="relative -mr-3 grid h-11 w-11 place-items-center"
+              >
                 <Handbag size={ICON} weight="light" />
-                {count > 0 && <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground">{count}</span>}
+                {count > 0 && (
+                  <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground">
+                    {count}
+                  </span>
+                )}
               </button>
             </div>
           </div>
           <nav className="hidden justify-center gap-12 pb-4 lg:flex" aria-label="Main">
-            {nav.main.map((n) => <a key={n.label} href={n.href} className="label-caps py-2 hover:opacity-70">{n.label}</a>)}
-            <Link to="/real-results" className="label-caps py-2 hover:opacity-70">Real Results</Link>
+            {nav.main.map((n) => (
+              <a key={n.label} href={n.href} className="label-caps py-2 hover:opacity-70">
+                {n.label}
+              </a>
+            ))}
+            <Link to="/real-results" className="label-caps py-2 hover:opacity-70">
+              Real Results
+            </Link>
             <div className="relative" onMouseLeave={() => setExplore(false)}>
-              <button onClick={() => setExplore(!explore)} onMouseEnter={() => setExplore(true)} aria-expanded={explore} className="label-caps flex items-center gap-1.5 py-2 hover:opacity-70">
+              <button
+                onClick={() => setExplore(!explore)}
+                onMouseEnter={() => setExplore(true)}
+                aria-expanded={explore}
+                className="label-caps flex items-center gap-1.5 py-2 hover:opacity-70"
+              >
                 Explore <CaretDown size={12} weight="light" />
               </button>
               {explore && (
                 <div className="absolute left-1/2 top-full z-10 min-w-48 -translate-x-1/2 border bg-background py-2 text-foreground">
-                  {nav.explore.map((n) => <a key={n.label} href={n.href} onClick={() => setExplore(false)} className="label-caps block px-5 py-3 text-[0.7rem] hover:bg-blush">{n.label}</a>)}
+                  {nav.explore.map((n) => (
+                    <a
+                      key={n.label}
+                      href={n.href}
+                      onClick={() => setExplore(false)}
+                      className="label-caps block px-5 py-3 text-[0.7rem] hover:bg-blush"
+                    >
+                      {n.label}
+                    </a>
+                  ))}
                 </div>
               )}
             </div>
@@ -88,12 +158,25 @@ export function Header() {
         <div className="fixed inset-0 z-50 flex flex-col bg-blush text-foreground">
           <div className="container-x flex h-16 items-center justify-between">
             <Logo />
-            <button aria-label="Close menu" onClick={() => setMenu(false)} className="-mr-3 grid h-11 w-11 place-items-center"><X size={ICON} weight="light" /></button>
+            <button
+              aria-label="Close menu"
+              onClick={() => setMenu(false)}
+              className="-mr-3 grid h-11 w-11 place-items-center"
+            >
+              <X size={ICON} weight="light" />
+            </button>
           </div>
           <nav className="container-x mt-8 flex flex-col" aria-label="Mobile">
             {[...nav.main, ...nav.explore].map((n, k) => (
-              <a key={n.label} href={n.href} onClick={() => setMenu(false)} style={{ animationDelay: `${k * 70}ms` }}
-                className="label-caps animate-fade-up border-b py-5 text-base">{n.label}</a>
+              <a
+                key={n.label}
+                href={n.href}
+                onClick={() => setMenu(false)}
+                style={{ animationDelay: `${k * 70}ms` }}
+                className="label-caps animate-fade-up border-b py-5 text-base"
+              >
+                {n.label}
+              </a>
             ))}
           </nav>
         </div>
@@ -106,36 +189,77 @@ export function CartDrawer() {
   const { open, setOpen, items, setQty, subtotal } = useCart();
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const pct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
-  useEffect(() => { document.body.style.overflow = open ? "hidden" : ""; }, [open]);
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+  }, [open]);
   return (
     <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
-      <div onClick={() => setOpen(false)} className={`absolute inset-0 bg-ink/30 transition-opacity duration-500 ${open ? "opacity-100" : "opacity-0"}`} />
-      <aside className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-background transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${open ? "translate-x-0" : "translate-x-full"}`}>
+      <div
+        onClick={() => setOpen(false)}
+        className={`absolute inset-0 bg-ink/30 transition-opacity duration-500 ${open ? "opacity-100" : "opacity-0"}`}
+      />
+      <aside
+        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-background transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${open ? "translate-x-0" : "translate-x-full"}`}
+      >
         <div className="flex items-center justify-between border-b px-6 py-5">
           <span className="label-caps">Your cart</span>
-          <button aria-label="Close cart" onClick={() => setOpen(false)} className="grid h-11 w-11 place-items-center"><X size={ICON} weight="light" /></button>
+          <button
+            aria-label="Close cart"
+            onClick={() => setOpen(false)}
+            className="grid h-11 w-11 place-items-center"
+          >
+            <X size={ICON} weight="light" />
+          </button>
         </div>
         <div className="border-b px-6 py-5">
           <p className="text-sm text-muted-foreground">
-            {remaining > 0 ? <>You are <span className="text-foreground">{inr(remaining)}</span> away from free shipping</> : "You have unlocked free shipping"}
+            {remaining > 0 ? (
+              <>
+                You are <span className="text-foreground">{inr(remaining)}</span> away from free
+                shipping
+              </>
+            ) : (
+              "You have unlocked free shipping"
+            )}
           </p>
           <div className="mt-3 h-1 overflow-hidden bg-blush">
-            <div className="h-full origin-left bg-primary transition-transform duration-700" style={{ transform: `scaleX(${pct / 100})` }} />
+            <div
+              className="h-full origin-left bg-primary transition-transform duration-700"
+              style={{ transform: `scaleX(${pct / 100})` }}
+            />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-6">
-          {items.length === 0 && <p className="py-16 text-center text-muted-foreground">Your cart is empty.</p>}
+          {items.length === 0 && (
+            <p className="py-16 text-center text-muted-foreground">Your cart is empty.</p>
+          )}
           {items.map((i) => (
             <div key={i.key} className="flex gap-4 border-b py-5">
-              {i.image ? <img src={i.image} alt={i.name} className="h-24 w-20 object-cover" /> : <div className="h-24 w-20 bg-beige" />}
+              {i.image ? (
+                <img src={i.image} alt={i.name} className="h-24 w-20 object-cover" />
+              ) : (
+                <div className="h-24 w-20 bg-beige" />
+              )}
               <div className="flex-1">
                 <p className="label-caps text-[0.7rem]">{i.name}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{i.packLabel}</p>
                 <div className="mt-3 flex items-center justify-between">
                   <div className="flex items-center border">
-                    <button aria-label="Decrease quantity" onClick={() => setQty(i.key, i.qty - 1)} className="grid h-11 w-11 place-items-center"><Minus size={14} weight="light" /></button>
+                    <button
+                      aria-label="Decrease quantity"
+                      onClick={() => setQty(i.key, i.qty - 1)}
+                      className="grid h-11 w-11 place-items-center"
+                    >
+                      <Minus size={14} weight="light" />
+                    </button>
                     <span className="w-6 text-center text-sm">{i.qty}</span>
-                    <button aria-label="Increase quantity" onClick={() => setQty(i.key, i.qty + 1)} className="grid h-11 w-11 place-items-center"><Plus size={14} weight="light" /></button>
+                    <button
+                      aria-label="Increase quantity"
+                      onClick={() => setQty(i.key, i.qty + 1)}
+                      className="grid h-11 w-11 place-items-center"
+                    >
+                      <Plus size={14} weight="light" />
+                    </button>
                   </div>
                   <span>{inr(i.unitPrice * i.qty)}</span>
                 </div>
@@ -144,8 +268,13 @@ export function CartDrawer() {
           ))}
         </div>
         <div className="border-t px-6 py-6">
-          <div className="mb-4 flex justify-between"><span className="label-caps">Subtotal</span><span>{inr(subtotal)}</span></div>
-          <button className="btn btn-primary w-full" disabled={!items.length}>Checkout</button>
+          <div className="mb-4 flex justify-between">
+            <span className="label-caps">Subtotal</span>
+            <span>{inr(subtotal)}</span>
+          </div>
+          <button className="btn btn-primary w-full" disabled={!items.length}>
+            Checkout
+          </button>
         </div>
       </aside>
     </div>
@@ -155,9 +284,17 @@ export function CartDrawer() {
 export function Toast() {
   const { toast, setOpen } = useCart();
   return (
-    <div role="status" aria-live="polite" className={`fixed bottom-24 left-1/2 z-50 -translate-x-1/2 transition-all duration-500 ${toast ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"}`}>
-      <button onClick={() => setOpen(true)} className="flex items-center gap-3 bg-ink px-5 py-3 text-sm text-background">
-        <CheckCircle size={20} weight="light" /> {toast ?? "Added to cart"} <span className="label-caps text-[0.65rem] underline">View</span>
+    <div
+      role="status"
+      aria-live="polite"
+      className={`fixed bottom-24 left-1/2 z-50 -translate-x-1/2 transition-all duration-500 ${toast ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"}`}
+    >
+      <button
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-3 bg-ink px-5 py-3 text-sm text-background"
+      >
+        <CheckCircle size={20} weight="light" /> {toast ?? "Added to cart"}{" "}
+        <span className="label-caps text-[0.65rem] underline">View</span>
       </button>
     </div>
   );
@@ -165,8 +302,13 @@ export function Toast() {
 
 export function WhatsAppButton() {
   return (
-    <a href={brand.whatsapp} target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp"
-      className="fixed bottom-5 left-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground transition-transform hover:bg-primary-hover active:scale-95">
+    <a
+      href={brand.whatsapp}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Chat with us on WhatsApp"
+      className="fixed bottom-5 left-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground transition-transform hover:bg-primary-hover active:scale-95"
+    >
       <WhatsappLogo size={28} weight="light" />
     </a>
   );
@@ -178,20 +320,42 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
   const [done, setDone] = useState(false);
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError("Please enter a valid email address."); return; }
-    setError(""); setDone(true);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    setError("");
+    setDone(true);
   };
-  if (done) return <p className="text-foreground" role="status">Thank you. Your 10% code is on its way to {email}.</p>;
+  if (done)
+    return (
+      <p className="text-foreground" role="status">
+        Thank you. Your 10% code is on its way to {email}.
+      </p>
+    );
   return (
     <form onSubmit={submit} noValidate className={compact ? "" : "max-w-md"}>
-      <label htmlFor={compact ? "nl-modal" : "nl-footer"} className="sr-only">Email address</label>
+      <label htmlFor={compact ? "nl-modal" : "nl-footer"} className="sr-only">
+        Email address
+      </label>
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-        <input id={compact ? "nl-modal" : "nl-footer"} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email address"
-          aria-invalid={!!error} aria-describedby="nl-err"
-          className="min-h-12 border border-input bg-background px-4 outline-none focus:border-foreground" />
+        <input
+          id={compact ? "nl-modal" : "nl-footer"}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email address"
+          aria-invalid={!!error}
+          aria-describedby="nl-err"
+          className="min-h-12 border border-input bg-background px-4 outline-none focus:border-foreground"
+        />
         <button className="btn btn-primary">Subscribe</button>
       </div>
-      {error && <p id="nl-err" className="mt-2 text-sm text-destructive">{error}</p>}
+      {error && (
+        <p id="nl-err" className="mt-2 text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </form>
   );
 }
@@ -200,17 +364,37 @@ export function DiscountBadge() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button onClick={() => setOpen(true)} className="label-caps fixed bottom-5 right-5 z-30 grid h-20 w-20 place-items-center rounded-full bg-ink text-center text-[0.62rem] leading-tight text-background transition-transform active:scale-95">
+      <button
+        onClick={() => setOpen(true)}
+        className="label-caps fixed bottom-5 right-5 z-30 grid h-20 w-20 place-items-center rounded-full bg-ink text-center text-[0.62rem] leading-tight text-background transition-transform active:scale-95"
+      >
         10% off?
       </button>
       {open && (
-        <div className="fixed inset-0 z-50 grid place-items-center p-6" role="dialog" aria-modal="true" aria-labelledby="disc-title">
+        <div
+          className="fixed inset-0 z-50 grid place-items-center p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="disc-title"
+        >
           <div className="absolute inset-0 bg-ink/40" onClick={() => setOpen(false)} />
           <div className="relative w-full max-w-md animate-fade-up bg-background p-8 md:p-10">
-            <button aria-label="Close" onClick={() => setOpen(false)} className="absolute right-3 top-3 grid h-11 w-11 place-items-center"><X size={ICON} weight="light" /></button>
-            <h2 id="disc-title" className="text-xl">Get 10% off</h2>
-            <p className="mt-3 text-muted-foreground">Join our list for 10% off your first order, plus calm rituals in your inbox.</p>
-            <div className="mt-6"><NewsletterForm compact /></div>
+            <button
+              aria-label="Close"
+              onClick={() => setOpen(false)}
+              className="absolute right-3 top-3 grid h-11 w-11 place-items-center"
+            >
+              <X size={ICON} weight="light" />
+            </button>
+            <h2 id="disc-title" className="text-xl">
+              Get 10% off
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Join our list for 10% off your first order, plus calm rituals in your inbox.
+            </p>
+            <div className="mt-6">
+              <NewsletterForm compact />
+            </div>
           </div>
         </div>
       )}
@@ -223,7 +407,13 @@ export function Footer() {
     <div>
       <p className="label-caps">{title}</p>
       <ul className="mt-5 space-y-3">
-        {links.map((l) => <li key={l}><a href="#" className="text-muted-foreground hover:text-foreground">{l}</a></li>)}
+        {links.map((l) => (
+          <li key={l}>
+            <a href="#" className="text-muted-foreground hover:text-foreground">
+              {l}
+            </a>
+          </li>
+        ))}
       </ul>
     </div>
   );
@@ -235,8 +425,20 @@ export function Footer() {
           <p className="mt-4 text-muted-foreground">{brand.city}</p>
           <p className="text-muted-foreground">{brand.tagline}</p>
           <div className="mt-5 flex gap-2">
-            <a href={brand.instagram} aria-label="SkinFusion on Instagram" className="-ml-3 grid h-11 w-11 place-items-center"><InstagramLogo size={ICON} weight="light" /></a>
-            <a href={brand.whatsapp} aria-label="SkinFusion on WhatsApp" className="grid h-11 w-11 place-items-center"><WhatsappLogo size={ICON} weight="light" /></a>
+            <a
+              href={brand.instagram}
+              aria-label="SkinFusion on Instagram"
+              className="-ml-3 grid h-11 w-11 place-items-center"
+            >
+              <InstagramLogo size={ICON} weight="light" />
+            </a>
+            <a
+              href={brand.whatsapp}
+              aria-label="SkinFusion on WhatsApp"
+              className="grid h-11 w-11 place-items-center"
+            >
+              <WhatsappLogo size={ICON} weight="light" />
+            </a>
           </div>
         </div>
         <Col title="Menu" links={footer.menu} />
@@ -244,7 +446,9 @@ export function Footer() {
         <Col title="Join us" links={footer.join} />
         <div>
           <p className="label-caps">Sign up to get 10% off your 1st order</p>
-          <div className="mt-5"><NewsletterForm /></div>
+          <div className="mt-5">
+            <NewsletterForm />
+          </div>
         </div>
       </div>
       <div className="border-t">

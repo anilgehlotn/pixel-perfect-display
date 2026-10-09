@@ -13,7 +13,14 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CartProvider } from "@/lib/cart";
-import { Header, Footer, CartDrawer, WhatsAppButton, Toast, DiscountBadge } from "@/components/site/Chrome";
+import {
+  Header,
+  Footer,
+  CartDrawer,
+  WhatsAppButton,
+  Toast,
+  DiscountBadge,
+} from "@/components/site/Chrome";
 
 function NotFoundComponent() {
   return (
@@ -81,16 +88,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "SkinFusion | Glow from within" },
-      { name: "description", content: "SkinFusion skin-wellness teas inspired by Traditional Chinese Medicine." },
+      {
+        name: "description",
+        content: "SkinFusion skin-wellness teas inspired by Traditional Chinese Medicine.",
+      },
       { property: "og:title", content: "SkinFusion | Glow from within" },
-      { property: "og:description", content: "SkinFusion skin-wellness teas inspired by Traditional Chinese Medicine." },
+      {
+        property: "og:description",
+        content: "SkinFusion skin-wellness teas inspired by Traditional Chinese Medicine.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap",
+      },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],

@@ -6,20 +6,20 @@ backend or Shopify can replace it later.
 
 ## Tech stack
 
-| Tool | Version | What it does here |
-| --- | --- | --- |
-| Node.js | 20.x (20.19+ required by Vite 8) | Runs the tooling |
-| React | 19.2 | UI library |
-| TanStack Start | 1.168 | Framework on top of Vite: server-side rendering (SSR) + file-based routing |
-| TanStack Router | 1.170 | Routing (`<Link>`, `createFileRoute`). This is NOT React Router |
-| TanStack Query | 5.x | Mounted in the root, not used for data yet |
-| Vite | 8.1 | Dev server and bundler |
-| Nitro | 3.0 beta | Packages the SSR server for a hosting platform (the "preset") |
-| Tailwind CSS | 4.x | Styling. Configured in CSS (`src/styles.css`), there is no `tailwind.config.js` |
-| TypeScript | 5.8 | Strict mode on |
-| Phosphor Icons | 2.x | All site icons, always `weight="light"` |
-| Vitest + Testing Library | 4.x | Tests (`src/test/`) |
-| ESLint 9 + Prettier 3 | | Lint and formatting (Prettier runs as an ESLint rule) |
+| Tool                     | Version                          | What it does here                                                               |
+| ------------------------ | -------------------------------- | ------------------------------------------------------------------------------- |
+| Node.js                  | 20.x (20.19+ required by Vite 8) | Runs the tooling                                                                |
+| React                    | 19.2                             | UI library                                                                      |
+| TanStack Start           | 1.168                            | Framework on top of Vite: server-side rendering (SSR) + file-based routing      |
+| TanStack Router          | 1.170                            | Routing (`<Link>`, `createFileRoute`). This is NOT React Router                 |
+| TanStack Query           | 5.x                              | Mounted in the root, not used for data yet                                      |
+| Vite                     | 8.1                              | Dev server and bundler                                                          |
+| Nitro                    | 3.0 beta                         | Packages the SSR server for a hosting platform (the "preset")                   |
+| Tailwind CSS             | 4.x                              | Styling. Configured in CSS (`src/styles.css`), there is no `tailwind.config.js` |
+| TypeScript               | 5.8                              | Strict mode on                                                                  |
+| Phosphor Icons           | 2.x                              | All site icons, always `weight="light"`                                         |
+| Vitest + Testing Library | 4.x                              | Tests (`src/test/`)                                                             |
+| ESLint 9 + Prettier 3    |                                  | Lint and formatting (Prettier runs as an ESLint rule)                           |
 
 Important: this is a server-rendered TanStack Start app, not a plain single-page app.
 There is no `index.html`. The HTML shell, `<title>` and meta tags are built in
@@ -61,12 +61,12 @@ There is no `index.html`. The HTML shell, `<title>` and meta tags are built in
 
 ## Pages and routes
 
-| URL | File | What it shows |
-| --- | --- | --- |
-| `/` | `src/routes/index.tsx` | Homepage: all blocks from `Sections.tsx` |
-| `/real-results` | `src/routes/real-results.tsx` | Before/after sliders, video stories, serum comparison, ingredient spotlight, story submission form |
-| `/quiz` | `src/routes/quiz.tsx` | 4-question skin quiz with a product recommendation (not linked from the nav) |
-| anything else | `__root.tsx` `NotFoundComponent` | 404 page |
+| URL             | File                             | What it shows                                                                                      |
+| --------------- | -------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `/`             | `src/routes/index.tsx`           | Homepage: all blocks from `Sections.tsx`                                                           |
+| `/real-results` | `src/routes/real-results.tsx`    | Before/after sliders, video stories, serum comparison, ingredient spotlight, story submission form |
+| `/quiz`         | `src/routes/quiz.tsx`            | 4-question skin quiz with a product recommendation (not linked from the nav)                       |
+| anything else   | `__root.tsx` `NotFoundComponent` | 404 page                                                                                           |
 
 There is no separate product page. Homepage sections are reached with anchors:
 `/#shop`, `/#featured`, `/#inside`, `/#mission`, `/#journal`.
@@ -123,6 +123,7 @@ case-sensitive on the server, so match the exact spelling.
 Read from `src/styles.css`. Use the tokens, never raw hex values in components.
 
 Colors (Tailwind class names in brackets):
+
 - Background cream `#fbf7f2` (`bg-background`)
 - Blush `#f3e4e0` (`bg-blush`): header, footer, highlight sections
 - Beige `#efe9e1` (`bg-beige`): image placeholders
@@ -133,12 +134,14 @@ Colors (Tailwind class names in brackets):
 - Borders are very light: `rgba(0,0,0,0.06)`
 
 Typography:
+
 - One font: Jost (300, 400, 500) from Google Fonts. Body 17px, line-height 1.6
 - All `h1`-`h4` are uppercase, `letter-spacing: 0.2em`, weight 400 (set globally)
 - `label-caps`: small uppercase labels, 0.75rem, `letter-spacing: 0.22em`, weight 500
 - Section titles: `text-xl md:text-3xl`. Body copy max width around `max-w-[65ch]`
 
 Spacing and layout:
+
 - `container-x`: max width 80rem, centered, 1.5rem side padding
 - `section-y`: 4rem top/bottom padding, 7rem from 1024px up
 - Section separation uses `border-t` or alternating `bg-blush`
@@ -146,12 +149,14 @@ Spacing and layout:
 - Tap targets at least 44px (`h-11 w-11` icon buttons, 48px buttons)
 
 Buttons:
+
 - `btn btn-primary`: square coral button, uppercase, wide letter-spacing, min height 48px,
   shrinks to 98% on press
 - `btn btn-outline`: square 1px ink border, fills ink on hover
 - Text links: `label-caps underline underline-offset-4`
 
 Animation:
+
 - Easing `--ease-soft` = `cubic-bezier(0.16, 1, 0.3, 1)`
 - `Reveal` / `.reveal`: fade + 16px slide up, 700ms, staggered by 60-80ms
 - `.animate-fade-up` (hero, menus), `.animate-marquee` (mobile announcement bar)
