@@ -189,6 +189,20 @@
   }
 }
 
+/* Arrow icons nudge on hover, desktop with a mouse only */
+@media (hover: hover) and (pointer: fine) {
+  .arrow-nudge,
+  .arrow-nudge-back {
+    transition: transform 300ms var(--ease-soft);
+  }
+  .group:hover .arrow-nudge {
+    transform: translateX(3px);
+  }
+  .group:hover .arrow-nudge-back {
+    transform: translateX(-3px);
+  }
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;

@@ -243,9 +243,9 @@ export function PopularTeas({ products }: { products: Product[] }) {
           <button
             onClick={scroll}
             aria-label="Next products"
-            className="absolute -right-2 top-[38%] hidden h-12 w-12 place-items-center rounded-full border bg-background md:grid lg:-right-6"
+            className="absolute -right-2 top-[38%] hidden h-12 w-12 place-items-center rounded-full border bg-background md:grid lg:-right-6 group"
           >
-            <ArrowRight size={20} weight="light" />
+            <ArrowRight size={20} weight="light" className="arrow-nudge" />
           </button>
         </div>
         <div className="mt-12 text-center">

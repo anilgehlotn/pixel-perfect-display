@@ -378,16 +378,16 @@ function VideoStories() {
           <button
             onClick={() => scroll(-1)}
             aria-label="Previous stories"
-            className="absolute -left-2 top-[38%] hidden h-12 w-12 place-items-center rounded-full border bg-background md:grid lg:-left-6"
+            className="absolute -left-2 top-[38%] hidden h-12 w-12 place-items-center rounded-full border bg-background md:grid lg:-left-6 group"
           >
-            <ArrowLeft size={20} weight="light" />
+            <ArrowLeft size={20} weight="light" className="arrow-nudge-back" />
           </button>
           <button
             onClick={() => scroll(1)}
             aria-label="Next stories"
-            className="absolute -right-2 top-[38%] hidden h-12 w-12 place-items-center rounded-full border bg-background md:grid lg:-right-6"
+            className="absolute -right-2 top-[38%] hidden h-12 w-12 place-items-center rounded-full border bg-background md:grid lg:-right-6 group"
           >
-            <ArrowRight size={20} weight="light" />
+            <ArrowRight size={20} weight="light" className="arrow-nudge" />
           </button>
         </div>
       </div>
