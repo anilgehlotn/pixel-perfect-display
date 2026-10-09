@@ -12,7 +12,7 @@ import ingGinger from "@/assets/ing-ginger.jpg";
 import brew3 from "@/assets/brew-3.jpg";
 import journal3 from "@/assets/journal-3.jpg";
 
-export const images = { hero: hero1, hero2, ritual, inside: ritual };
+export const images = { hero: hero1, hero2, ritual, inside: ritual, circle: brew3 };
 
 export const brand = {
   name: "SkinFusion",
@@ -185,6 +185,7 @@ export const localProducts: Product[] = [
 
 export const inside = {
   kicker: "A daily cup for calm, glowing skin",
+  badge: "Glow from within · Sip · Glow · Repeat ·",
   title: "What's inside Skin Glow Tea?",
   items: [
     {

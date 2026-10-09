@@ -213,6 +213,22 @@
 .animate-marquee {
   animation: marquee 30s linear infinite;
 }
+.animate-marquee-reverse {
+  animation: marquee 30s linear infinite reverse;
+}
+@keyframes rotate-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-rotate-slow {
+  animation: rotate-slow 20s linear infinite;
+}
+/* Set by usePauseWhenHidden while off-screen or the tab is hidden */
+.is-paused,
+.is-paused * {
+  animation-play-state: paused !important;
+}
 
 /* Lenis smooth scroll (desktop only, see src/lib/animations/smooth-scroll.ts) */
 html.lenis,

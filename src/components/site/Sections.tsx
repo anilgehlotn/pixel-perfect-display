@@ -26,6 +26,7 @@ import { cornerLabel, hasTag, money, type Product } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/context";
 import { rs } from "@/lib/format";
 import { ProductImage } from "./ProductImage";
+import { GlowBadge } from "./GlowBadge";
 import { gsap, useGSAP } from "@/lib/animations/gsap";
 import { heroEntrance, type HeroParts } from "@/lib/animations/hero";
 import { isHydrated } from "@/lib/animations/hydration";
@@ -349,6 +350,20 @@ export function WhatsInside() {
           <h2 data-anim="heading" className="mt-3 text-xl md:text-3xl">
             {inside.title}
           </h2>
+          <svg
+            data-anim="draw"
+            viewBox="0 0 120 14"
+            className="mt-4 h-3.5 w-28 text-primary"
+            aria-hidden="true"
+          >
+            <path
+              d="M2 9 C 12 2, 20 2, 30 8 S 48 15, 58 8 S 76 1, 86 8 S 104 14, 118 6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
           <ul data-anim="cards" className="mt-8 space-y-4">
             {inside.items.map((i) => (
               <li key={i.name} className="max-w-[65ch] text-muted-foreground">
@@ -364,6 +379,9 @@ export function WhatsInside() {
           >
             Try the Skin Glow Tea
           </a>
+          <div className="mt-12">
+            <GlowBadge />
+          </div>
         </div>
       </div>
       <img
