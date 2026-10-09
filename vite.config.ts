@@ -11,6 +11,21 @@ export default defineConfig(({ command, isPreview }) => ({
     tsconfigPaths: true, // "@/..." -> src/ from tsconfig.json
     dedupe: ["react", "react-dom", "@tanstack/react-query", "@tanstack/query-core"],
   },
+  environments: {
+    client: {
+      build: {
+        rolldownOptions: {
+          output: {
+            // Animation libraries (GSAP, SplitText, Lenis) in their own file, downloaded in
+            // parallel with the app instead of growing the main bundle.
+            codeSplitting: {
+              groups: [{ name: "animations", test: /node_modules[\\/](gsap|@gsap|lenis)[\\/]/ }],
+            },
+          },
+        },
+      },
+    },
+  },
   plugins: [
     tailwindcss(),
     tanstackStart({
