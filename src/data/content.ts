@@ -37,6 +37,7 @@ export const nav = {
     { label: "Our Story", href: "/#mission" },
     { label: "Ingredients", href: "/#inside" },
     { label: "Journal", href: "/#journal" },
+    { label: "Skin Quiz", href: "/quiz" },
   ],
 };
 
@@ -46,6 +47,7 @@ export const hero = {
   kicker: "Hydration that works for your skin.",
   title: "Sip. Glow. Repeat.",
   cta: "Shop best seller",
+  quizCta: "Take the skin quiz",
 };
 
 export const product = {

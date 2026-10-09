@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   Star,
   Check,
@@ -91,9 +92,17 @@ export function Hero() {
       <div className="absolute bottom-[18%] left-[6%] right-[6%] max-w-xl animate-fade-up text-on-image md:bottom-[22%]">
         <p className="label-caps text-[0.7rem]">{hero.kicker}</p>
         <h1 className="mt-4 text-[28px] md:text-[40px]">{hero.title}</h1>
-        <a href="#featured" className="btn btn-primary mt-8">
-          {hero.cta}
-        </a>
+        <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row">
+          <a href="#featured" className="btn btn-primary">
+            {hero.cta}
+          </a>
+          <Link
+            to="/quiz"
+            className="btn border border-on-image text-on-image hover:bg-on-image hover:text-ink"
+          >
+            {hero.quizCta}
+          </Link>
+        </div>
       </div>
     </section>
   );
