@@ -31,12 +31,12 @@ export const nav = {
   main: [
     { label: "Shop All", href: "/#shop" },
     { label: "Best Sellers", href: "/#featured" },
+    { label: "Real Results", href: "/real-results" },
   ],
   explore: [
     { label: "Our Story", href: "/#mission" },
     { label: "Ingredients", href: "/#inside" },
     { label: "Journal", href: "/#journal" },
-    { label: "Real Results", href: "/real-results" },
   ],
 };
 

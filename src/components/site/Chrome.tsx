@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   MagnifyingGlass,
@@ -45,6 +52,21 @@ export function Logo({ className = "" }: { className?: string }) {
       SkinFusion
     </span>
   );
+}
+
+// Page routes use the router's Link (no full reload); "/#section" anchors stay plain links.
+function NavLink({
+  href,
+  ...props
+}: {
+  href: string;
+  className?: string;
+  style?: CSSProperties;
+  onClick?: () => void;
+  children: ReactNode;
+}) {
+  if (href.startsWith("/#")) return <a href={href} {...props} />;
+  return <Link to={href} {...props} />;
 }
 
 export function Header() {
@@ -119,13 +141,10 @@ export function Header() {
           </div>
           <nav className="hidden justify-center gap-12 pb-4 lg:flex" aria-label="Main">
             {nav.main.map((n) => (
-              <a key={n.label} href={n.href} className="label-caps py-2 hover:opacity-70">
+              <NavLink key={n.label} href={n.href} className="label-caps py-2 hover:opacity-70">
                 {n.label}
-              </a>
+              </NavLink>
             ))}
-            <Link to="/real-results" className="label-caps py-2 hover:opacity-70">
-              Real Results
-            </Link>
             <div className="relative" onMouseLeave={() => setExplore(false)}>
               <button
                 onClick={() => setExplore(!explore)}
@@ -138,14 +157,14 @@ export function Header() {
               {explore && (
                 <div className="absolute left-1/2 top-full z-10 min-w-48 -translate-x-1/2 border bg-background py-2 text-foreground">
                   {nav.explore.map((n) => (
-                    <a
+                    <NavLink
                       key={n.label}
                       href={n.href}
                       onClick={() => setExplore(false)}
                       className="label-caps block px-5 py-3 text-[0.7rem] hover:bg-blush"
                     >
                       {n.label}
-                    </a>
+                    </NavLink>
                   ))}
                 </div>
               )}
@@ -169,7 +188,7 @@ export function Header() {
           </div>
           <nav className="container-x mt-8 flex flex-col" aria-label="Mobile">
             {[...nav.main, ...nav.explore].map((n, k) => (
-              <a
+              <NavLink
                 key={n.label}
                 href={n.href}
                 onClick={() => setMenu(false)}
@@ -177,7 +196,7 @@ export function Header() {
                 className="label-caps animate-fade-up border-b py-5 text-base"
               >
                 {n.label}
-              </a>
+              </NavLink>
             ))}
           </nav>
         </div>
