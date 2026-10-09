@@ -85,7 +85,9 @@ export function tilt(el: HTMLElement, mode: MotionMode): Cleanup {
 
   // Slight parallax on the photos inside the cards while scrolling (desktop only).
   const imgs = items.map((i) => i.querySelector("img")).filter(Boolean) as HTMLElement[];
-  gsap.set(imgs, { scale: 1.12 });
+  // The photos keep their CSS hover zoom (the separate `scale` property) but must not
+  // transition `transform`, or the scrubbed parallax would lag behind the scroll.
+  gsap.set(imgs, { scale: 1.12, transitionProperty: "scale" });
   gsap.fromTo(
     imgs,
     { yPercent: -4 },
