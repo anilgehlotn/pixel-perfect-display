@@ -185,6 +185,131 @@ Steps to connect:
 3. Checkout: already redirects to `checkoutUrl` (Shopify hosted checkout).
 4. Remove `localProducts` from content.ts once Shopify is live. Marketing copy stays there.
 
+## Customer accounts
+
+Shopify **Customer Account API** (version `2026-10`), OAuth 2.0 with PKCE. Customers sign in on
+Shopify's hosted page with a one-time email code. Sign-in and sign-up are the same flow: the first
+sign-in creates the account. There are no password forms, and the deprecated Storefront API
+customer mutations (`customerCreate`, `customerAccessTokenCreate`) are never used.
+
+Docs used: shopify.dev Customer Account API reference (2026-10: authentication, discovery,
+token, refresh, logout, rate limits), "Getting started with the Customer Account API",
+"Manage customer accounts", the `Customer`, `Order`, `LineItem`, `Fulfillment`,
+`CustomerAddress`, `CustomerEmailAddress` objects and order enums, and "Authenticate buyers in
+checkout".
+
+### How sign-in works
+
+1. "Continue with email" links to `/account/authorize?redirect=/where/to/go`.
+2. That server route creates `state`, `nonce` and a PKCE verifier, stores them in a 10-minute
+   httpOnly cookie scoped to `/account`, and redirects to Shopify's authorization endpoint
+   (found through `/.well-known/openid-configuration` on the store domain).
+3. Shopify sends the customer back to `/account/callback?code=…&state=…`. The server checks
+   `state`, exchanges the code with the verifier (adding `Origin`, `User-Agent`, and Basic auth
+   only for confidential clients), checks the id_token `nonce`, audience and expiry, and stores
+   the tokens in httpOnly cookies. Any failure goes to `/account/login?error=…` with a branded
+   message and "Try again".
+4. Every account request runs on the server and reads the token from the cookie. A token about
+   to expire is refreshed on the server; if the refresh fails the session is cleared and the
+   customer goes back to sign-in.
+5. `/account/logout` clears the cookies, ends the Shopify session (`end_session_endpoint` with
+   `id_token_hint`) and returns home with a "You've been signed out" notice. The cart stays.
+
+Cookies (all `HttpOnly`, `SameSite=Lax`, `Secure` in production): `sf_ca_at` (expiry + access
+token), `sf_ca_rt` (refresh token, 30 days), `sf_ca_idt` (id_token, needed for logout),
+`sf_ca_name` (first name for the header badge), `sf_ca_oauth` (10 minutes, during sign-in).
+Tokens never reach client JavaScript, URLs, localStorage or logs. The one exception required by
+Shopify: the id_token is sent to Shopify's own logout URL as `id_token_hint`.
+
+### Files
+
+| Path                                                          | What it does                                                                                 |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `src/lib/customer/server/env.ts`                              | Server-only settings, `isConfigured()`, `isMockMode()`                                       |
+| `src/lib/customer/server/oauth.ts`                            | Discovery, PKCE, authorize URL, token exchange and refresh, id_token checks, logout URL      |
+| `src/lib/customer/server/cookies.ts`                          | Cookie names and writers; `redirectWithCookies()` for the auth routes                        |
+| `src/lib/customer/server/session.ts`                          | Token storage, automatic refresh, `readSession()`                                            |
+| `src/lib/customer/server/customer-api.ts`                     | GraphQL queries and mutations (customer, orders, order, addresses, details, email marketing) |
+| `src/lib/customer/server/account.ts`                          | `withAccount()`: mock data or the real API, plus no-store and sign-in redirects              |
+| `src/lib/customer/server/mock.ts`                             | Dev-only sample customer, orders and addresses                                               |
+| `src/lib/customer/server/storefront-cart.ts`                  | `cartBuyerIdentityUpdate` on the Storefront API                                              |
+| `src/lib/customer/functions.ts`                               | Server functions the pages call (the only bridge from the browser)                           |
+| `src/lib/customer/validation.ts`                              | Address and details rules (shared by forms and server), `safeRedirect()`                     |
+| `src/lib/customer/india.ts`, `format.ts`, `types.ts`          | States and UTs, date and status labels, shared types                                         |
+| `src/routes/account/authorize.ts`, `callback.ts`, `logout.ts` | Server routes for the OAuth flow                                                             |
+| `src/routes/account/login.tsx`                                | Sign-in page                                                                                 |
+| `src/routes/account/_dashboard.tsx`                           | Protected layout (server-side guard, greeting, account nav)                                  |
+| `src/routes/account/_dashboard/*`                             | Overview, orders, order detail, addresses, details                                           |
+| `src/components/account/*`                                    | Form fields, badges, order card, address form, nav, unsaved-changes guard                    |
+
+Files under `*/server/*` cannot be imported by browser code (vite.config.ts import
+protection). Never import them from components; go through `functions.ts`.
+
+### Protection and caching
+
+- `/account/_dashboard` `beforeLoad` calls `fetchSession()` on the server and redirects to
+  `/account/login?redirect=<path>` when signed out. Every server function checks the session
+  again, so an expired session mid-visit also lands on sign-in.
+- The customer is always identified by the token in the cookie. IDs sent from the browser are
+  only order or address IDs, validated by format, and Shopify only returns the signed-in
+  customer's own data for them.
+- `safeRedirect()` allows only same-site paths (no `//host`, schemes or backslashes, never the
+  auth routes).
+- Account routes and server functions send `Cache-Control: private, no-store`, and Nitro adds
+  the same header for `/account/**`. Nothing under `/account` is prerendered.
+
+### Mock mode (local development)
+
+With the Shopify variables empty, `npm run dev` runs a mock: "Continue with email" signs you in
+as a sample customer (Ananya Rao) with 2 addresses. `/account/login` shows developer links for 0,
+3 or 25 orders (`/account/authorize?orders=25`). Address and detail changes are kept in memory
+until the dev server restarts. `isMockMode()` requires `import.meta.env.DEV`, so mock code is
+removed from every production build. A production build without the variables shows "Accounts
+are coming soon" instead.
+
+Known dev-server quirk: Vite's dev and preview servers on Node 20 send only one `Set-Cookie`
+per response, so the mock uses a single cookie. The real flow sets several cookies at once; it
+works on the production server and on Node 24 (Vercel). To test the real flow locally, run
+`npm run build` then `node .output/server/index.mjs` (or use Node 24 for `npm run dev`).
+
+### Linking the cart for checkout
+
+`linkCartToCustomer({ data: { cartId } })` (server function) calls the Storefront API
+`cartBuyerIdentityUpdate` with the customer's access token as
+`buyerIdentity.customerAccessToken`, and returns the cart's `checkoutUrl`. Checkout is then
+prefilled and signed in. The cart is still local, so nothing calls it yet. Once the Shopify
+cart store exists (see "Shopify plan"), call it:
+
+- after `cartCreate` when the customer is signed in,
+- after sign-in if a cart already exists (for example on the first page load after
+  `/account/callback`),
+- right before redirecting to `checkoutUrl` (the token may have been refreshed).
+
+The cart itself is never cleared on sign-in or sign-out.
+
+### Switching from mock to real Shopify
+
+1. Shopify admin: Settings > Customer accounts: choose customer accounts (the new, passwordless
+   ones) and save.
+2. Install the **Headless** sales channel (Shopify App Store), open it, create a storefront.
+3. In that storefront: **Customer Account API settings**.
+   - Client type: Public (recommended; PKCE, no secret). If you choose Confidential, also copy the
+     secret into `SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_SECRET`.
+   - Copy the **Client ID** into `SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID`.
+   - Under **Application setup**, add for each environment:
+     - Callback URI: `https://skinfusion.in/account/callback`
+     - JavaScript origin: `https://skinfusion.in`
+     - Logout URI: `https://skinfusion.in/`
+   - Shopify requires HTTPS, so `http://localhost` is not accepted.
+4. Set the variables in Vercel (Settings > Environment Variables): `SHOPIFY_STORE_DOMAIN` (or
+   `SHOPIFY_SHOP_ID`, shown on the Customer Account API page), `SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID`,
+   `APP_BASE_URL` (the site origin), and the secret only for a confidential client.
+5. Testing before launch: register a stable preview domain, for example a Vercel branch alias
+   `https://staging-skinfusion.vercel.app`, with the same three URLs, and set `APP_BASE_URL` to it
+   for the Preview environment. Random per-deploy preview URLs change every push and can't all be
+   registered. For a laptop, use an HTTPS tunnel (ngrok or Cloudflare Tunnel) to the production
+   build and register the tunnel's HTTPS URL.
+
 ## Editing content (src/data/content.ts)
 
 Marketing copy stays in this file even after Shopify is connected:
