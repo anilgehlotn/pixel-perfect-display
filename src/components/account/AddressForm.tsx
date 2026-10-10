@@ -5,6 +5,7 @@ import { INDIAN_STATES } from "@/lib/customer/india";
 import type { Address, FormErrors } from "@/lib/customer/types";
 import { toFormValues, validateAddress, type AddressFormValues } from "@/lib/customer/validation";
 import { CheckboxField, FormAlert, SelectField, TextField } from "./ui";
+import { useUnsavedChangesGuard } from "./useUnsavedChangesGuard";
 
 type Key = keyof AddressFormValues;
 const ORDER: Key[] = ["fullName", "phone", "address1", "address2", "city", "zoneCode", "zip"];
@@ -34,6 +35,9 @@ export function AddressForm({
   const fields = useRef<Partial<Record<Key, HTMLInputElement | HTMLSelectElement | null>>>({});
   const alertRef = useRef<HTMLDivElement>(null);
   const prefix = address ? `edit-${address.id.split("/").pop()}` : "new";
+  const [initial] = useState(values);
+  const dirty = !saving && JSON.stringify(values) !== JSON.stringify(initial);
+  useUnsavedChangesGuard(dirty);
 
   const set = (key: Key) => (value: string) => {
     setValues((v) => ({ ...v, [key]: value }));
@@ -75,7 +79,7 @@ export function AddressForm({
       setErrors(result.errors);
       requestAnimationFrame(() => focusFirst(result.errors));
     } catch {
-      const errs = { form: "We couldn't save this address. Check your connection and try again." };
+      const errs = { form: "We couldn’t save this address. Check your connection and try again." };
       setErrors(errs);
       requestAnimationFrame(() => focusFirst(errs));
     } finally {
@@ -96,10 +100,11 @@ export function AddressForm({
       </h3>
       {errors.form ? <FormAlert ref={alertRef} message={errors.form} /> : null}
       <p className="text-sm text-muted-foreground">
-        Fields marked <span className="text-destructive">*</span> are required.
+        Fill in the fields marked <span className="text-destructive">*</span>.
       </p>
       <TextField
         id={`${prefix}-fullName`}
+        name="fullName"
         ref={ref("fullName")}
         label="Full name"
         required
@@ -111,6 +116,7 @@ export function AddressForm({
       />
       <TextField
         id={`${prefix}-phone`}
+        name="phone"
         ref={ref("phone")}
         label="Mobile number"
         required
@@ -127,6 +133,7 @@ export function AddressForm({
       />
       <TextField
         id={`${prefix}-address1`}
+        name="address1"
         ref={ref("address1")}
         label="Address line 1"
         required
@@ -139,6 +146,7 @@ export function AddressForm({
       />
       <TextField
         id={`${prefix}-address2`}
+        name="address2"
         ref={ref("address2")}
         label="Address line 2"
         autoComplete="address-line2"
@@ -149,6 +157,7 @@ export function AddressForm({
       <div className="grid gap-5 sm:grid-cols-2">
         <TextField
           id={`${prefix}-city`}
+          name="city"
           ref={ref("city")}
           label="City"
           required
@@ -160,6 +169,7 @@ export function AddressForm({
         />
         <TextField
           id={`${prefix}-zip`}
+          name="zip"
           ref={ref("zip")}
           label="PIN code"
           required
@@ -174,6 +184,7 @@ export function AddressForm({
       </div>
       <SelectField
         id={`${prefix}-zoneCode`}
+        name="zoneCode"
         ref={ref("zoneCode")}
         label="State or union territory"
         required
@@ -195,7 +206,7 @@ export function AddressForm({
       ) : null}
       <div className="flex flex-col gap-3 pt-2 sm:flex-row">
         <button type="submit" disabled={saving} aria-disabled={saving} className="btn btn-primary">
-          {saving ? "Saving" : "Save address"}
+          {saving ? "Saving…" : "Save address"}
         </button>
         <button type="button" onClick={onCancel} disabled={saving} className="btn btn-outline">
           Cancel

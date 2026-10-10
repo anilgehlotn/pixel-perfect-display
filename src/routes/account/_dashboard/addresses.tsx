@@ -124,13 +124,18 @@ function AddressCard({ address, onEdit }: { address: Address; onEdit: () => void
     try {
       const result = await (kind === "delete" ? remove : makeDefault)({ data: { id: address.id } });
       if (!result.ok) {
-        setError(result.errors.form ?? "That didn't work. Please try again.");
+        setError(
+          result.errors.form ??
+            (kind === "delete"
+              ? "We couldn’t delete this address. Please try again."
+              : "We couldn’t change your default address. Please try again."),
+        );
         return;
       }
       await router.invalidate();
       notify(kind === "delete" ? "Address deleted" : "Default address updated");
     } catch {
-      setError("We couldn't reach the server. Check your connection and try again.");
+      setError("We couldn’t reach the server. Check your connection and try again.");
     } finally {
       setPending(null);
     }
@@ -163,7 +168,7 @@ function AddressCard({ address, onEdit }: { address: Address; onEdit: () => void
               disabled={pending !== null}
               className="btn bg-destructive text-destructive-foreground hover:opacity-90"
             >
-              {pending === "delete" ? "Deleting" : "Delete"}
+              {pending === "delete" ? "Deleting…" : "Delete"}
             </button>
             <button
               ref={cancelRef}
@@ -182,7 +187,7 @@ function AddressCard({ address, onEdit }: { address: Address; onEdit: () => void
         <div className="mt-auto flex flex-wrap gap-x-6 gap-y-1 pt-6">
           <button
             onClick={onEdit}
-            className="label-caps min-h-11 text-[0.65rem] underline underline-offset-4"
+            className="label-caps min-h-11 text-[0.65rem] underline underline-offset-4 hover:opacity-70"
           >
             Edit<span className="sr-only"> address for {name}</span>
           </button>
@@ -190,9 +195,9 @@ function AddressCard({ address, onEdit }: { address: Address; onEdit: () => void
             <button
               onClick={() => void act("default")}
               disabled={pending !== null}
-              className="label-caps min-h-11 text-[0.65rem] underline underline-offset-4 disabled:opacity-50"
+              className="label-caps min-h-11 text-[0.65rem] underline underline-offset-4 hover:opacity-70 disabled:opacity-50"
             >
-              {pending === "default" ? "Saving" : "Set as default"}
+              {pending === "default" ? "Saving…" : "Set as default"}
             </button>
           )}
           <button
@@ -201,7 +206,7 @@ function AddressCard({ address, onEdit }: { address: Address; onEdit: () => void
               setConfirming(true);
               requestAnimationFrame(() => cancelRef.current?.focus());
             }}
-            className="label-caps min-h-11 text-[0.65rem] text-destructive underline underline-offset-4"
+            className="label-caps min-h-11 text-[0.65rem] text-destructive underline underline-offset-4 hover:opacity-70"
           >
             Delete<span className="sr-only"> address for {name}</span>
           </button>

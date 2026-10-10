@@ -8,12 +8,12 @@ import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { FormAlert } from "@/components/account/ui";
 
 const ERRORS: Record<string, string> = {
-  cancelled: "Sign-in was cancelled. You can start again whenever you're ready.",
+  cancelled: "Sign-in was cancelled. Start again whenever you’re ready.",
   expired: "Your sign-in took too long and expired. Please start again.",
-  state: "We couldn't confirm your sign-in. Please start again.",
-  callback: "We couldn't finish signing you in. Please try again.",
-  start: "We couldn't reach the sign-in service. Check your connection and try again.",
-  unavailable: "Sign-in isn't available right now. Please try again later.",
+  state: "We couldn’t confirm your sign-in. Please start again.",
+  callback: "We couldn’t finish signing you in. Please try again.",
+  start: "We couldn’t reach the sign-in service. Check your connection and try again.",
+  unavailable: "Sign-in isn’t available right now. Please try again in a few minutes.",
 };
 
 const BENEFITS = [
@@ -72,16 +72,17 @@ function Login() {
             alt="Hands pouring golden tea from a glass teapot at a sunlit table"
             width={1024}
             height={1280}
+            fetchPriority="high"
             className="aspect-[4/5] w-full object-cover"
           />
         </div>
 
         <div className="mx-auto w-full max-w-md lg:mx-0">
-          <h1 data-anim="fade" className="text-xl md:text-3xl">
-            Welcome to SkinFusion
+          <h1 data-anim="fade" className="text-xl text-balance md:text-3xl">
+            Welcome to <span translate="no">SkinFusion</span>
           </h1>
           <p data-anim="fade" className="mt-5 text-muted-foreground">
-            Sign in or create an account with just your email. We'll send you a one-time code, no
+            Sign in or create an account with your email address. We’ll send you a one-time code, no
             password needed.
           </p>
 
@@ -97,10 +98,10 @@ function Login() {
             aria-busy={leaving || undefined}
             className="btn btn-primary mt-8 w-full"
           >
-            {leaving ? "Opening sign-in" : message ? "Try again" : "Continue with email"}
+            {leaving ? "Opening sign-in…" : message ? "Try again" : "Continue with email"}
           </a>
           <p className="mt-4 text-sm text-muted-foreground">
-            New to SkinFusion? Your account is created the first time you sign in.
+            If you’re new here, we create your account the first time you sign in.
           </p>
 
           <ul data-anim="cards" className="mt-10 grid gap-4 border-t pt-8">
@@ -118,7 +119,7 @@ function Login() {
             <div className="mt-10 border border-dashed p-5 text-sm">
               <p className="label-caps text-[0.65rem]">Developer preview</p>
               <p className="mt-2 text-muted-foreground">
-                Shopify isn't connected, so sign-in uses sample data. Try different order histories:
+                Shopify isn’t connected, so sign-in uses sample data. Try an order history:
               </p>
               <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
                 {[

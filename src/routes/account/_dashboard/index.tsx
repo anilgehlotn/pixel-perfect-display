@@ -60,7 +60,7 @@ function Overview() {
             <OrderCard order={latestOrder} />
           ) : (
             <div>
-              <p className="text-muted-foreground">You haven't placed an order yet.</p>
+              <p className="text-muted-foreground">You haven’t placed an order yet.</p>
               <Link to="/" hash="shop" className="btn btn-primary mt-6">
                 Start your glow ritual
               </Link>

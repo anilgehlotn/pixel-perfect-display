@@ -27,7 +27,7 @@ export function OrderThumbs({ order }: { order: OrderSummary }) {
 export function OrderCard({ order }: { order: OrderSummary }) {
   const status = orderStatus(order);
   return (
-    <article className="group relative border bg-background p-5 md:p-6">
+    <article className="group relative border bg-background p-5 transition-colors hover:border-foreground/30 md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-sm">

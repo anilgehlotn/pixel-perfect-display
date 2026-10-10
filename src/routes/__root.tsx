@@ -178,7 +178,7 @@ function SignedOutNotice() {
   const { notify } = useNotify();
   useEffect(() => {
     if (!signedOut) return;
-    notify("You've been signed out");
+    notify("You’ve been signed out");
     void router.navigate({
       to: ".",
       search: (prev: Record<string, unknown>) => {

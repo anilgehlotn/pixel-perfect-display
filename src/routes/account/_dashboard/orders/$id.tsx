@@ -31,7 +31,7 @@ export const Route = createFileRoute("/account/_dashboard/orders/$id")({
   component: Order,
 });
 
-const amount = (m: Money | null) => (m ? inr(money(m)) : "-");
+const amount = (m: Money | null) => (m ? inr(money(m)) : "Not available");
 
 function Order() {
   const order = Route.useLoaderData();
@@ -194,7 +194,7 @@ function OrderNotFound() {
     <div className="border border-dashed px-6 py-14 text-center">
       <h2 className="text-base">Order not found</h2>
       <p className="mx-auto mt-3 max-w-[40ch] text-muted-foreground">
-        This order isn't on your account. It may belong to a different email address.
+        This order isn’t on your account. It may belong to a different email address.
       </p>
       <Link to="/account/orders" className="btn btn-outline mt-8">
         All orders

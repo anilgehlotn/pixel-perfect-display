@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { fetchCustomer, saveDetails } from "@/lib/customer/functions";
 import type { FormErrors } from "@/lib/customer/types";
 import { validateDetails } from "@/lib/customer/validation";
+import { useUnsavedChangesGuard } from "@/components/account/useUnsavedChangesGuard";
 import { useNotify } from "@/lib/notify-context";
 import { CheckboxField, FormAlert, SkeletonBlock, TextField } from "@/components/account/ui";
 
@@ -31,6 +32,12 @@ function Details() {
   const busy = useRef(false);
   const firstRef = useRef<HTMLInputElement>(null);
   const alertRef = useRef<HTMLDivElement>(null);
+  useUnsavedChangesGuard(
+    !saving &&
+      (firstName !== customer.firstName ||
+        lastName !== customer.lastName ||
+        marketing !== customer.marketingSubscribed),
+  );
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -56,7 +63,7 @@ function Details() {
       await router.invalidate(); // refreshes the greeting and the header badge
       notify("Details saved");
     } catch {
-      setErrors({ form: "We couldn't save your details. Check your connection and try again." });
+      setErrors({ form: "We couldn’t save your details. Check your connection and try again." });
       requestAnimationFrame(() => alertRef.current?.focus());
     } finally {
       busy.current = false;
@@ -102,14 +109,14 @@ function Details() {
           readOnly
           value={customer.email}
           onChange={() => {}}
-          hint="This is the email you sign in with. It can't be changed here."
+          hint="You sign in with this email. To use a different one, contact us."
         />
         <CheckboxField
           id="marketing"
           label="Email me about new blends and member offers"
           checked={marketing}
           onChange={setMarketing}
-          hint="About twice a month. Unsubscribe any time."
+          hint="Unsubscribe any time."
         />
         <div className="pt-2">
           <button
@@ -118,7 +125,7 @@ function Details() {
             aria-disabled={saving}
             className="btn btn-primary"
           >
-            {saving ? "Saving" : "Save changes"}
+            {saving ? "Saving…" : "Save changes"}
           </button>
         </div>
       </form>

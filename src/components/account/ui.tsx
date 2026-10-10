@@ -54,6 +54,8 @@ const describedBy = (id: string, error?: string, hint?: string) =>
   [hint ? `${id}-hint` : "", error ? `${id}-error` : ""].filter(Boolean).join(" ") || undefined;
 
 type TextFieldProps = FieldBase & {
+  /** Form field name (defaults to the id). */
+  name?: string;
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
@@ -72,8 +74,14 @@ export function TextField(props: TextFieldProps) {
     <input
       ref={ref}
       id={id}
-      name={id}
+      name={props.name ?? id}
       type={props.type ?? "text"}
+      // Emails, phone numbers and PIN codes are not words.
+      spellCheck={
+        props.type === "email" || props.inputMode === "numeric" || props.type === "tel"
+          ? false
+          : undefined
+      }
       inputMode={props.inputMode}
       autoComplete={props.autoComplete}
       maxLength={props.maxLength}
@@ -108,6 +116,7 @@ export function TextField(props: TextFieldProps) {
 }
 
 type SelectFieldProps = FieldBase & {
+  name?: string;
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
@@ -124,7 +133,7 @@ export function SelectField(props: SelectFieldProps) {
       <select
         ref={ref}
         id={id}
-        name={id}
+        name={props.name ?? id}
         value={value}
         required={required}
         autoComplete={props.autoComplete}
@@ -133,7 +142,7 @@ export function SelectField(props: SelectFieldProps) {
         aria-describedby={describedBy(id, error, hint)}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
-        className={`${inputClass} appearance-none bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10`}
+        className={`${inputClass} appearance-none bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10 text-foreground`}
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%231f1f1f' stroke-width='1.2'/%3E%3C/svg%3E\")",

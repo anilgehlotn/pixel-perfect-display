@@ -57,11 +57,11 @@ function AccountLayout() {
       <div className="container-x">
         {mock ? (
           <p className="mb-8 border border-dashed px-4 py-3 text-sm text-muted-foreground">
-            Developer preview with sample data. Shopify isn't connected yet.
+            Developer preview with sample data. Shopify isn’t connected yet.
           </p>
         ) : null}
         <header>
-          <h1 className="text-xl md:text-3xl">
+          <h1 className="text-xl text-balance md:text-3xl">
             {customer.firstName ? `Hello, ${customer.firstName}` : "Hello"}
           </h1>
           <p className="mt-2 break-all text-muted-foreground">{customer.email}</p>
@@ -103,11 +103,11 @@ function AccountError({ error }: ErrorComponentProps) {
     <Shell>
       <div className="container-x max-w-xl text-center">
         <h1 className="text-xl md:text-3xl">
-          {unavailable ? "Accounts are coming soon" : "We couldn't load your account"}
+          {unavailable ? "Accounts are coming soon" : "We couldn’t load your account"}
         </h1>
         <p className="mt-5 text-muted-foreground">
           {unavailable
-            ? "Sign-in isn't switched on for this store yet. Your cart still works as usual."
+            ? "Sign-in isn’t switched on for this store yet. Your cart still works as usual."
             : "Something went wrong while loading your details. Check your connection and try again."}
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

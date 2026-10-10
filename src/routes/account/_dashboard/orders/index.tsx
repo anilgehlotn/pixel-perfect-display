@@ -75,17 +75,17 @@ function Orders() {
         </div>
       ) : null}
       <p className="sr-only" role="status" aria-live="polite">
-        {loading ? "Loading more orders" : `Showing ${orders.length} orders`}
+        {loading ? "Loading more orders…" : `Showing ${orders.length} orders`}
       </p>
       {error ? (
         <div className="mt-6">
-          <FormAlert message="We couldn't load more orders. Check your connection and try again." />
+          <FormAlert message="We couldn’t load more orders. Check your connection and try again." />
         </div>
       ) : null}
       {hasMore ? (
         <div className="mt-8 text-center">
           <button onClick={more} disabled={loading} className="btn btn-outline">
-            {error ? "Try again" : loading ? "Loading" : "Load more"}
+            {error ? "Try again" : loading ? "Loading…" : "Load more"}
           </button>
         </div>
       ) : null}
