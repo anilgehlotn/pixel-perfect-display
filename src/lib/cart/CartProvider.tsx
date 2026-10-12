@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { linkCartToCustomer } from "@/lib/customer/functions";
+import { isShopifyConfigured } from "@/lib/shopify/config";
 import { money } from "@/lib/shopify/types";
 import { CartContext, type Cart, type CartCtx } from "./context";
-import { localCartStore } from "./store";
+import { localCartStore, shopifyCartStore } from "./store";
 
-const store = localCartStore;
+// Shopify cart once the VITE_SHOPIFY_* variables are set, otherwise the browser-only cart.
+const store = isShopifyConfigured ? shopifyCartStore : localCartStore;
 
 export function CartProvider({ children }: { children: ReactNode }) {
   // Starts empty on the server and first client render, then loads the saved cart after
@@ -15,10 +18,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Operations run one after another so each sees the cart the previous one produced.
   const queue = useRef<Promise<Cart> | null>(null);
 
+  const showToast = (message: string) => {
+    setToast(message);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => setToast(null), 2600);
+  };
+
   const run = (op: (current: Cart) => Promise<Cart>) => {
     const prev = queue.current ?? Promise.resolve(cart);
     const next = prev.then(op).catch((error: unknown) => {
       console.error(error);
+      showToast("Sorry, we couldn't update your cart. Please try again.");
       return prev;
     });
     queue.current = next;
@@ -72,6 +82,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
         timer.current = setTimeout(() => setToast(null), 2600);
       },
       setQty: (lineId, quantity) => run((c) => store.update(c, lineId, quantity)),
+      checkout: async () => {
+        // Wait for pending cart changes, then link the cart to the signed-in customer so
+        // checkout is prefilled. Signed out (or accounts not set up): plain checkout.
+        const current = (await queue.current) ?? cart;
+        if (!current.checkoutUrl) return;
+        let url = current.checkoutUrl;
+        if (current.id) {
+          try {
+            const res = await linkCartToCustomer({ data: { cartId: current.id } });
+            if (res.linked) url = res.checkoutUrl;
+          } catch (error) {
+            console.error("Could not link cart to customer", error);
+          }
+        }
+        window.location.href = url;
+      },
     }),
     // run reads refs only; cart is listed so the memo stays in step with renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps

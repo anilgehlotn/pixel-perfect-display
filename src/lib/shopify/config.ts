@@ -3,7 +3,11 @@
 // the browser code. Never put an Admin API token in a VITE_ variable or anywhere in this app.
 export const shopifyConfig = {
   storeDomain: import.meta.env.VITE_SHOPIFY_STORE_DOMAIN ?? "",
-  storefrontToken: import.meta.env.VITE_SHOPIFY_STOREFRONT_PUBLIC_TOKEN ?? "",
+  // VITE_SHOPIFY_STOREFRONT_TOKEN is accepted as an alias (the name first used on Vercel).
+  storefrontToken:
+    import.meta.env.VITE_SHOPIFY_STOREFRONT_PUBLIC_TOKEN ||
+    import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN ||
+    "",
   apiVersion: import.meta.env.VITE_SHOPIFY_API_VERSION || "2026-07",
 };
 

@@ -40,6 +40,8 @@ export type CartCtx = {
     opts?: { openDrawer?: boolean },
   ) => void;
   setQty: (lineId: string, quantity: number) => void;
+  /** Sends the shopper to Shopify checkout (linked to their account when signed in). */
+  checkout: () => Promise<void>;
   toast: string | null;
 };
 

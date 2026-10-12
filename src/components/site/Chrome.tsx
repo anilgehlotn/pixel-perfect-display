@@ -234,7 +234,7 @@ export function Header() {
 }
 
 export function CartDrawer() {
-  const { open, setOpen, lines, setQty, subtotal, checkoutUrl } = useCart();
+  const { open, setOpen, lines, setQty, subtotal, checkoutUrl, checkout } = useCart();
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const pct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
   useScrollLock(open);
@@ -322,13 +322,11 @@ export function CartDrawer() {
             <span className="label-caps">Subtotal</span>
             <span>{inr(subtotal)}</span>
           </div>
-          {/* checkoutUrl is null until the Shopify cart store is connected */}
+          {/* checkoutUrl is null for the local cart (Shopify not configured) */}
           <button
             className="btn btn-primary w-full"
-            disabled={!lines.length}
-            onClick={() => {
-              if (checkoutUrl) window.location.href = checkoutUrl;
-            }}
+            disabled={!lines.length || !checkoutUrl}
+            onClick={() => void checkout()}
           >
             Checkout
           </button>

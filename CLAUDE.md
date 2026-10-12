@@ -3,7 +3,9 @@
 Frontend for SkinFusion, a premium skin-wellness tea brand (TCM-inspired, Mumbai, prices in INR).
 Server-rendered with TanStack Start and deployed on Vercel. The backend will be headless Shopify
 (Storefront API for products and cart, Shopify's hosted checkout for payment). Until the store is
-connected, products come from `src/data/content.ts` and the cart is saved in the browser.
+connected (VITE_SHOPIFY_* variables empty), products come from `src/data/content.ts` and the cart
+is saved in the browser. With the variables set, products and cart come from Shopify (see
+"Shopify (connected)").
 
 This project is built and maintained with Claude Code only.
 
@@ -214,10 +216,24 @@ price, image, product: { handle, title } } }`. Adding the same variant again inc
   with `load`, `add` and `update`. The current `localCartStore` saves lines in localStorage
   (`skinfusion-cart-v1`), so the cart survives a refresh.
 - The cart loads after the page hydrates, so the server-rendered HTML always shows an empty cart.
-- Checkout redirects to `checkoutUrl`. The local cart has none, so the button does nothing yet.
+- Checkout (`checkout()` in the cart context) waits for pending cart changes, calls
+  `linkCartToCustomer` when the cart is a Shopify cart, then redirects to `checkoutUrl`. The local
+  cart has no `checkoutUrl`, so the button is disabled without Shopify.
+- `CartProvider` uses `shopifyCartStore` when `isShopifyConfigured`, else `localCartStore`.
+  The Shopify store keeps only the cart id in localStorage (`skinfusion-shopify-cart-id`); a
+  cart that expired or was checked out is dropped and a new one is created on the next add.
 - Free-shipping threshold: `FREE_SHIPPING_THRESHOLD` in content.ts (699).
 
-## Shopify plan (not connected yet)
+## Shopify (connected)
+
+Store: `nwqmeu-cu.myshopify.com`. Product handles in Shopify match `localProducts`
+(`skin-glow-tea`, `calm-night`, `gut-balance`, `glow-bundle`); tags `best-seller` and
+`label:Save 10%` drive the badges. `getProducts()` / `getProduct()` query the Storefront API and
+fill fields Shopify lacks (photos, subtitle, rating, pack note, description) from the local
+product with the same handle; on any Storefront error they return `localProducts`.
+`VITE_SHOPIFY_STOREFRONT_TOKEN` is accepted as an alias of `VITE_SHOPIFY_STOREFRONT_PUBLIC_TOKEN`.
+
+### Original plan (done)
 
 Environment variables (see `.env.example`, set them in `.env.local` locally and in Vercel):
 `VITE_SHOPIFY_STORE_DOMAIN`, `VITE_SHOPIFY_STOREFRONT_PUBLIC_TOKEN`, optional
