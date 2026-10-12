@@ -1,14 +1,16 @@
 import type { RefObject } from "react";
 import { gsap, useGSAP } from "./gsap";
 import { MOTION_CONDITIONS, type MotionMode } from "./media";
-import { countUp, presets, type Cleanup, type PresetName } from "./presets";
+import { countUp, depth, presets, type Cleanup, type PresetName } from "./presets";
 import { safely } from "./safety";
 import { afterInitialLoad } from "./hydration";
 
 /**
  * Wires up every scroll animation inside `scope`, driven by data attributes in the markup:
- *   data-anim="heading" | "fade" | "cards" | "tilt" | "draw" | "pop"   (see presets.ts)
- *   data-count                                                       (number counts up)
+ *   data-anim="heading" | "lines" | "media" | "fade" | "cards" | "tilt" | "draw" | "pop"
+ *   data-count                                       (number counts up)
+ *   data-depth="0.4"                                 (desktop scroll parallax)
+ * See presets.ts.
  * Runs only in the browser (useGSAP is a layout effect), reverts everything on unmount
  * (route change) and re-runs when `dependencies` change. Reduced motion: does nothing.
  */
@@ -37,6 +39,9 @@ export function useScrollAnimations(
           });
           root.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
             safely("count", null, () => cleanups.push(countUp(el, mode)));
+          });
+          root.querySelectorAll<HTMLElement>("[data-depth]").forEach((el) => {
+            safely("depth", el, () => cleanups.push(depth(el, mode)));
           });
           return () => cleanups.forEach((fn) => fn());
         });

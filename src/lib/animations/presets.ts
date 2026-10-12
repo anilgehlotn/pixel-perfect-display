@@ -194,10 +194,87 @@ export function pop(el: HTMLElement, mode: MotionMode): Cleanup {
   return failsafe(el, tween);
 }
 
+/**
+ * data-anim="lines": a big headline whose lines rise from a mask, once (slow and soft).
+ * Mobile: the whole headline fades up once (no splitting).
+ */
+export function lines(el: HTMLElement, mode: MotionMode): Cleanup {
+  if (alreadySeen(el)) return noop;
+  if (mode === "mobile") return riseOnce([el], el, mode, { y: 20, duration: 0.8 });
+  let tween: gsap.core.Tween | null = null;
+  const split = SplitText.create(el, {
+    type: "lines",
+    mask: "lines",
+    aria: "auto",
+    onSplit: (self) => {
+      tween = gsap.from(self.lines, {
+        yPercent: 105,
+        duration: 1.2,
+        ease: "power4.out",
+        stagger: 0.1,
+        scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        onComplete: () => split.revert(),
+      });
+      return tween;
+    },
+  });
+  if (!tween) return noop;
+  const stop = failsafe(el, tween);
+  return () => {
+    stop();
+    split.revert();
+  };
+}
+
+/**
+ * data-anim="media": a rounded image/video frame. The frame fades in while the picture inside
+ * settles from scale 1.06 to 1, once. The frame must clip (overflow-hidden).
+ */
+export function media(el: HTMLElement, mode: MotionMode): Cleanup {
+  if (alreadySeen(el)) return noop;
+  const inner = el.querySelector<HTMLElement>("[data-media-inner]") ?? el.firstElementChild;
+  const desktop = mode === "desktop";
+  const all = inner ? [el, inner] : [el];
+  const tl = gsap.timeline({
+    scrollTrigger: { trigger: el, start: "top 90%", once: true },
+    defaults: { duration: desktop ? 1.4 : 0.9, ease: "power2.out" },
+    onStart: () => gsap.set(all, { willChange: "transform, opacity", transition: "none" }),
+    onComplete: () => gsap.set(all, { clearProps: CLEAR_PROPS }),
+  });
+  tl.from(el, { opacity: 0, duration: desktop ? 1 : 0.7 }, 0);
+  if (inner) tl.from(inner, { scale: 1.06 }, 0);
+  return failsafe(el, tl);
+}
+
+/**
+ * data-depth="0.5" (any number, negative moves the other way): slow scroll-linked parallax,
+ * desktop only. The element moves up by depth x 80px across its pass through the screen.
+ * It starts at its normal place (clamped start), so nothing jumps when the page loads with
+ * the element already on screen. Use it on a wrapper, never on an element that already has
+ * a CSS transform animation.
+ */
+export function depth(el: HTMLElement, mode: MotionMode): Cleanup {
+  if (mode === "mobile") return noop;
+  const amount = Number(el.dataset["depth"] ?? 0) * 80;
+  if (!amount) return noop;
+  gsap.fromTo(
+    el,
+    { y: 0 },
+    {
+      y: -amount,
+      ease: "none",
+      scrollTrigger: { trigger: el, start: "clamp(top bottom)", end: "bottom top", scrub: 0.6 },
+    },
+  );
+  return noop;
+}
+
 export const presets = {
   fade: fadeUp,
   cards,
   heading,
+  lines,
+  media,
   tilt,
   draw,
   pop,
