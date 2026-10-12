@@ -9,7 +9,6 @@
 // Videos: 720p H.264 MP4, no audio, 7-10 s, under 3 MB, each with a WebP poster frame.
 // width/height are the file's real pixel size; they reserve space so nothing jumps.
 import brew from "@/assets/brew-3.jpg";
-import heroFlatlay from "@/assets/hero-1.jpg";
 import heroCups from "@/assets/hero-2.jpg";
 import ritual from "@/assets/ritual.jpg";
 import jujube from "@/assets/ing-jujube.jpg";
@@ -229,11 +228,6 @@ const photos = {
 /* Existing SkinFusion images */
 const site = {
   brew: own(brew, "A glass cup of golden tea with whole jujubes and goji berries", [1024, 1024]),
-  flatlay: own(
-    heroFlatlay,
-    "Glass cups of golden tea with jujubes, snow fungus, goji berries and pink blossoms",
-    [1920, 1088],
-  ),
   cups: own(heroCups, "Hands pouring golden tea from a glass teapot", [1920, 1088]),
   ritual: own(ritual, "A woman in bed holding a glass cup of golden tea", [1024, 1280]),
   evening: own(evening, "A teapot, candle and open notebook by a window at sunset", [1280, 960]),
@@ -248,7 +242,7 @@ export const media = {
     // Replace with the SkinFusion pouch photo when it arrives (src/assets/skinfusion-pouch).
     centerpiece: site.brew,
     orbit: [site.jujube, site.goji, site.snowFungus, site.ginger],
-    video: videos.teaSteam,
+    video: videos.morningWindow,
   },
   // Product row: keyed by Shopify product handle. `video` plays on hover (desktop) or in view
   // (phones); `fallback` shows when the product has no image yet.
@@ -256,11 +250,11 @@ export const media = {
     "skin-glow-tea": { video: videos.skincareCloseup, fallback: site.brew },
     "calm-night": { video: videos.windowCalm, fallback: photos.windowTea },
     "gut-balance": { video: videos.leavesSunlight, fallback: photos.gingerLemon },
-    "glow-bundle": { video: videos.morningWindow, fallback: photos.herbalFlatlay },
+    "glow-bundle": { video: videos.teaSteeping, fallback: photos.herbalFlatlay },
   } as Record<string, { video: MediaVideo; fallback: MediaImage } | undefined>,
   productDefault: { video: videos.teaSteeping, fallback: site.brew },
   bundle: [photos.glassTeapot, site.jujube, photos.handsCup, photos.bathroomShelf],
-  howItWorks: { video: videos.teaSteeping },
+  howItWorks: { video: videos.teaSteam },
   tcm: { thumbnail: site.cups, video: videos.teaSteeping },
   stories: {
     edgeStart: site.goji,
@@ -270,13 +264,11 @@ export const media = {
     portraitB: photos.handsGlass,
     videoB: videos.flowersBreeze,
     portraitC: site.ritual,
-    videoC: videos.morningWindow,
+    videoC: videos.teaSteeping,
     edgeEnd: site.snowFungus,
   },
   sourcing: photos.redDates,
-  closing: photos.bathroomSink,
-  closingSecondary: site.evening,
-  flatlay: site.flatlay,
+  closing: { portrait: photos.bathroomSink, circle: site.evening },
 } as const;
 
 /** Every demo item, for MEDIA_CREDITS.md and the launch checklist. */

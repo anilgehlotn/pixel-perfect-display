@@ -16,7 +16,7 @@ import { money } from "@/lib/shopify/types";
 import { ProductImage } from "@/components/site/ProductImage";
 import { useCart } from "@/lib/cart/context";
 import { rs } from "@/lib/format";
-import { Stars } from "@/components/site/Sections";
+import { Stars } from "@/components/site/Stars";
 import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { useScrollLock } from "@/lib/scroll-lock";
 

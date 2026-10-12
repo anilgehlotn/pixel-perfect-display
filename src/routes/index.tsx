@@ -3,18 +3,16 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
 import { getProduct, getProducts } from "@/lib/shopify/products";
+import { Hero } from "@/components/home/Hero";
 import {
-  Hero,
-  PopularTeas,
-  FeaturedProduct,
-  WhatsInside,
-  UsVsThem,
-  OurStandards,
-  OurMission,
-  Reviews,
-  Journal,
-} from "@/components/site/Sections";
-import { TiltedMarquee } from "@/components/site/TiltedMarquee";
+  ProductRow,
+  Bundle,
+  HowItWorks,
+  Tcm101,
+  Sourcing,
+  ClosingCta,
+} from "@/components/home/Sections";
+import { Stories } from "@/components/home/Stories";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
@@ -36,15 +34,13 @@ function Index() {
   return (
     <main ref={scope}>
       <Hero />
-      <PopularTeas products={products} />
-      <FeaturedProduct product={featured} />
-      <WhatsInside />
-      <UsVsThem />
-      <OurStandards />
-      <OurMission />
-      <Reviews />
-      <Journal />
-      <TiltedMarquee />
+      <ProductRow products={products} />
+      <Bundle product={featured} />
+      <HowItWorks />
+      <Tcm101 />
+      <Stories />
+      <Sourcing />
+      <ClosingCta />
     </main>
   );
 }
