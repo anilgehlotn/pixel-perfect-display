@@ -13,7 +13,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import jostLatin from "@fontsource-variable/jost/files/jost-latin-wght-normal.woff2?url";
-import { absoluteUrl, site } from "@/lib/seo";
+import { absoluteUrl, noIndex, site } from "@/lib/seo";
 import { CartProvider } from "@/lib/cart/CartProvider";
 import { AnimationRuntime } from "@/components/site/AnimationRuntime";
 import { fetchSession } from "@/lib/customer/functions";
@@ -99,6 +99,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: site.description },
       { name: "twitter:image", content: absoluteUrl(site.ogImage.path) },
       { name: "twitter:card", content: "summary_large_image" },
+      ...(noIndex ? [{ name: "robots", content: "noindex, nofollow" }] : []),
     ],
     links: [
       // Self-hosted Jost (latin subset preloaded; other subsets load only if a page needs them)

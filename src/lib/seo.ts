@@ -14,3 +14,7 @@ export const site = {
   // 1200 x 630 JPG in public/. Replace public/og-image.jpg to change the share image.
   ogImage: { path: "/og-image.jpg", width: 1200, height: 630, alt: "SkinFusion Skin Glow Tea" },
 };
+
+// Vercel preview deployments (demo links) are kept out of search results. Production builds
+// and local builds leave this false.
+export const noIndex = typeof __NOINDEX__ !== "undefined" && __NOINDEX__;

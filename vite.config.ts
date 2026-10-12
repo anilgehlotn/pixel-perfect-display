@@ -4,8 +4,13 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 
+// Vercel sets VERCEL_ENV to "production", "preview" or "development" during its builds.
+// Preview deployments (client demos, branch links) must not be indexed by search engines.
+const isVercelPreview = process.env["VERCEL_ENV"] === "preview";
+
 export default defineConfig(({ command, isPreview }) => ({
   server: { port: 8080 },
+  define: { __NOINDEX__: JSON.stringify(isVercelPreview) },
   css: { transformer: "lightningcss" },
   resolve: {
     tsconfigPaths: true, // "@/..." -> src/ from tsconfig.json
@@ -45,7 +50,12 @@ export default defineConfig(({ command, isPreview }) => ({
       nitro({
         vercel: { functions: { runtime: "nodejs24.x" } },
         // Account pages hold personal data: never cache them at the edge or in the browser.
-        routeRules: { "/account/**": { headers: { "cache-control": "private, no-store" } } },
+        routeRules: {
+          "/account/**": { headers: { "cache-control": "private, no-store" } },
+          ...(isVercelPreview
+            ? { "/**": { headers: { "x-robots-tag": "noindex, nofollow" } } }
+            : {}),
+        },
       }),
     viteReact(),
   ],
