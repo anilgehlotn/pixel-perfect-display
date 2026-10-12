@@ -12,6 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as RealResultsRouteImport } from './routes/real-results'
+import { Route as AccountDashboardRouteImport } from './routes/account/_dashboard'
+import { Route as AccountAuthorizeRouteImport } from './routes/account/authorize'
+import { Route as AccountCallbackRouteImport } from './routes/account/callback'
+import { Route as AccountLoginRouteImport } from './routes/account/login'
+import { Route as AccountLogoutRouteImport } from './routes/account/logout'
+import { Route as AccountDashboardIndexRouteImport } from './routes/account/_dashboard/index'
+import { Route as AccountDashboardAddressesRouteImport } from './routes/account/_dashboard/addresses'
+import { Route as AccountDashboardDetailsRouteImport } from './routes/account/_dashboard/details'
+import { Route as AccountDashboardOrdersIndexRouteImport } from './routes/account/_dashboard/orders/index'
+import { Route as AccountDashboardOrdersIdRouteImport } from './routes/account/_dashboard/orders/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +38,161 @@ const RealResultsRoute = RealResultsRouteImport.update({
   path: '/real-results',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountDashboardRoute = AccountDashboardRouteImport.update({
+  id: '/account/_dashboard',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountAuthorizeRoute = AccountAuthorizeRouteImport.update({
+  id: '/account/authorize',
+  path: '/account/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountCallbackRoute = AccountCallbackRouteImport.update({
+  id: '/account/callback',
+  path: '/account/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountLoginRoute = AccountLoginRouteImport.update({
+  id: '/account/login',
+  path: '/account/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountLogoutRoute = AccountLogoutRouteImport.update({
+  id: '/account/logout',
+  path: '/account/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountDashboardIndexRoute = AccountDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AccountDashboardRoute,
+} as any)
+const AccountDashboardAddressesRoute =
+  AccountDashboardAddressesRouteImport.update({
+    id: '/addresses',
+    path: '/addresses',
+    getParentRoute: () => AccountDashboardRoute,
+  } as any)
+const AccountDashboardDetailsRoute = AccountDashboardDetailsRouteImport.update({
+  id: '/details',
+  path: '/details',
+  getParentRoute: () => AccountDashboardRoute,
+} as any)
+const AccountDashboardOrdersIndexRoute =
+  AccountDashboardOrdersIndexRouteImport.update({
+    id: '/orders/',
+    path: '/orders/',
+    getParentRoute: () => AccountDashboardRoute,
+  } as any)
+const AccountDashboardOrdersIdRoute =
+  AccountDashboardOrdersIdRouteImport.update({
+    id: '/orders/$id',
+    path: '/orders/$id',
+    getParentRoute: () => AccountDashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/quiz': typeof QuizRoute
   '/real-results': typeof RealResultsRoute
+  '/account': typeof AccountDashboardRouteWithChildren
+  '/account/authorize': typeof AccountAuthorizeRoute
+  '/account/callback': typeof AccountCallbackRoute
+  '/account/login': typeof AccountLoginRoute
+  '/account/logout': typeof AccountLogoutRoute
+  '/account/addresses': typeof AccountDashboardAddressesRoute
+  '/account/details': typeof AccountDashboardDetailsRoute
+  '/account/': typeof AccountDashboardIndexRoute
+  '/account/orders/$id': typeof AccountDashboardOrdersIdRoute
+  '/account/orders/': typeof AccountDashboardOrdersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/quiz': typeof QuizRoute
   '/real-results': typeof RealResultsRoute
+  '/account/authorize': typeof AccountAuthorizeRoute
+  '/account/callback': typeof AccountCallbackRoute
+  '/account/login': typeof AccountLoginRoute
+  '/account/logout': typeof AccountLogoutRoute
+  '/account/addresses': typeof AccountDashboardAddressesRoute
+  '/account/details': typeof AccountDashboardDetailsRoute
+  '/account': typeof AccountDashboardIndexRoute
+  '/account/orders/$id': typeof AccountDashboardOrdersIdRoute
+  '/account/orders': typeof AccountDashboardOrdersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/quiz': typeof QuizRoute
   '/real-results': typeof RealResultsRoute
+  '/account/_dashboard': typeof AccountDashboardRouteWithChildren
+  '/account/authorize': typeof AccountAuthorizeRoute
+  '/account/callback': typeof AccountCallbackRoute
+  '/account/login': typeof AccountLoginRoute
+  '/account/logout': typeof AccountLogoutRoute
+  '/account/_dashboard/addresses': typeof AccountDashboardAddressesRoute
+  '/account/_dashboard/details': typeof AccountDashboardDetailsRoute
+  '/account/_dashboard/': typeof AccountDashboardIndexRoute
+  '/account/_dashboard/orders/$id': typeof AccountDashboardOrdersIdRoute
+  '/account/_dashboard/orders/': typeof AccountDashboardOrdersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/quiz' | '/real-results'
+  fullPaths:
+    | '/'
+    | '/quiz'
+    | '/real-results'
+    | '/account'
+    | '/account/authorize'
+    | '/account/callback'
+    | '/account/login'
+    | '/account/logout'
+    | '/account/addresses'
+    | '/account/details'
+    | '/account/'
+    | '/account/orders/$id'
+    | '/account/orders/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/quiz' | '/real-results'
-  id: '__root__' | '/' | '/quiz' | '/real-results'
+  to:
+    | '/'
+    | '/quiz'
+    | '/real-results'
+    | '/account/authorize'
+    | '/account/callback'
+    | '/account/login'
+    | '/account/logout'
+    | '/account/addresses'
+    | '/account/details'
+    | '/account'
+    | '/account/orders/$id'
+    | '/account/orders'
+  id:
+    | '__root__'
+    | '/'
+    | '/quiz'
+    | '/real-results'
+    | '/account/_dashboard'
+    | '/account/authorize'
+    | '/account/callback'
+    | '/account/login'
+    | '/account/logout'
+    | '/account/_dashboard/addresses'
+    | '/account/_dashboard/details'
+    | '/account/_dashboard/'
+    | '/account/_dashboard/orders/$id'
+    | '/account/_dashboard/orders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   QuizRoute: typeof QuizRoute
   RealResultsRoute: typeof RealResultsRoute
+  AccountDashboardRoute: typeof AccountDashboardRouteWithChildren
+  AccountAuthorizeRoute: typeof AccountAuthorizeRoute
+  AccountCallbackRoute: typeof AccountCallbackRoute
+  AccountLoginRoute: typeof AccountLoginRoute
+  AccountLogoutRoute: typeof AccountLogoutRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,13 +218,107 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RealResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/_dashboard': {
+      id: '/account/_dashboard'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/authorize': {
+      id: '/account/authorize'
+      path: '/account/authorize'
+      fullPath: '/account/authorize'
+      preLoaderRoute: typeof AccountAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/callback': {
+      id: '/account/callback'
+      path: '/account/callback'
+      fullPath: '/account/callback'
+      preLoaderRoute: typeof AccountCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/login': {
+      id: '/account/login'
+      path: '/account/login'
+      fullPath: '/account/login'
+      preLoaderRoute: typeof AccountLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/logout': {
+      id: '/account/logout'
+      path: '/account/logout'
+      fullPath: '/account/logout'
+      preLoaderRoute: typeof AccountLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/_dashboard/': {
+      id: '/account/_dashboard/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AccountDashboardIndexRouteImport
+      parentRoute: typeof AccountDashboardRoute
+    }
+    '/account/_dashboard/addresses': {
+      id: '/account/_dashboard/addresses'
+      path: '/addresses'
+      fullPath: '/account/addresses'
+      preLoaderRoute: typeof AccountDashboardAddressesRouteImport
+      parentRoute: typeof AccountDashboardRoute
+    }
+    '/account/_dashboard/details': {
+      id: '/account/_dashboard/details'
+      path: '/details'
+      fullPath: '/account/details'
+      preLoaderRoute: typeof AccountDashboardDetailsRouteImport
+      parentRoute: typeof AccountDashboardRoute
+    }
+    '/account/_dashboard/orders/': {
+      id: '/account/_dashboard/orders/'
+      path: '/orders'
+      fullPath: '/account/orders/'
+      preLoaderRoute: typeof AccountDashboardOrdersIndexRouteImport
+      parentRoute: typeof AccountDashboardRoute
+    }
+    '/account/_dashboard/orders/$id': {
+      id: '/account/_dashboard/orders/$id'
+      path: '/orders/$id'
+      fullPath: '/account/orders/$id'
+      preLoaderRoute: typeof AccountDashboardOrdersIdRouteImport
+      parentRoute: typeof AccountDashboardRoute
+    }
   }
 }
+
+interface AccountDashboardRouteChildren {
+  AccountDashboardAddressesRoute: typeof AccountDashboardAddressesRoute
+  AccountDashboardDetailsRoute: typeof AccountDashboardDetailsRoute
+  AccountDashboardIndexRoute: typeof AccountDashboardIndexRoute
+  AccountDashboardOrdersIdRoute: typeof AccountDashboardOrdersIdRoute
+  AccountDashboardOrdersIndexRoute: typeof AccountDashboardOrdersIndexRoute
+}
+
+const AccountDashboardRouteChildren: AccountDashboardRouteChildren = {
+  AccountDashboardAddressesRoute: AccountDashboardAddressesRoute,
+  AccountDashboardDetailsRoute: AccountDashboardDetailsRoute,
+  AccountDashboardIndexRoute: AccountDashboardIndexRoute,
+  AccountDashboardOrdersIdRoute: AccountDashboardOrdersIdRoute,
+  AccountDashboardOrdersIndexRoute: AccountDashboardOrdersIndexRoute,
+}
+
+const AccountDashboardRouteWithChildren =
+  AccountDashboardRoute._addFileChildren(AccountDashboardRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   QuizRoute: QuizRoute,
   RealResultsRoute: RealResultsRoute,
+  AccountDashboardRoute: AccountDashboardRouteWithChildren,
+  AccountAuthorizeRoute: AccountAuthorizeRoute,
+  AccountCallbackRoute: AccountCallbackRoute,
+  AccountLoginRoute: AccountLoginRoute,
+  AccountLogoutRoute: AccountLogoutRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

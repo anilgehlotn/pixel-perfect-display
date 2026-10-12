@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -11,67 +12,69 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
-import { CartProvider } from "@/lib/cart";
-import { Header, Footer, CartDrawer, WhatsAppButton, Toast, DiscountBadge } from "@/components/site/Chrome";
+import jostLatin from "@fontsource-variable/jost/files/jost-latin-wght-normal.woff2?url";
+import { absoluteUrl, noIndex, site } from "@/lib/seo";
+import { CartProvider } from "@/lib/cart/CartProvider";
+import { AnimationRuntime } from "@/components/site/AnimationRuntime";
+import { fetchSession } from "@/lib/customer/functions";
+import { NotifyProvider } from "@/lib/notify";
+import { useNotify } from "@/lib/notify-context";
+import { IntroLoader } from "@/components/site/IntroLoader";
+import { introCss, introScript } from "@/lib/animations/intro";
+import {
+  Header,
+  Footer,
+  CartDrawer,
+  WhatsAppButton,
+  Toast,
+  DiscountBadge,
+  Notice,
+} from "@/components/site/Chrome";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main className="flex min-h-dvh items-center justify-center bg-background px-6">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="label-caps text-muted-foreground">Error 404</p>
+        <h1 className="mt-4 text-xl md:text-3xl">Page not found</h1>
+        <p className="mt-5 text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
+        <Link to="/" className="btn btn-primary mt-8">
+          Go home
+        </Link>
       </div>
-    </div>
+    </main>
   );
 }
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main className="flex min-h-dvh items-center justify-center bg-background px-6">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h1 className="text-xl md:text-3xl">This page didn't load</h1>
+        <p className="mt-5 text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="btn btn-primary"
           >
             Try again
           </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
+          <a href="/" className="btn btn-outline">
             Go home
           </a>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -80,21 +83,36 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SkinFusion | Glow from within" },
-      { name: "description", content: "SkinFusion skin-wellness teas inspired by Traditional Chinese Medicine." },
-      { property: "og:title", content: "SkinFusion | Glow from within" },
-      { property: "og:description", content: "SkinFusion skin-wellness teas inspired by Traditional Chinese Medicine." },
+      { title: site.title },
+      { name: "description", content: site.description },
+      { name: "theme-color", content: site.themeColor },
+      { property: "og:site_name", content: site.name },
+      { property: "og:title", content: site.title },
+      { property: "og:description", content: site.description },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "en_IN" },
+      { property: "og:image", content: absoluteUrl(site.ogImage.path) },
+      { property: "og:image:width", content: String(site.ogImage.width) },
+      { property: "og:image:height", content: String(site.ogImage.height) },
+      { property: "og:image:alt", content: site.ogImage.alt },
+      { name: "twitter:title", content: site.title },
+      { name: "twitter:description", content: site.description },
+      { name: "twitter:image", content: absoluteUrl(site.ogImage.path) },
       { name: "twitter:card", content: "summary_large_image" },
+      ...(noIndex ? [{ name: "robots", content: "noindex, nofollow" }] : []),
     ],
     links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" },
+      // Self-hosted Jost (latin subset preloaded; other subsets load only if a page needs them)
+      { rel: "preload", href: jostLatin, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),
+  // Signed-in state for the header (cookies only, no API call). Loaded once per page load;
+  // sign-in and sign-out are full page loads, and saving account details calls
+  // router.invalidate() to refresh it.
+  loader: () => fetchSession(),
+  staleTime: Infinity,
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -103,11 +121,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    // The intro script may add data-intro to <html> before React hydrates.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <style dangerouslySetInnerHTML={{ __html: introCss }} />
+        <script dangerouslySetInnerHTML={{ __html: introScript }} />
       </head>
       <body>
+        <IntroLoader />
         {children}
         <Scripts />
       </body>
@@ -121,16 +143,51 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <div className="overflow-x-hidden">
-          <Header />
-          <Outlet />
-          <Footer />
-        </div>
-        <CartDrawer />
-        <Toast />
-        <WhatsAppButton />
-        <DiscountBadge />
+        <NotifyProvider>
+          <a
+            href="#main"
+            className="sr-only z-[60] bg-ink px-4 py-3 text-background focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+          >
+            Skip to content
+          </a>
+          <div className="overflow-x-clip">
+            <Header />
+            <div id="main" tabIndex={-1} className="outline-none">
+              <Outlet />
+            </div>
+            <Footer />
+          </div>
+          <CartDrawer />
+          <AnimationRuntime />
+          <SignedOutNotice />
+          <Notice />
+          <Toast />
+          <WhatsAppButton />
+          <DiscountBadge />
+        </NotifyProvider>
       </CartProvider>
     </QueryClientProvider>
   );
+}
+
+// After /account/logout the visitor lands on /?signed_out=1: confirm it, then tidy the URL.
+function SignedOutNotice() {
+  const router = useRouter();
+  const signedOut = useRouterState({
+    select: (s) => (s.location.search as Record<string, unknown>)["signed_out"] !== undefined,
+  });
+  const { notify } = useNotify();
+  useEffect(() => {
+    if (!signedOut) return;
+    notify("You’ve been signed out");
+    void router.navigate({
+      to: ".",
+      search: (prev: Record<string, unknown>) => {
+        const { signed_out: _drop, ...rest } = prev;
+        return rest;
+      },
+      replace: true,
+    });
+  }, [signedOut, notify, router]);
+  return null;
 }

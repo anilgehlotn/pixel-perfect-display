@@ -1,16 +1,17 @@
+@import "@fontsource-variable/jost/wght.css"; /* self-hosted Jost, weights 100-900 */
 @import "tailwindcss" source(none);
 @source "../src";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-serif: "Jost", system-ui, sans-serif;
-  --font-sans: "Jost", system-ui, sans-serif;
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 4px;
-  --radius-xl: 4px;
+  --font-serif: "Jost Variable", "Jost", system-ui, sans-serif;
+  --font-sans: "Jost Variable", "Jost", system-ui, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-card: 28px;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-blush: var(--blush);
@@ -26,6 +27,10 @@
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-teal: var(--teal);
+  --color-green: var(--green);
+  --color-green-soft: var(--green-soft);
+  --color-cream: var(--cream);
+  --color-error-on-dark: var(--error-on-dark);
   --color-on-image: var(--on-image);
   --color-pastel-peach: var(--pastel-peach);
   --color-pastel-pink: var(--pastel-pink);
@@ -59,9 +64,16 @@
   --popover-foreground: #1f1f1f;
   --primary: #e8807a;
   --primary-hover: #d96e68;
-  --primary-foreground: #ffffff;
+  /* Ink on coral is 6.1:1. White on coral (2.69:1) fails WCAG AA, see CLAUDE.md. */
+  --primary-foreground: #1f1f1f;
+  /* Deep brand green: headlines and dark blocks. Cream text on it is 9:1. */
+  --green: #1e4d3a;
+  --green-soft: #2a5e49;
+  --cream: #fbf7f2;
+  /* Error text on the deep green footer (8:1). */
+  --error-on-dark: #ffc9c2;
   /* single-accent system: "brand" and "teal" map to text/accent so older markup stays on-palette */
-  --brand: #1f1f1f;
+  --brand: #1e4d3a;
   --brand-foreground: #fbf7f2;
   --teal: #6b635c;
   --pastel-peach: #f8dccb;
@@ -80,15 +92,24 @@
   --destructive-foreground: #ffffff;
   --border: rgba(0, 0, 0, 0.06);
   --input: rgba(0, 0, 0, 0.15);
-  --ring: #1f1f1f;
-  --hero-scrim: linear-gradient(20deg, rgba(31, 31, 31, 0.55) 0%, rgba(31, 31, 31, 0.25) 40%, rgba(31, 31, 31, 0) 70%);
+  --ring: #1e4d3a;
+  --hero-scrim: linear-gradient(
+    20deg,
+    rgba(31, 31, 31, 0.55) 0%,
+    rgba(31, 31, 31, 0.25) 40%,
+    rgba(31, 31, 31, 0) 70%
+  );
   --header-scrim: linear-gradient(180deg, rgba(31, 31, 31, 0.35), rgba(31, 31, 31, 0));
   --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { scroll-behavior: smooth; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -97,14 +118,32 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 {
+  /* Sentence-case headlines in deep green, slightly tight. Small uppercase text is only for
+     tiny eyebrow labels (label-caps). */
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-sans);
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    line-height: 1.25;
+    color: var(--green);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
     font-weight: 400;
+    text-wrap: balance;
   }
-  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  /* No double-tap zoom delay on controls */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label {
+    touch-action: manipulation;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
 
 @utility label-caps {
@@ -113,35 +152,207 @@
   font-size: 0.75rem;
   font-weight: 500;
 }
-@utility container-x { max-width: 80rem; margin-inline: auto; padding-inline: 1.5rem; }
-@utility section-y { padding-block: 4rem; @media (min-width: 1024px) { padding-block: 7rem; } }
-@utility bg-hero-scrim { background: var(--hero-scrim); }
-@utility bg-header-scrim { background: var(--header-scrim); }
-@utility rounded-banner { border-radius: 4px; }
-@utility shadow-soft { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); }
-
-@utility btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-  min-height: 48px; padding: 1rem 2.5rem; border-radius: 0;
-  text-transform: uppercase; letter-spacing: 0.22em; font-size: 0.75rem; font-weight: 500;
-  transition: transform 200ms var(--ease-soft), background-color 200ms;
-  &:active { transform: scale(0.98); }
-  &:disabled { opacity: 0.5; }
+@utility container-x {
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
 }
-@utility btn-primary { background: var(--primary); color: var(--primary-foreground); &:hover { background: var(--primary-hover); } }
-@utility btn-outline { border: 1px solid var(--foreground); color: var(--foreground); &:hover { background: var(--foreground); color: var(--background); } }
+@utility section-y {
+  padding-block: 4rem;
+  @media (min-width: 1024px) {
+    padding-block: 7rem;
+  }
+}
+@utility bg-hero-scrim {
+  background: var(--hero-scrim);
+}
+@utility bg-header-scrim {
+  background: var(--header-scrim);
+}
+@utility rounded-banner {
+  border-radius: var(--radius-xl);
+}
+/* Stadium: a pill-shaped image crop (fully rounded short sides). */
+@utility rounded-stadium {
+  border-radius: 9999px;
+}
+/* Big sentence-case display headline. */
+@utility display {
+  font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
+@utility title {
+  font-size: clamp(1.875rem, 1.3rem + 2.2vw, 3.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+}
+@utility shadow-soft {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
 
-.reveal { opacity: 0; transform: translateY(16px); transition: opacity 700ms var(--ease-soft), transform 700ms var(--ease-soft); }
-.reveal.is-in { opacity: 1; transform: none; }
-@keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.animate-fade-up { animation: fade-up 900ms var(--ease-soft) both; }
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.animate-marquee { animation: marquee 30s linear infinite; }
+/* Pill buttons in sentence case. Press shrinks to 98%. */
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.75rem 1.75rem;
+  border-radius: 9999px;
+  font-size: 1rem;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: nowrap;
+  transition:
+    transform 300ms var(--ease-soft),
+    background-color 200ms,
+    color 200ms,
+    border-color 200ms;
+  &:active {
+    transform: scale(0.98);
+  }
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+@utility btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  &:hover {
+    background: var(--primary-hover);
+  }
+}
+@utility btn-outline {
+  border: 1px solid currentColor;
+  color: var(--green);
+  &:hover {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--cream);
+  }
+}
+/* Outline pill on the deep green blocks. */
+@utility btn-cream {
+  border: 1px solid var(--cream);
+  color: var(--cream);
+  &:hover {
+    background: var(--cream);
+    color: var(--green);
+  }
+}
+/* Cards lift slightly on hover, desktop with a mouse only. */
+@media (hover: hover) and (pointer: fine) {
+  .lift {
+    transition: transform 500ms var(--ease-soft);
+  }
+  .lift:hover {
+    transform: translateY(-6px);
+  }
+}
 
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { scrollbar-width: none; }
+/* Arrow icons nudge on hover, desktop with a mouse only */
+@media (hover: hover) and (pointer: fine) {
+  .arrow-nudge,
+  .arrow-nudge-back {
+    transition: transform 300ms var(--ease-soft);
+  }
+  .group:hover .arrow-nudge {
+    transform: translateX(3px);
+  }
+  .group:hover .arrow-nudge-back {
+    transform: translateX(-3px);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-up {
+  animation: fade-up 900ms var(--ease-soft) both;
+}
+/* Slow drift for the hero composition. Desktop with a mouse only, paused off-screen. */
+@keyframes float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .animate-float {
+    animation: float 8s ease-in-out infinite;
+  }
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+.animate-marquee-reverse {
+  animation: marquee 30s linear infinite reverse;
+}
+@keyframes rotate-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-rotate-slow {
+  animation: rotate-slow 20s linear infinite;
+}
+/* Set by usePauseWhenHidden while off-screen or the tab is hidden, or by a pause button */
+[data-paused] *,
+.is-paused,
+.is-paused * {
+  animation-play-state: paused !important;
+}
+
+/* Lenis smooth scroll (desktop only, see src/lib/animations/smooth-scroll.ts) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+html.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  .reveal { opacity: 1; transform: none; }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }

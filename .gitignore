@@ -16,9 +16,8 @@ dist-ssr
 .nitro
 *.local
 
-# Wrangler / Cloudflare
-.wrangler/
-.dev.vars
+# Vercel build output and CLI link
+.vercel
 
 # Editor directories and files
 .vscode/*
@@ -30,3 +29,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (secrets). Only the example is committed.
+.env
+.env.*
+!.env.example
+
+# Archives (e.g. downloaded skill bundles) are never committed
+*.zip

@@ -1,34 +1,46 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useRef } from "react";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
+import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
+import { getProduct, getProducts } from "@/lib/shopify/products";
+import { Hero } from "@/components/home/Hero";
 import {
-  Hero, PopularTeas, FeaturedProduct, WhatsInside, UsVsThem, OurStandards, OurMission, Reviews, Journal,
-} from "@/components/site/Sections";
+  ProductRow,
+  Bundle,
+  HowItWorks,
+  Tcm101,
+  Sourcing,
+  ClosingCta,
+} from "@/components/home/Sections";
+import { Stories } from "@/components/home/Stories";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "SkinFusion | Sip. Glow. Repeat. Skin Glow Tea" },
-      { name: "description", content: "TCM Edition Skin Glow Tea with jujube, snow fungus and goji. Caffeine free, 100% natural skin-wellness teas from India." },
-      { property: "og:title", content: "SkinFusion | Sip. Glow. Repeat." },
-      { property: "og:description", content: "Caffeine-free TCM skin-wellness teas for a calm daily ritual." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  loader: async () => {
+    const [products, featured] = await Promise.all([
+      getProducts(),
+      getProduct(FEATURED_PRODUCT_HANDLE),
+    ]);
+    if (!featured) throw notFound();
+    return { products, featured };
+  },
+  // Uses the site-wide title, description and share image from __root.tsx.
   component: Index,
 });
 
 function Index() {
+  const { products, featured } = Route.useLoaderData();
+  const scope = useRef<HTMLElement>(null);
+  useScrollAnimations(scope);
   return (
-    <main>
+    <main ref={scope}>
       <Hero />
-      <PopularTeas />
-      <FeaturedProduct />
-      <WhatsInside />
-      <UsVsThem />
-      <OurStandards />
-      <OurMission />
-      <Reviews />
-      <Journal />
+      <ProductRow products={products} />
+      <Bundle product={featured} />
+      <HowItWorks />
+      <Tcm101 />
+      <Stories />
+      <Sourcing />
+      <ClosingCta />
     </main>
   );
 }
