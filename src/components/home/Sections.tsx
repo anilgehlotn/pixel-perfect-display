@@ -169,7 +169,7 @@ export function HowItWorks() {
             {copy.facts.map((f) => (
               <div key={f.label} className="flex flex-col">
                 <dt className="order-2 mt-2 text-sm leading-snug text-cream/85">{f.label}</dt>
-                <dd data-count className="display order-1 text-cream">
+                <dd data-count className="display order-1 text-cream tabular-nums">
                   {f.value}
                 </dd>
               </div>

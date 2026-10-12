@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { hero } from "@/data/content";
 import { media } from "@/data/media";
@@ -108,12 +108,21 @@ function Piece({
 
 const CIRCLE = "aspect-square overflow-hidden rounded-full border-4 border-background";
 
+// The video's pause button also stops the floating pieces (data-paused, see styles.css).
 function Composition() {
   const [jujube, goji, snowFungus, ginger] = media.hero.orbit;
+  const [paused, setPaused] = useState(false);
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[38rem] lg:aspect-[1/1.02]">
+    <div
+      data-paused={paused || undefined}
+      className="relative mx-auto aspect-square w-full max-w-[38rem] lg:aspect-[1/1.02]"
+    >
       <Piece className="right-0 top-[6%] w-[44%]" depth={-0.35} delay="-2s">
-        <LoopVideo video={media.hero.video} className="aspect-[4/5] w-full rounded-card bg-beige" />
+        <LoopVideo
+          video={media.hero.video}
+          onPausedChange={setPaused}
+          className="aspect-[4/5] w-full rounded-card bg-beige"
+        />
       </Piece>
       <Piece className="left-[17%] top-[3%] z-10 w-[50%]" depth={0.15} delay="0s">
         <div className="aspect-[3/4.4] w-full overflow-hidden rounded-stadium bg-beige">

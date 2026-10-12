@@ -34,7 +34,10 @@ const ICON = 22;
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <span className={`text-base font-medium uppercase tracking-[0.3em] md:text-lg ${className}`}>
+    <span
+      translate="no"
+      className={`text-base font-medium uppercase tracking-[0.3em] md:text-lg ${className}`}
+    >
       SkinFusion
     </span>
   );
@@ -160,7 +163,10 @@ export function Header() {
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
-          className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-background text-green"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setMenu(false);
+          }}
+          className="fixed inset-0 z-50 flex flex-col overflow-y-auto overscroll-contain bg-background text-green"
         >
           <div className="mx-4 mt-4 flex h-14 items-center justify-between pl-5 pr-1.5">
             <Logo />
@@ -456,7 +462,7 @@ export function NewsletterForm({
           spellCheck={false}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Your email address"
+          placeholder="name@example.com"
           aria-invalid={!!error}
           aria-describedby={describedBy || undefined}
           className={`min-h-12 rounded-full border px-5 outline-none ${dark ? "border-cream/40 bg-cream/10 text-cream placeholder:text-cream/75 focus:border-cream" : "border-input bg-background focus:border-green"}`}

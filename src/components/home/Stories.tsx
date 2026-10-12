@@ -68,7 +68,7 @@ export function Stories() {
         role="region"
         aria-label="Customer stories"
         tabIndex={0}
-        className="no-scrollbar mt-10 snap-x snap-mandatory overflow-x-auto overscroll-x-contain py-10 md:mt-14 lg:cursor-grab lg:snap-none lg:py-16 lg:active:cursor-grabbing"
+        className="no-scrollbar mt-10 snap-x snap-mandatory overflow-x-auto overscroll-x-contain py-10 md:mt-14 lg:cursor-grab lg:snap-none lg:select-none lg:py-16 lg:active:cursor-grabbing"
       >
         <ul
           ref={track}
@@ -192,7 +192,7 @@ function VideoCard({
       />
       <PlayPill label={label} onClick={() => onPlay(video)} className="absolute right-3 top-3" />
       {caption && (
-        <p className="absolute inset-x-0 bottom-0 rounded-b-card bg-linear-to-t from-ink/70 to-transparent p-5 pt-12 text-on-image">
+        <p className="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-card bg-linear-to-t from-ink/70 to-transparent p-5 pr-16 pt-12 text-on-image">
           {caption}
         </p>
       )}

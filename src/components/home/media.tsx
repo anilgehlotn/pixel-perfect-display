@@ -1,5 +1,5 @@
-import { useEffect, useRef, type ReactNode } from "react";
-import { Play, X } from "@phosphor-icons/react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Pause, Play, X } from "@phosphor-icons/react";
 import type { MediaImage, MediaVideo } from "@/data/media";
 import { canAutoplay, play, stop } from "@/lib/media/playback";
 import { useScrollLock } from "@/lib/scroll-lock";
@@ -39,28 +39,48 @@ export function Img({
  * - trigger "hover": desktop with a mouse plays on hover or keyboard focus inside the
  *   closest [data-video-hover] element; touch screens fall back to "view".
  * - Never autoplays with reduced motion or data saver on; at most 2 play at once on phones.
+ * - "view" videos get a pause button (WCAG 2.2.2: moving content over 5s must be pausable).
+ *   A paused video stays paused until the visitor presses play again.
  */
 export function LoopVideo({
   video,
   trigger = "view",
   className = "",
   priority = false,
+  onPausedChange,
   children,
 }: {
   video: MediaVideo;
   trigger?: "view" | "hover";
   className?: string;
   priority?: boolean;
+  onPausedChange?: (paused: boolean) => void;
   children?: ReactNode;
 }) {
   const frame = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLVideoElement>(null);
+  const userPaused = useRef(false);
+  const [canPlay, setCanPlay] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const toggle = () => {
+    const el = ref.current;
+    if (!el) return;
+    userPaused.current = !userPaused.current;
+    setPaused(userPaused.current);
+    onPausedChange?.(userPaused.current);
+    if (userPaused.current) stop(el);
+    else {
+      if (!el.getAttribute("src")) el.src = video.src;
+      play(el);
+    }
+  };
 
   useEffect(() => {
     const box = frame.current;
     const el = ref.current;
     if (!box || !el || !canAutoplay()) return;
     el.muted = true;
+    if (trigger === "view") setCanPlay(true);
     const hoverable = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     const hoverRoot =
       trigger === "hover" && hoverable
@@ -70,7 +90,7 @@ export function LoopVideo({
     let hovered = false;
 
     const update = () => {
-      const want = hoverRoot ? hovered : inView;
+      const want = hoverRoot ? hovered : inView && !userPaused.current;
       if (want) {
         if (!el.getAttribute("src")) el.src = video.src;
         play(el);
@@ -152,6 +172,20 @@ export function LoopVideo({
           className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700 data-[on=1]:opacity-100"
         />
       </div>
+      {canPlay && (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={paused ? "Play background video" : "Pause background video"}
+          className="absolute bottom-3 right-3 grid h-11 w-11 place-items-center rounded-full bg-background/85 text-green backdrop-blur-sm transition-colors hover:bg-background"
+        >
+          {paused ? (
+            <Play size={16} weight="fill" aria-hidden="true" />
+          ) : (
+            <Pause size={16} weight="fill" aria-hidden="true" />
+          )}
+        </button>
+      )}
     </div>
   );
 }

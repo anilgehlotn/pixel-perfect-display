@@ -318,7 +318,8 @@
 .animate-rotate-slow {
   animation: rotate-slow 20s linear infinite;
 }
-/* Set by usePauseWhenHidden while off-screen or the tab is hidden */
+/* Set by usePauseWhenHidden while off-screen or the tab is hidden, or by a pause button */
+[data-paused] *,
 .is-paused,
 .is-paused * {
   animation-play-state: paused !important;
