@@ -7,6 +7,7 @@ import ingJujube from "@/assets/ing-jujube.jpg";
 import ingGoji from "@/assets/ing-goji.jpg";
 import ingGinger from "@/assets/ing-ginger.jpg";
 import brew3 from "@/assets/brew-3.jpg";
+import brew3Webp from "@/assets/web/brew-3-800.webp";
 
 // Used by the sign-in page. Homepage media lives in src/data/media.ts.
 export const images = { ritual };
@@ -60,6 +61,7 @@ const inr = (amount: string): Money => ({ amount, currencyCode: "INR" });
 // pointer to the previous site builder. Until it arrives, the product shows the brewed cup.
 const brewImage: ShopifyImage = {
   url: brew3,
+  webpUrl: brew3Webp,
   altText: "A cup of Skin Glow Tea with whole jujubes and goji",
   width: 1024,
   height: 1024,

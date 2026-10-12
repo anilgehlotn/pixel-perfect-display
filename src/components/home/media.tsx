@@ -19,6 +19,7 @@ export function Img({
   return (
     <img
       src={media.src}
+      srcSet={media.srcSet}
       alt={media.alt}
       width={media.width}
       height={media.height}

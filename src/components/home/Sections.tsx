@@ -124,7 +124,10 @@ export function Bundle({ product }: { product: Product }) {
             </div>
           )}
         </div>
-        <div data-anim="cards" className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div
+          data-anim="cards"
+          className="mx-auto grid w-full max-w-lg grid-cols-2 gap-3 sm:gap-4 lg:max-w-none"
+        >
           {a && (
             <div className="aspect-square overflow-hidden rounded-[1.5rem]">
               <Img media={a} sizes="(min-width: 1024px) 18rem, 45vw" className="h-full w-full" />
@@ -274,6 +277,7 @@ export function Sourcing() {
             className="group mt-8 inline-flex min-h-11 items-center gap-2 font-medium text-green underline underline-offset-4"
           >
             {copy.cta.label}
+            <span className="sr-only"> about {copy.title.toLowerCase()}</span>
             <ArrowRight size={18} weight="light" className="arrow-nudge" aria-hidden="true" />
           </Link>
         </div>

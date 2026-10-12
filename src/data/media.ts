@@ -8,19 +8,30 @@
 //
 // Videos: 720p H.264 MP4, no audio, 7-10 s, under 3 MB, each with a WebP poster frame.
 // width/height are the file's real pixel size; they reserve space so nothing jumps.
-import brew from "@/assets/brew-3.jpg";
-import heroCups from "@/assets/hero-2.jpg";
-import ritual from "@/assets/ritual.jpg";
-import jujube from "@/assets/ing-jujube.jpg";
-import goji from "@/assets/ing-goji.jpg";
-import snowFungus from "@/assets/ing-snowfungus.jpg";
-import ginger from "@/assets/ing-ginger.jpg";
-import evening from "@/assets/journal-3.jpg";
+import brew400 from "@/assets/web/brew-3-400.webp";
+import brew800 from "@/assets/web/brew-3-800.webp";
+import heroCups400 from "@/assets/web/hero-2-400.webp";
+import heroCups800 from "@/assets/web/hero-2-800.webp";
+import ritual400 from "@/assets/web/ritual-400.webp";
+import ritual800 from "@/assets/web/ritual-800.webp";
+import jujube400 from "@/assets/web/ing-jujube-400.webp";
+import jujube800 from "@/assets/web/ing-jujube-800.webp";
+import goji400 from "@/assets/web/ing-goji-400.webp";
+import goji800 from "@/assets/web/ing-goji-800.webp";
+import snowFungus400 from "@/assets/web/ing-snowfungus-400.webp";
+import snowFungus800 from "@/assets/web/ing-snowfungus-800.webp";
+import ginger400 from "@/assets/web/ing-ginger-400.webp";
+import ginger800 from "@/assets/web/ing-ginger-800.webp";
+import evening400 from "@/assets/web/journal-3-400.webp";
+import evening800 from "@/assets/web/journal-3-800.webp";
+import heroCups1600 from "@/assets/web/hero-2-1600.webp";
 
 type Credit = { credit: string; source: string; license: string; isDemo: boolean };
 export type MediaImage = Credit & {
   kind: "image";
   src: string;
+  /** Smaller copies for phones, as an <img srcset>. */
+  srcSet?: string;
   alt: string;
   width: number;
   height: number;
@@ -67,6 +78,7 @@ const photo = (
 ): MediaImage => ({
   kind: "image",
   src: `/media/demo/photos/${name}.webp`,
+  srcSet: `/media/demo/photos/${name}-600.webp 600w, /media/demo/photos/${name}.webp ${size[0]}w`,
   alt,
   width: size[0],
   height: size[1],
@@ -76,14 +88,17 @@ const photo = (
   isDemo: true,
 });
 
-const own = (src: string, alt: string, size: [number, number]): MediaImage => ({
+// Existing site images, as WebP copies in src/assets/web (400 and 800px wide, plus 1600 for
+// the wide TCM thumbnail). The original JPGs stay in src/assets.
+const own = (variants: [string, number][], alt: string, size: [number, number]): MediaImage => ({
   kind: "image",
-  src,
+  src: variants[variants.length - 1]![0],
+  srcSet: variants.map(([url, w]) => `${url} ${w}w`).join(", "),
   alt,
   width: size[0],
   height: size[1],
   credit: "SkinFusion",
-  source: "Existing site image (src/assets)",
+  source: "Existing site image (src/assets, WebP copies in src/assets/web)",
   license: OWN,
   isDemo: false,
 });
@@ -226,15 +241,35 @@ const photos = {
 };
 
 /* Existing SkinFusion images */
+const pair = (small: string, large: string): [string, number][] => [
+  [small, 400],
+  [large, 800],
+];
 const site = {
-  brew: own(brew, "A glass cup of golden tea with whole jujubes and goji berries", [1024, 1024]),
-  cups: own(heroCups, "Hands pouring golden tea from a glass teapot", [1920, 1088]),
-  ritual: own(ritual, "A woman in bed holding a glass cup of golden tea", [1024, 1280]),
-  evening: own(evening, "A teapot, candle and open notebook by a window at sunset", [1280, 960]),
-  jujube: own(jujube, "Whole dried jujubes in a ceramic bowl", [1024, 1024]),
-  goji: own(goji, "Dried goji berries scattered on marble", [1024, 1024]),
-  snowFungus: own(snowFungus, "Dried snow fungus on linen", [1024, 1024]),
-  ginger: own(ginger, "Sliced fresh ginger on a wooden board", [1024, 1024]),
+  brew: own(
+    pair(brew400, brew800),
+    "A glass cup of golden tea with whole jujubes and goji berries",
+    [800, 800],
+  ),
+  cups: own(
+    [...pair(heroCups400, heroCups800), [heroCups1600, 1600]],
+    "Hands pouring golden tea from a glass teapot",
+    [1600, 907],
+  ),
+  ritual: own(
+    pair(ritual400, ritual800),
+    "A woman in bed holding a glass cup of golden tea",
+    [800, 1000],
+  ),
+  evening: own(
+    pair(evening400, evening800),
+    "A teapot, candle and open notebook by a window at sunset",
+    [800, 600],
+  ),
+  jujube: own(pair(jujube400, jujube800), "Whole dried jujubes in a ceramic bowl", [800, 800]),
+  goji: own(pair(goji400, goji800), "Dried goji berries scattered on marble", [800, 800]),
+  snowFungus: own(pair(snowFungus400, snowFungus800), "Dried snow fungus on linen", [800, 800]),
+  ginger: own(pair(ginger400, ginger800), "Sliced fresh ginger on a wooden board", [800, 800]),
 };
 
 export const media = {
