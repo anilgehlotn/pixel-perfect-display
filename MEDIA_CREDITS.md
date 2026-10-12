@@ -9,7 +9,8 @@ Nothing was hotlinked: every file was downloaded once and re-encoded locally.
 
 - Videos: 720p H.264 MP4, no audio track, 7-10 seconds, all under 1.4 MB, each with a
   WebP poster frame in `public/media/demo/posters/`.
-- Photos: WebP, at most 1400px wide (landscape) or 1000px wide (portrait).
+- Photos: WebP, at most 1400px wide (landscape) or 1000px wide (portrait), each with a
+  600px-wide `-600.webp` copy for phones.
 
 ## Licenses
 
@@ -23,16 +24,16 @@ Nothing was hotlinked: every file was downloaded once and re-encoded locally.
 
 ## Videos (Mixkit)
 
-| File                          | Used in                     | Author         | Source                                                                                            |
-| ----------------------------- | --------------------------- | -------------- | ------------------------------------------------------------------------------------------------- |
-| `videos/tea-steeping.mp4`     | How it works, TCM 101 modal | jibaroartz     | https://mixkit.co/free-stock-video/woman-preparing-a-cup-of-warm-tea-with-tea-bag-1511/           |
-| `videos/tea-steam.mp4`        | Hero                        | franklandgrave | https://mixkit.co/free-stock-video/steaming-mug-808/                                              |
-| `videos/morning-window.mp4`   | Product row, Stories        | edgarfernandez | https://mixkit.co/free-stock-video/young-sleepy-woman-in-the-morning-opens-her-window-31401/      |
-| `videos/window-calm.mp4`      | Product row                 | Mixkit         | https://mixkit.co/free-stock-video/woman-looking-at-nature-through-the-window-42728/              |
-| `videos/skincare-routine.mp4` | Stories                     | Mixkit         | https://mixkit.co/free-stock-video/a-young-woman-gently-rubs-cream-on-her-face-in-51177/          |
-| `videos/skincare-closeup.mp4` | Product row                 | Mixkit         | https://mixkit.co/free-stock-video/a-young-woman-delicately-applies-a-beauty-face-cream-to-51185/ |
-| `videos/leaves-sunlight.mp4`  | Product row                 | edgarfernandez | https://mixkit.co/free-stock-video/sunlight-passing-through-the-leaves-of-a-tree-34371/           |
-| `videos/flowers-breeze.mp4`   | Stories                     | rubenvelasco   | https://mixkit.co/free-stock-video/white-flowers-in-the-breeze-1187/                              |
+| File                          | Used in                                         | Author         | Source                                                                                            |
+| ----------------------------- | ----------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- |
+| `videos/tea-steeping.mp4`     | TCM 101 modal, Glow Ritual Bundle card, Stories | jibaroartz     | https://mixkit.co/free-stock-video/woman-preparing-a-cup-of-warm-tea-with-tea-bag-1511/           |
+| `videos/tea-steam.mp4`        | How it works                                    | franklandgrave | https://mixkit.co/free-stock-video/steaming-mug-808/                                              |
+| `videos/morning-window.mp4`   | Hero                                            | edgarfernandez | https://mixkit.co/free-stock-video/young-sleepy-woman-in-the-morning-opens-her-window-31401/      |
+| `videos/window-calm.mp4`      | Product row                                     | Mixkit         | https://mixkit.co/free-stock-video/woman-looking-at-nature-through-the-window-42728/              |
+| `videos/skincare-routine.mp4` | Stories                                         | Mixkit         | https://mixkit.co/free-stock-video/a-young-woman-gently-rubs-cream-on-her-face-in-51177/          |
+| `videos/skincare-closeup.mp4` | Product row                                     | Mixkit         | https://mixkit.co/free-stock-video/a-young-woman-delicately-applies-a-beauty-face-cream-to-51185/ |
+| `videos/leaves-sunlight.mp4`  | Product row                                     | edgarfernandez | https://mixkit.co/free-stock-video/sunlight-passing-through-the-leaves-of-a-tree-34371/           |
+| `videos/flowers-breeze.mp4`   | Stories                                         | rubenvelasco   | https://mixkit.co/free-stock-video/white-flowers-in-the-breeze-1187/                              |
 
 Each video has a matching poster: `posters/<same name>.webp`.
 

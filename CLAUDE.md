@@ -37,20 +37,27 @@ each route's `head()` (per page).
 ```
 .
 ├── public/                    Served as-is at the site root: favicon.svg, og-image.jpg, robots.txt
+│   └── media/demo/            Demo stock videos, posters and photos (see MEDIA_CREDITS.md)
+├── MEDIA_CREDITS.md           Source, author and license of every demo media file
 ├── src/
-│   ├── assets/                Images imported by content.ts (Vite gives them hashed URLs)
+│   ├── assets/                Site images (JPG originals); web/ holds 400/800px WebP copies
+│   ├── components/home/       Homepage sections (see "Homepage" below)
+│   │   ├── Hero.tsx           Headline, pills, floating product composition
+│   │   ├── Sections.tsx       Product row, bundle, how it works, TCM 101, sourcing, closing CTA
+│   │   ├── Stories.tsx        Stories scroller (drag, drift, video cards)
+│   │   └── media.tsx          Img, LoopVideo, PlayPill, VideoDialog (all media goes through these)
 │   ├── components/site/
-│   │   ├── Chrome.tsx         Header, announcement bar, footer, cart drawer, toast, WhatsApp
-│   │   │                      button, 10%-off popup
-│   │   ├── Sections.tsx       Homepage blocks (hero, product carousel, featured product, reviews...)
+│   │   ├── Chrome.tsx         Floating pill nav, mobile menu, footer, cart drawer, toasts,
+│   │   │                      WhatsApp button, 10%-off popup, newsletter form
 │   │   ├── ProductImage.tsx   Product photo: WebP source + JPG fallback, fixed width/height
-│   │   ├── GlowBadge.tsx      Round photo with rotating text ring (What's Inside)
-│   │   ├── TiltedMarquee.tsx  Tilted double "SIP · GLOW · REPEAT" marquee before the footer
+│   │   ├── Stars.tsx          Star rating (real-results page)
 │   │   ├── IntroLoader.tsx    Markup for the CSS intro loader
 │   │   └── AnimationRuntime.tsx  Page-wide animation housekeeping (Lenis, ScrollTrigger refresh)
 │   ├── data/content.ts        Product data (until Shopify) and ALL marketing copy
+│   ├── data/media.ts          EVERY homepage photo and video, grouped by section (one-line swaps)
 │   ├── lib/
 │   │   ├── animations/        All animation code, see "Animations" below
+│   │   ├── media/playback.ts  Shared video rules (autoplay checks, 2-video limit on phones)
 │   │   ├── scroll-lock.ts     useScrollLock(): shared page scroll lock for drawers/menus/modals
 │   │   ├── shopify/
 │   │   │   ├── types.ts       Product / variant / image / money types shaped like Shopify
@@ -86,7 +93,7 @@ each route's `head()` (per page).
 
 | URL             | File                           | What it shows                                                                                        |
 | --------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `/`             | `src/routes/index.tsx`         | Homepage: all blocks from `Sections.tsx`. Loader: all products + featured product                    |
+| `/`             | `src/routes/index.tsx`         | Homepage (see "Homepage"). Loader: all products + featured product                                   |
 | `/real-results` | `src/routes/real-results.tsx`  | Before/after sliders, video stories, serum comparison, ingredient spotlight, story form, product CTA |
 | `/quiz`         | `src/routes/quiz.tsx`          | 4-question skin quiz with a product recommendation. Linked from the hero and the Explore menu        |
 | anything else   | `__root.tsx` NotFoundComponent | 404 page (inside the normal header/footer)                                                           |
@@ -95,8 +102,8 @@ each route's `head()` (per page).
 separate task. When it is built, it should be `src/routes/products/$handle.tsx` with a loader
 calling `getProduct(params.handle)`.
 
-Homepage sections are reached with anchors: `/#shop`, `/#featured`, `/#inside`, `/#mission`,
-`/#journal`.
+Homepage sections are reached with anchors: `/#shop`, `/#bundle`, `/#ingredients`, `/#learn`,
+`/#stories`, `/#sourcing`.
 
 To add a page: create `src/routes/<name>.tsx` with `createFileRoute("/<name>")`. The dev server
 regenerates `routeTree.gen.ts` automatically.
@@ -104,21 +111,71 @@ regenerates `routeTree.gen.ts` automatically.
 ## Main components
 
 - `__root.tsx`: the app shell. Loads the Jost font and `styles.css`, sets site-wide meta tags from
-  `lib/seo.ts`, and wraps every page in `CartProvider` + `Header` + `Footer`, with the cart
-  drawer, toast, WhatsApp button and 10%-off badge floating on top. Also holds the 404 and error
-  screens.
-- `Header` (Chrome.tsx): fixed at the top. Transparent over the hero on the homepage, solid blush
-  once you scroll or on any other page. Menu links come from `nav` in content.ts; page routes
-  use the router `Link`, `/#section` anchors stay plain links. Mobile menu is a full-screen overlay.
+  `lib/seo.ts` (plus `noindex` on Vercel preview builds), and wraps every page in
+  `CartProvider` + `Header` + `Footer`, with the cart drawer, toasts, WhatsApp button and
+  10%-off badge floating on top. Also holds the 404 and error screens.
+- `Header` (Chrome.tsx): two floating translucent cream pills, 24px from the top (16px on
+  phones). Left: logo + `nav.main` (Shop, Ingredients, Learn). Right: "Sign in" (or the
+  account initial), cart, coral "Get started" pill to /quiz. Phones: one pill with logo, cart and
+  menu button; the menu is full-screen with staggered links. The nav hides while scrolling
+  down and comes back on scroll up or keyboard focus. Page routes use the router `Link`,
+  `/#section` anchors stay plain links. There is no announcement bar any more.
+- `Footer`: deep green, cream text: logo, mission line, newsletter with consent text, five link
+  columns (`footer.columns` in content.ts), legal line and wellness disclaimer.
 - `CartDrawer`: slides in from the right, free-shipping progress bar, quantity controls, subtotal,
   Checkout button.
-- `Sections.tsx`: `Hero`, `PopularTeas({ products })`, `FeaturedProduct({ product })`,
-  `WhatsInside`, `UsVsThem`, `OurStandards`, `OurMission`, `Reviews`, `Journal`. Also exports
-  `Stars`. Product sections get their data as props from the route loader.
-- `ProductImage`: use for every product photo. Pass a `ShopifyImage`.
 - Scroll animations: add a `data-anim` attribute in the markup (see "Animations").
 - Any overlay (drawer, menu, modal) calls `useScrollLock(open)`. Never set `body.style.overflow`
   directly.
+
+## Homepage
+
+Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
+order (`src/routes/index.tsx`):
+
+1. **Hero** (`Hero.tsx`): sentence-case headline, one line, "Take the quiz" (coral) and "Shop
+   now" (outline). Product composition: the centre image in a stadium crop, four ingredient
+   circles and a small looping video. Desktop: pieces float gently (CSS) and drift at different
+   speeds with scroll (`data-depth`).
+2. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
+   video on hover (desktop) or while in view (phones) over the product photo; products without a
+   photo show the fallback image from media.ts. Swipe with snap points on phones. Cards add the
+   first variant to the cart (there is no product page yet).
+3. **Bundle** (`#bundle`): blush card, copy, "Add 4 pouches" (adds the 4-pouch variant of the
+   featured product) and a 2x2 collage of rounded shapes.
+4. **How it works** (`#ingredients`): deep green block, counters for true facts only (4 whole
+   ingredients, 0 preservatives, 0 caffeine), looping video, two text columns.
+5. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
+   that opens the full-screen `VideoDialog`.
+6. **Stories** (`#stories`, `Stories.tsx`): full-bleed strip of mixed shapes (half-visible circles
+   at both edges, tall portraits, stadium above a quote, video cards with a "Play" pill, a green
+   quote card). Desktop: drag to scroll with momentum, slow scroll-linked drift of the strip,
+   slight parallax between cards. Phones: native swipe with snap points, no drift.
+7. **Sourcing** (`#sourcing`): location label, heading, large rounded image, "Read more". The
+   origin copy is DEMO until the client confirms it (`home.sourcing.isDemo`).
+8. **Closing CTA**: blush bookend, "Start your glow ritual", "Shop now".
+9. **Footer** (site-wide, see above).
+
+Copy for all of it is in `home`, `hero` and `nav` in content.ts. Media is in `src/data/media.ts`.
+
+### Media rules (src/data/media.ts)
+
+- Components read photos and videos ONLY from `media.ts`. To replace a demo clip, put the file in
+  `public/media/` (or `src/assets/`) and change its line in `media.ts`.
+- Every entry has `src`, `alt`, `width`, `height`, `credit`, `source`, `license`, `isDemo`; videos
+  also have a `poster`. `isDemo: true` = free stock media for the preview (listed in
+  MEDIA_CREDITS.md), must be replaced before launch.
+- Videos: 720p max, H.264 MP4, no audio track, 5-12 s, under 3 MB, with a WebP poster frame.
+  Photos: WebP, max 1600px wide, plus a `-600.webp` copy for phones (`srcSet`). Site images in
+  `src/assets` have 400/800px WebP copies in `src/assets/web`.
+- Always render videos with `LoopVideo` (or `VideoDialog` for click-to-play):
+  muted, `playsinline`, loop, `preload="none"`, poster first; the file is attached only within
+  300px of the screen; pauses off-screen and in hidden tabs; never autoplays with reduced
+  motion or data saver; at most 2 play at once on phones (`lib/media/playback.ts`). Videos that
+  play in view get a pause button (WCAG 2.2.2); the hero's also pauses the floating pieces.
+- Only free-license sources: Pexels, Pixabay, Mixkit (only clips marked "Free License"; Mixkit
+  "Restricted License" clips are personal-use only). Download, never hotlink. Add every file to
+  MEDIA_CREDITS.md.
 
 ## Products: how data flows
 
@@ -334,45 +391,49 @@ use absolute URLs. The favicon is `public/favicon.svg` (placeholder "S"; replace
 
 ## Design system
 
-Read from `src/styles.css`. Use the tokens, never raw hex values in components.
+Seed-inspired, client-approved (replaces the earlier square "Qi" style). Read from
+`src/styles.css`. Use the tokens, never raw hex values in components.
 
 Colors (Tailwind class names in brackets):
 
-- Background cream `#fbf7f2` (`bg-background`)
-- Blush `#f3e4e0` (`bg-blush`): header, footer, highlight sections
+- Background cream `#fbf7f2` (`bg-background`, `text-cream` on dark blocks)
+- Deep brand green `#1e4d3a` (`text-green`, `bg-green`): all headlines, dark blocks, footer,
+  nav text. Cream on green is 9:1
+- Coral `#e8807a`, hover `#d96e68` (`bg-primary`): the ONLY accent: primary buttons and small
+  highlights. Text on coral is ink (`text-primary-foreground`, 6.1:1); never white (2.69:1)
+- Blush `#f3e4e0` (`bg-blush`): soft cards (bundle, closing CTA, quotes)
 - Beige `#efe9e1` (`bg-beige`): image placeholders
-- Ink / text `#1f1f1f` (`text-foreground`, `bg-ink`)
-- Muted text `#6b635c` (`text-muted-foreground`)
-- Coral primary `#e8807a`, hover `#d96e68` (`bg-primary`, `text-primary`): the ONLY accent color
-- White on images (`text-on-image`, `border-on-image`)
-- Pastels for the standards icons: `bg-pastel-peach|pink|blue|green|orange|yellow`
+- Ink `#1f1f1f` (`text-foreground`): body text. Muted text `#6b635c` (`text-muted-foreground`)
+- Error text on green: `text-error-on-dark`
 - Borders are very light: `rgba(0,0,0,0.06)`
 
 Typography:
 
-- One font: Jost, self-hosted from `@fontsource-variable/jost` (latin subset preloaded in
-  `__root.tsx`). Weights used: 300, 400, 500. Body 17px, line-height 1.6
-- All `h1`-`h4` are uppercase, `letter-spacing: 0.2em`, weight 400 (set globally)
-- `label-caps`: small uppercase labels, 0.75rem, `letter-spacing: 0.22em`, weight 500
-- Section titles: `text-xl md:text-3xl`. Body copy max width around `max-w-[65ch]`
+- One font: Jost, self-hosted (latin subset preloaded in `__root.tsx`). Weights 400 and 500
+- Headlines: sentence case, weight 400, deep green, line-height 1.05-1.15, slight negative
+  letter-spacing, `text-wrap: balance` (global for h1-h4). Sizes: `display` (hero and closing,
+  36-72px fluid) and `title` (section headings, 30-52px fluid)
+- Body 17px, line-height 1.6, max width around `max-w-md` / 65ch
+- Small uppercase wide-spaced text (`label-caps`) ONLY for tiny eyebrow labels (one per few
+  sections, e.g. the sourcing location) and footer column titles. The logo stays uppercase
 
-Spacing and layout:
+Shapes and spacing:
 
-- `container-x`: max width 80rem, centered, 1.5rem side padding
-- `section-y`: 4rem top/bottom padding, 7rem from 1024px up
-- Section separation uses `border-t` or alternating `bg-blush`
-- Corners are square: radius 0 on buttons, max 4px elsewhere (`rounded-banner`)
+- Pill buttons (`rounded-full`), rounded cards `rounded-card` (28px), smaller tiles 24px
+  (`rounded-[1.5rem]`), circles (`rounded-full` on square images) and stadium crops
+  (`rounded-stadium` on tall or wide images)
+- Lots of whitespace: `section-y` (4rem / 7rem from 1024px), `container-x` (80rem, 1.5rem
+  padding). Coloured blocks sit inside a 1rem / 1.5rem page gutter (`px-4 md:px-6`)
 - Tap targets at least 44px (`h-11 w-11` icon buttons, 48px buttons)
+- No heavy shadows; separation comes from cream / blush / green blocks
 
 Buttons:
 
-- `btn btn-primary`: square coral button, uppercase, wide letter-spacing, min height 48px,
-  shrinks to 98% on press
-- `btn btn-outline`: square 1px ink border, fills ink on hover
-- On photos: `btn border border-on-image text-on-image hover:bg-on-image hover:text-ink`
-- Text links: `label-caps underline underline-offset-4`
-
-Animation: see the "Animations" section below.
+- `btn btn-primary`: coral pill, ink text, sentence case, min height 48px, shrinks to 98% on press
+- `btn btn-outline`: green 1px pill, fills green on hover
+- `btn btn-cream`: cream outline pill for green blocks
+- Text links: `underline underline-offset-4` with an `ArrowRight` that nudges on hover
+- Cards lift 6px on hover (`lift`, desktop with a mouse only)
 
 ## Animations
 
@@ -399,6 +460,9 @@ Add an attribute in the markup. No refs or effects needed on pages that already 
 
 | Attribute             | Effect                                                                                                |
 | --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `data-anim="lines"`   | Big headline: lines rise from a mask once (desktop). Mobile: fades up once                            |
+| `data-anim="media"`   | Rounded image/video frame fades in while the picture settles from scale 1.06 to 1, once               |
+| `data-depth="0.4"`    | Slow scroll-linked parallax, desktop only (wrapper element; negative moves the other way)             |
 | `data-anim="heading"` | Section heading. Desktop: words fill from 15% to full ink while scrolling. Mobile: fades up once      |
 | `data-anim="fade"`    | Block fades up once                                                                                   |
 | `data-anim="cards"`   | Direct children rise in with a stagger (mobile: first 6 only)                                         |
@@ -408,25 +472,29 @@ Add an attribute in the markup. No refs or effects needed on pages that already 
 | `data-count`          | The number in this element's text counts up once (final value is in the server HTML)                  |
 
 A new page opts in with `const scope = useRef<HTMLElement>(null); useScrollAnimations(scope);`
-and `<main ref={scope}>`.
+and `<main ref={scope}>`. Never put `data-depth` and another transform animation (CSS float,
+`data-anim`) on the same element: nest wrappers (see `Piece` in Hero.tsx).
 
 ### What plays where
 
-| Animation                             | Desktop (>=1024px, mouse)                                                                    | Mobile and tablet                                     |
-| ------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                                        | Same, max 1s                                          |
-| Hero entrance                         | Header/nav fade down, image curtain wipe + scale, heading words rise from a mask, badge pops | Text fades up, image fades in from 1.04, buttons last |
-| Section headings                      | Scrubbed ink fill per word                                                                   | Fade up once                                          |
-| Cards                                 | y 48, stagger 0.1                                                                            | y 20, stagger 0.05, max 6 per group                   |
-| Journal cards (tilt)                  | Slide in, settle at -6/6deg, parallax                                                        | Plain fade up                                         |
-| Glow badge                            | Scales in, ring rotates (20s/turn)                                                           | Same, smaller                                         |
-| Marquee                               | Speeds up while scrolling                                                                    | Constant speed                                        |
-| Footer                                | Slides up, columns fade in one by one                                                        | Same, smaller distances                               |
-| Smooth scroll                         | Lenis                                                                                        | Native                                                |
-| Arrow nudge on hover                  | Yes                                                                                          | No                                                    |
+| Animation                             | Desktop (>=1024px, mouse)                                                  | Mobile and tablet                                 |
+| ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
+| Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
+| Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
+| Hero composition                      | Pieces float (8s CSS loop) and drift at different speeds with scroll       | Static                                            |
+| Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
+| Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
+| Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
+| Product videos                        | Play on hover / keyboard focus                                             | Play while in view (max 2 videos at once)         |
+| Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards | Native swipe with snap points                     |
+| Counters                              | Count up once                                                              | Same                                              |
+| Nav                                   | Hides on scroll down, shows on scroll up                                   | Same                                              |
+| Footer                                | Slides up, columns fade in one by one                                      | Same, smaller distances                           |
+| Smooth scroll                         | Lenis                                                                      | Native                                            |
 
-Reduced motion: no loader, no movement, no marquee or badge rotation, no smooth scroll,
-everything visible immediately. Without JavaScript: everything visible, no loader.
+Reduced motion: no loader, no movement, no float, no video autoplay (posters only; videos play
+only when opened in the dialog), no smooth scroll, everything visible immediately. Without
+JavaScript: everything visible, posters instead of videos, no loader.
 
 ### Rules that keep it safe in production
 
@@ -442,8 +510,9 @@ everything visible immediately. Without JavaScript: everything visible, no loade
   scroll restoration has happened; anything already on screen is left alone.
 - After route changes, refresh triggers one by one (`st.refresh()`), never a global
   `ScrollTrigger.refresh()`: it undoes the router's back/forward scroll restoration.
-- Endless animations (marquee, badge, announcement bar) are CSS transform animations paused
-  with `usePauseWhenHidden`.
+- Endless animations (hero float) are CSS transform animations paused with
+  `usePauseWhenHidden` (and by a `data-paused` ancestor). Looping videos follow the media
+  rules above.
 - Elements animated by GSAP must not have a CSS `transition` on the same property
   (presets set `transition: none` while animating).
 - Overlays use `useScrollLock`, which also stops Lenis.
@@ -466,12 +535,17 @@ When rules conflict, this order wins:
 2. Accessibility, performance and mobile rules.
 3. Skill defaults.
 
-Approved overrides (ignore any skill rule that bans these):
+Approved style (client-approved Seed-inspired direction; ignore any skill rule that bans it):
 
-- Square, rectangular coral buttons, never pill buttons.
-- Jost font with UPPERCASE, wide-spaced headings, labels and buttons.
-- Cream / blush palette with one coral accent.
-- The Qi-inspired layout.
+- Rounded and pill-shaped buttons, rounded cards (24-32px radius), circle and stadium image
+  crops.
+- Jost only. Big sentence-case headlines (weight 400-500, line-height 1.05-1.15, slight
+  negative letter-spacing). Small uppercase wide-spaced text only for tiny eyebrow labels.
+- Cream background, deep brand green for headlines and dark blocks, coral as the single accent
+  for primary buttons and highlights, blush for soft cards.
+- Lots of whitespace, calm and premium; Seed-like slow, soft motion.
+- Seed.com is a reference for layout and motion ONLY: never copy its media, logos, icons,
+  fonts, text, product names or press quotes.
 
 Ignore every "variance" or "randomize the layout" rule: SkinFusion pages must stay
 consistent with each other.
@@ -481,9 +555,9 @@ purple or blue gradients, no heavy shadows, 44px touch targets, 4.5:1 text contr
 focus states, zero layout shift, transform/opacity-only animation, reduced-motion support,
 complete code with no placeholders.
 
-Known open conflict: white text on the coral button (`#e8807a`) is 2.69:1, below 4.5:1. The
-coral button is approved, so it stays until the client chooses a fix (darker coral `#bf5049`
-gives 4.71:1, or ink text on coral gives 6.12:1). Do not use white-on-coral for small body text.
+Coral contrast: white text on coral (`#e8807a`) is 2.69:1 and fails WCAG AA, so coral buttons use
+ink text (6.12:1, `--primary-foreground`). If the client prefers white text, the coral must
+darken (`#bf5049` gives 4.71:1).
 
 ## Rules for all future work
 
@@ -491,11 +565,15 @@ gives 4.71:1, or ink text on coral gives 6.12:1). Do not use white-on-coral for 
 - No AI clichés in copy: "elevate", "seamless", "unlock", "transform your", "journey",
   "game-changer", "delve", "curated", "empower", "revolutionize" and similar.
 - Never use Inter, Roboto or Arial. Jost is the only font.
-- Headings: uppercase Jost with wide letter-spacing (already global for h1-h4, keep it).
-- Buttons: square coral (`btn btn-primary`). No rounded pill buttons.
+- Headings: sentence-case Jost in deep green (already global for h1-h4); `display` / `title`
+  for big ones. Uppercase only for tiny eyebrow labels.
+- Buttons: pills (`btn btn-primary` coral with ink text, `btn btn-outline`). One label per
+  intent on a page.
+- Homepage photos and videos come only from `src/data/media.ts`; videos only through
+  `LoopVideo` / `VideoDialog`.
 - Animate only `transform` and `opacity`. Never animate width, height, top, left, margin or
   layout. Progress bars use `scaleX`, not width. (Only exceptions: the desktop hero's
-  clip-path wipe and word colour, and the SVG squiggle's stroke-dashoffset, all play once.)
+  word colour on the old heading preset and SVG stroke-dashoffset, both play once.)
 - Content must be visible in the server HTML. Never hide content with CSS (`opacity: 0`,
   `opacity-0`, `invisible`) waiting for JavaScript; use `data-anim` and let GSAP set the start
   state in the browser.
@@ -533,3 +611,60 @@ npx tsc --noEmit   # type check
   visits and refreshes on any route are rendered by that function, so no `vercel.json` rewrites
   are needed. Do not add SPA-style rewrites to `/index.html`; there is no index.html.
 - Add the variables from `.env.example` under Project Settings > Environment Variables.
+- Preview deployments (`VERCEL_ENV=preview`) send `<meta name="robots" content="noindex,
+nofollow">` and an `X-Robots-Tag` header (vite.config.ts `__NOINDEX__`), so demo links stay out
+  of Google. Production builds are indexable.
+
+## BEFORE LAUNCH CHECKLIST
+
+The homepage was built with demo content for the client preview. Replace every item below with
+the client's own, permitted content (or confirm it) before going live:
+
+Demo quotes (`home.stories.quotes` in content.ts, `isDemo: true`): invented sample quotes, must
+become real customer quotes shared with permission:
+
+- [ ] "It tastes like the jujube tea my grandmother made. My evening cup is the calmest part of
+      my day." (Ananya, Bengaluru)
+- [ ] "I swapped my second chai for it. Light, warm and easy to make at work." (Priya, Mumbai)
+- [ ] "You can see every whole piece in the bag. Naturally sweet, no sugar needed." (Meera, Pune)
+- [ ] Story video captions: "My morning routine", "Ten quiet minutes", "Windows open, kettle on"
+
+Demo copy to confirm:
+
+- [ ] Sourcing section (`home.sourcing`, `isDemo: true`): "Xinjiang, China", "Where our jujubes
+      ripen" and the farm description. Replace with the real origins
+- [ ] "How it fits your day": steeping time (about five minutes)
+- [ ] Bundle copy: "Save up to 15%, with free shipping on the four-pack" must match live
+      Shopify prices and shipping rules
+
+Demo videos (`public/media/demo/videos/`, Mixkit Free License, all `isDemo: true` in media.ts):
+
+- [ ] `tea-steeping.mp4` (TCM 101 modal, Glow Ritual Bundle card, stories)
+- [ ] `tea-steam.mp4` (How it works)
+- [ ] `morning-window.mp4` (hero)
+- [ ] `window-calm.mp4` (Calm Night Blend card)
+- [ ] `skincare-routine.mp4` (stories)
+- [ ] `skincare-closeup.mp4` (Skin Glow Tea card)
+- [ ] `leaves-sunlight.mp4` (Gut Balance Tea card)
+- [ ] `flowers-breeze.mp4` (stories)
+
+Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
+
+- [ ] `window-tea.webp` (Calm Night card fallback, stories)
+- [ ] `red-dates.webp` (sourcing)
+- [ ] `ginger-lemon.webp` (Gut Balance card fallback)
+- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage)
+- [ ] `teacup-mint.webp`, `hands-glass.webp` (stories)
+- [ ] `herbal-flatlay.webp` (Glow Ritual Bundle card fallback)
+- [ ] `bathroom-sink.webp` (closing CTA)
+
+Other:
+
+- [ ] SkinFusion pouch photo (`src/assets/skinfusion-pouch.jpg` is missing; the hero centre and
+      the Skin Glow Tea product use the brewed-cup photo instead)
+- [ ] Client confirms ownership of the existing site images in `src/assets/` (brew, hero-2,
+      ritual, journal-3, four ingredient photos)
+- [ ] Real product photos for Calm Night, Gut Balance and Glow Ritual Bundle (from Shopify)
+- [ ] Pages for FAQs, Shipping & returns, Privacy policy, Terms of service (footer shows them as
+      plain text until they exist)
+- [ ] Delete `public/media/demo/` and MEDIA_CREDITS.md entries once nothing references them
