@@ -138,15 +138,16 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): sentence-case headline, one line, "Shop Skin Glow Tea" (coral, to
-   the product page) and "Take the quiz" (outline), then customer avatars, star rating and the
-   "From" price. Composition, "the steeping ritual": the cup in a circle on a blush disc, a
-   ring of names (product and the four ingredients in Chinese and English) turning slowly
-   around it, steam rising from the cup, the four ingredients orbiting the cup (each stays
-   upright; hover shows its name) and a small looping video. Desktop: the orbit, ring and
-   steam run as CSS loops, and every layer drifts with the pointer by its own amount
-   (`data-mouse`, GSAP `quickTo`). Phones and reduced motion: all still. The video's pause
-   button stops everything (`data-paused`), and `usePauseWhenHidden` pauses it off-screen.
+1. **Hero** (`Hero.tsx`): a full-width banner slider in a rounded frame. Three slides
+   (`heroSlides` in content.ts, media in `media.hero.slides`): "Glow from within" (skincare
+   video, to the product page), "Save up to 15%" (adds the 4-pouch pack) and "Four whole
+   ingredients" (red dates photo, to `#ingredients`). Slides crossfade, the active picture zooms
+   in slowly (`animate-kenburns`), its text rises in, and a progress bar fills and moves on
+   after 6.5s (`animate-slide-progress`, `onAnimationEnd`). Hover, keyboard focus, the pause
+   button, an off-screen hero (`usePauseWhenHidden`) or a hidden tab pause it. Arrows, the
+   bars, arrow keys and a swipe change slides. Desktop (xl) shows a floating card with the
+   featured product, rating, price and "Add to cart". Reduced motion: no autoplay, zoom or
+   text motion. The first slide's heading is the page `h1`.
 2. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
    video on hover (desktop) or while in view (phones) over the product photo; products without a
    photo show the fallback image from media.ts. Swipe with snap points on phones. Photo and
@@ -527,25 +528,25 @@ Add an attribute in the markup. No refs or effects needed on pages that already 
 | `data-count`          | The number in this element's text counts up once (final value is in the server HTML)                  |
 
 A new page opts in with `const scope = useRef<HTMLElement>(null); useScrollAnimations(scope);`
-and `<main ref={scope}>`. Never put `data-depth`, `data-mouse` and another transform animation (CSS loop, `data-anim`) on
-the same element: nest wrappers (see `Layer` in Hero.tsx).
+and `<main ref={scope}>`. Never put `data-depth` and another transform animation (CSS loop, `data-anim`) on the same
+element: nest wrappers.
 
 ### What plays where
 
-| Animation                             | Desktop (>=1024px, mouse)                                                         | Mobile and tablet                                 |
-| ------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------- |
-| Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                             | Same, max 1s                                      |
-| Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in           | Text fades up, composition fades in, buttons last |
-| Hero composition                      | Ingredients orbit (45s), ring turns (35s), steam rises; layers follow the pointer | Static                                            |
-| Big headlines (`lines`)               | Lines rise from a mask once                                                       | Fade up once                                      |
-| Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                                   | Same, 0.9s                                        |
-| Cards                                 | y 48, stagger 0.1; lift 6px on hover                                              | y 20, stagger 0.05, max 6 per group               |
-| Product videos                        | Play on hover / keyboard focus                                                    | Play while in view (max 2 videos at once)         |
-| Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards        | Native swipe with snap points                     |
-| Counters                              | Count up once                                                                     | Same                                              |
-| Nav                                   | Hides on scroll down, shows on scroll up                                          | Same                                              |
-| Footer                                | Slides up, columns fade in one by one                                             | Same, smaller distances                           |
-| Smooth scroll                         | Lenis                                                                             | Native                                            |
+| Animation                             | Desktop (>=1024px, mouse)                                                  | Mobile and tablet                                 |
+| ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
+| Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
+| Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
+| Hero slider                           | Autoplay 6.5s with progress bars, slow zoom, text rises in, crossfade      | Same, swipe to change                             |
+| Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
+| Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
+| Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
+| Product videos                        | Play on hover / keyboard focus                                             | Play while in view (max 2 videos at once)         |
+| Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards | Native swipe with snap points                     |
+| Counters                              | Count up once                                                              | Same                                              |
+| Nav                                   | Hides on scroll down, shows on scroll up                                   | Same                                              |
+| Footer                                | Slides up, columns fade in one by one                                      | Same, smaller distances                           |
+| Smooth scroll                         | Lenis                                                                      | Native                                            |
 
 Reduced motion: no loader, no movement, no float, no video autoplay (posters only; videos play
 only when opened in the dialog), no smooth scroll, everything visible immediately. Without
@@ -705,7 +706,7 @@ Demo videos (`public/media/demo/videos/`, Mixkit Free License, all `isDemo: true
 - [ ] `tea-steam.mp4` (How it works)
 - [ ] `morning-window.mp4` (hero)
 - [ ] `window-calm.mp4` (Calm Night Blend card)
-- [ ] `skincare-routine.mp4` (stories)
+- [ ] `skincare-routine.mp4` (stories, hero slide 1)
 - [ ] `skincare-closeup.mp4` (Skin Glow Tea card)
 - [ ] `leaves-sunlight.mp4` (Gut Balance Tea card)
 - [ ] `flowers-breeze.mp4` (stories)
@@ -713,9 +714,10 @@ Demo videos (`public/media/demo/videos/`, Mixkit Free License, all `isDemo: true
 Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
 
 - [ ] `window-tea.webp` (Calm Night card fallback, stories)
-- [ ] `red-dates.webp` (sourcing)
+- [ ] `red-dates.webp` (sourcing, hero slide 3)
 - [ ] `ginger-lemon.webp` (Gut Balance card fallback)
-- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage)
+- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage; glass-teapot
+      is also hero slide 2)
 - [ ] `teacup-mint.webp`, `hands-glass.webp` (stories)
 - [ ] `herbal-flatlay.webp` (Glow Ritual Bundle card fallback)
 - [ ] `bathroom-sink.webp` (closing CTA)
