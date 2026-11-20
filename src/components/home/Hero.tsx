@@ -1,10 +1,12 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { Link } from "@tanstack/react-router";
-import { hero, ingredients } from "@/data/content";
+import { CaretLeft, CaretRight, Pause, Play } from "@phosphor-icons/react";
+import { heroSlider, heroSlides, type HeroSlide } from "@/data/content";
+import { media, type Media } from "@/data/media";
+import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
 import { money, type Product } from "@/lib/shopify/types";
 import { Stars } from "@/components/site/Stars";
-import { media } from "@/data/media";
 import { gsap, useGSAP } from "@/lib/animations/gsap";
 import { heroEntrance, type HeroParts } from "@/lib/animations/hero";
 import { isHydrated } from "@/lib/animations/hydration";
@@ -14,13 +16,46 @@ import { safely } from "@/lib/animations/safety";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Img, LoopVideo } from "./media";
 
-/* 1. HERO: headline, one line, two pills, and the floating product composition. */
+/**
+ * 1. HERO: a full-width banner slider. Three slides (heroSlides in content.ts, media in
+ * media.hero.slides) crossfade; the active picture zooms in slowly, its text rises in, and a
+ * progress bar fills, moving to the next slide when it is full (6.5s). Hover, keyboard focus,
+ * the pause button, an off-screen hero or a hidden tab pause it; reduced motion turns autoplay,
+ * zoom and text motion off. Arrows, the bars and a swipe on touch screens change slides.
+ * A floating card sells the featured product right in the hero (desktop).
+ */
 export function Hero({ featured }: { featured: Product }) {
   const section = useRef<HTMLElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const line = useRef<HTMLParagraphElement>(null);
   const actions = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+  const [changed, setChanged] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const swipe = useRef<number | null>(null);
   usePauseWhenHidden(section);
+
+  const count = heroSlides.length;
+  const go = useCallback(
+    (next: number) => {
+      setChanged(true);
+      setIndex(((next % count) + count) % count);
+    },
+    [count],
+  );
+
+  // Keyboard: left and right arrows anywhere inside the slider.
+  useEffect(() => {
+    const el = section.current;
+    if (!el) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") go(index + 1);
+      if (e.key === "ArrowLeft") go(index - 1);
+    };
+    el.addEventListener("keydown", onKey);
+    return () => el.removeEventListener("keydown", onKey);
+  }, [go, index]);
 
   useGSAP(
     () => {
@@ -40,7 +75,6 @@ export function Hero({ featured }: { featured: Product }) {
       const mm = gsap.matchMedia();
       mm.add(MOTION_CONDITIONS, (ctx) => {
         const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
-        // Play once; crossing a breakpoint later must not replay it.
         if (isReduced || played) return;
         played = true;
         let cleanup = () => {};
@@ -57,236 +91,307 @@ export function Hero({ featured }: { featured: Product }) {
     { scope: section },
   );
 
-  // Pointer parallax: each [data-mouse] layer drifts by its own amount (desktop only).
-  useGSAP(
-    () => {
-      const root = section.current;
-      const pointer = gsap.matchMedia();
-      pointer.add(MOTION_CONDITIONS, (ctx) => {
-        const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
-        if (!isDesktop || isReduced || !root) return;
-        const layers = Array.from(root.querySelectorAll<HTMLElement>("[data-mouse]")).map((el) => ({
-          amount: Number(el.dataset["mouse"]) || 0,
-          x: gsap.quickTo(el, "x", { duration: 1.2, ease: "power3.out" }),
-          y: gsap.quickTo(el, "y", { duration: 1.2, ease: "power3.out" }),
-        }));
-        const onMove = (e: PointerEvent) => {
-          const r = root.getBoundingClientRect();
-          const nx = (e.clientX - r.left) / r.width - 0.5;
-          const ny = (e.clientY - r.top) / r.height - 0.5;
-          layers.forEach((l) => {
-            l.x(nx * l.amount * 2);
-            l.y(ny * l.amount * 2);
-          });
-        };
-        root.addEventListener("pointermove", onMove);
-        return () => root.removeEventListener("pointermove", onMove);
-      });
-      return () => pointer.revert();
-    },
-    { scope: section },
-  );
+  const paused = userPaused || hovered;
+
+  const onPointerDown = (e: PointerEvent) => {
+    if (e.pointerType !== "mouse") swipe.current = e.clientX;
+  };
+  const onPointerUp = (e: PointerEvent) => {
+    if (swipe.current === null) return;
+    const dx = e.clientX - swipe.current;
+    swipe.current = null;
+    if (Math.abs(dx) > 50) go(index + (dx < 0 ? 1 : -1));
+  };
 
   return (
     <section
       ref={section}
-      className="container-x grid items-center gap-12 pb-16 pt-28 md:pt-36 lg:min-h-[100dvh] lg:grid-cols-[1fr_1.1fr] lg:gap-10 lg:pb-16 lg:pt-28"
+      aria-roledescription="carousel"
+      aria-label={heroSlider.label}
+      className="px-4 pt-24 md:px-6 md:pt-28"
     >
-      <div className="max-w-xl">
-        <h1 ref={heading} className="display">
-          {hero.title}
-        </h1>
-        <p ref={line} className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
-          {hero.line}
-        </p>
-        <div ref={actions} className="mt-9 flex flex-wrap gap-3">
-          <Link to={hero.shopCta.href} className="btn btn-primary">
-            {hero.shopCta.label}
-          </Link>
-          <Link to={hero.quizCta.href} className="btn btn-outline">
-            {hero.quizCta.label}
-          </Link>
+      <div
+        data-paused={paused || undefined}
+        onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
+        onPointerLeave={() => setHovered(false)}
+        onFocusCapture={() => setHovered(true)}
+        onBlurCapture={() => setHovered(false)}
+        onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
+        className="relative mx-auto h-[min(82dvh,44rem)] min-h-[36rem] max-w-[84rem] touch-pan-y overflow-hidden rounded-card bg-green"
+      >
+        {heroSlides.map((slide, i) => (
+          <Slide
+            key={slide.title}
+            slide={slide}
+            media={media.hero.slides[i]}
+            index={i}
+            active={i === index}
+            animate={changed}
+            featured={featured}
+            refs={i === 0 ? { heading, line, actions } : undefined}
+          />
+        ))}
+
+        <ProductCard featured={featured} />
+
+        {/* Controls: progress bars (also buttons), pause, previous, next. */}
+        <div className="absolute inset-x-0 bottom-0 z-20 flex items-center gap-3 px-6 pb-5 sm:px-10 sm:pb-7 lg:px-14">
+          <ol className="flex flex-1 gap-2 sm:max-w-xs">
+            {heroSlides.map((s, i) => (
+              <li key={s.title} className="flex-1">
+                <button
+                  type="button"
+                  onClick={() => go(i)}
+                  aria-label={`${heroSlider.goTo} ${i + 1}: ${s.kicker}`}
+                  aria-current={i === index ? "true" : undefined}
+                  className="group flex h-11 w-full items-center"
+                >
+                  <span className="relative block h-[3px] w-full overflow-hidden rounded-full bg-cream/30">
+                    <span
+                      key={`${i}-${index}`}
+                      onAnimationEnd={() => i === index && go(index + 1)}
+                      className={`absolute inset-0 origin-left rounded-full bg-cream ${i === index ? "animate-slide-progress" : i < index ? "" : "scale-x-0"} ${i < index ? "scale-x-100" : ""} ${paused ? "[animation-play-state:paused]" : ""}`}
+                    />
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ol>
+          <button
+            type="button"
+            onClick={() => setUserPaused((p) => !p)}
+            aria-label={userPaused ? heroSlider.play : heroSlider.pause}
+            className="grid h-11 w-11 place-items-center rounded-full bg-cream/15 text-cream backdrop-blur-sm transition-colors hover:bg-cream/25"
+          >
+            {userPaused ? (
+              <Play size={16} weight="fill" aria-hidden="true" />
+            ) : (
+              <Pause size={16} weight="fill" aria-hidden="true" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => go(index - 1)}
+            aria-label={heroSlider.previous}
+            className="hidden h-11 w-11 place-items-center rounded-full bg-cream/15 text-cream backdrop-blur-sm transition-colors hover:bg-cream/25 sm:grid"
+          >
+            <CaretLeft size={18} weight="light" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => go(index + 1)}
+            aria-label={heroSlider.next}
+            className="hidden h-11 w-11 place-items-center rounded-full bg-cream/15 text-cream backdrop-blur-sm transition-colors hover:bg-cream/25 sm:grid"
+          >
+            <CaretRight size={18} weight="light" aria-hidden="true" />
+          </button>
         </div>
-        <HeroProof featured={featured} />
       </div>
-      <Composition />
     </section>
   );
 }
 
-/** Price and rating under the buttons: what it costs and what customers think, at a glance. */
-function HeroProof({ featured }: { featured: Product }) {
-  const from = money(featured.priceRange.minVariantPrice);
-  const mrp = featured.compareAtPriceRange
-    ? money(featured.compareAtPriceRange.minVariantPrice)
-    : 0;
-  return (
-    <p data-piece className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-      {featured.rating && (
-        <span className="flex items-center gap-3 text-muted-foreground">
-          <span aria-hidden="true" className="flex -space-x-2.5">
-            {media.reviews.map((m) => (
-              <Img
-                key={m.src}
-                media={m}
-                sizes="2rem"
-                className="h-8 w-8 rounded-full border-2 border-background"
-              />
-            ))}
-          </span>
-          <Stars value={featured.rating.value} size={16} />
-          <span>
-            <span className="font-medium text-foreground">{featured.rating.value.toFixed(1)}</span>{" "}
-            from {featured.rating.count.toLocaleString("en-IN")} {hero.ratingLabel}
-          </span>
-        </span>
-      )}
-      <span className="text-muted-foreground">
-        {hero.from} <span className="text-foreground">{inr(from)}</span>
-        {mrp > from && <span className="ml-1.5 line-through">{inr(mrp)}</span>}
-      </span>
-    </p>
-  );
-}
-
-const RING_TEXT =
-  "SKIN GLOW TEA  •  红枣 JUJUBE  •  银耳 SNOW FUNGUS  •  枸杞 GOJI  •  生姜 GINGER  •  ";
-
-/**
- * Layering, outermost first: entrance (data-piece) > pointer parallax (data-mouse, desktop)
- * > endless CSS motion (orbit, ring, steam; desktop only) > media. One transform per layer.
- */
-function Layer({
-  className,
-  mouse,
-  children,
+function Slide({
+  slide,
+  media: m,
+  index,
+  active,
+  animate,
+  featured,
+  refs,
 }: {
-  className: string;
-  mouse: number;
-  children: ReactNode;
+  slide: HeroSlide;
+  media: Media | undefined;
+  index: number;
+  active: boolean;
+  animate: boolean;
+  featured: Product;
+  refs?:
+    | {
+        heading: React.RefObject<HTMLHeadingElement | null>;
+        line: React.RefObject<HTMLParagraphElement | null>;
+        actions: React.RefObject<HTMLDivElement | null>;
+      }
+    | undefined;
 }) {
+  const { add } = useCart();
+  const Heading = index === 0 ? "h1" : "h2";
+  const pack = slide.primary.addPack
+    ? featured.variants.find((v) => v.title === slide.primary.addPack)
+    : undefined;
+  const rise = animate && active ? "animate-fade-up" : "";
   return (
-    <div data-piece className={`absolute ${className}`}>
-      <div data-mouse={mouse} className="h-full w-full">
-        {children}
+    <div
+      role="group"
+      aria-roledescription="slide"
+      aria-label={`${index + 1} of ${heroSlides.length}: ${slide.kicker}`}
+      aria-hidden={!active}
+      inert={!active}
+      className={`absolute inset-0 transition-opacity duration-1000 ease-out ${active ? "z-10 opacity-100" : "opacity-0"}`}
+    >
+      {/* Picture with a slow zoom while the slide is showing. */}
+      <div
+        key={active ? "on" : "off"}
+        className={`absolute inset-0 ${active ? "animate-kenburns" : ""}`}
+      >
+        {m?.kind === "video" ? (
+          <LoopVideo
+            video={m}
+            priority={index === 0}
+            controlClassName="right-5 top-5 sm:right-7 sm:top-7"
+            className="h-full w-full"
+          />
+        ) : m ? (
+          <Img
+            media={m}
+            priority={index === 0}
+            sizes="(min-width: 1344px) 84rem, 100vw"
+            className="h-full w-full"
+          />
+        ) : null}
+      </div>
+      {/* Scrims: from the left on desktop, from the bottom on phones. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/40 to-ink/5 lg:bg-gradient-to-r lg:from-ink/75 lg:via-ink/35 lg:to-transparent"
+      />
+
+      <div className="pointer-events-none relative flex h-full items-end px-6 pb-24 sm:px-10 sm:pb-28 lg:items-center lg:px-14 lg:pb-14">
+        <div
+          key={animate ? `t-${active}` : "t"}
+          className="pointer-events-auto max-w-xl text-cream"
+        >
+          <p
+            className={`inline-flex rounded-full bg-cream/15 px-3.5 py-1.5 text-sm backdrop-blur-sm ${rise}`}
+          >
+            {slide.kicker}
+          </p>
+          <Heading
+            ref={refs?.heading}
+            className={`display mt-5 text-cream ${rise}`}
+            style={rise ? { animationDelay: "80ms" } : undefined}
+          >
+            {slide.title}
+          </Heading>
+          <p
+            ref={refs?.line}
+            className={`mt-5 max-w-md text-lg leading-relaxed text-cream/90 ${rise}`}
+            style={rise ? { animationDelay: "160ms" } : undefined}
+          >
+            {slide.line}
+          </p>
+          <div
+            ref={refs?.actions}
+            className={`mt-8 flex flex-wrap gap-3 ${rise}`}
+            style={rise ? { animationDelay: "240ms" } : undefined}
+          >
+            {pack ? (
+              <button
+                type="button"
+                onClick={() => add(featured, pack, 1, { openDrawer: true })}
+                disabled={!pack.availableForSale}
+                className="btn btn-primary"
+              >
+                {slide.primary.label}
+                <span className="opacity-80">{inr(money(pack.price))}</span>
+              </button>
+            ) : slide.primary.href ? (
+              <ActionLink href={slide.primary.href} className="btn btn-primary">
+                {slide.primary.label}
+              </ActionLink>
+            ) : null}
+            {slide.secondary && (
+              <ActionLink href={slide.secondary.href} className="btn btn-cream">
+                {slide.secondary.label}
+              </ActionLink>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-/**
- * The steeping ritual: the cup in the centre, a seal-like ring of names turning slowly around
- * it, and the four ingredients orbiting (each stays upright). Hovering an ingredient shows its
- * name. The video's pause button stops all of it (data-paused, see styles.css).
- */
-function Composition() {
-  const [paused, setPaused] = useState(false);
+/** "/#section" anchors stay plain links; page routes use the router. */
+function ActionLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className: string;
+  children: React.ReactNode;
+}) {
+  if (href.startsWith("/#"))
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    );
   return (
-    <div
-      data-paused={paused || undefined}
-      className="relative mx-auto aspect-square w-full max-w-[40rem]"
-    >
-      <Layer className="inset-[7%]" mouse={6}>
-        <div className="h-full w-full rounded-full bg-blush" />
-      </Layer>
-
-      <Layer className="inset-[2%]" mouse={-8}>
-        <svg viewBox="0 0 100 100" aria-hidden="true" className="animate-ring h-full w-full">
-          <defs>
-            <path id="hero-ring" d="M50 50 m-45 0 a45 45 0 1 1 90 0 a45 45 0 1 1 -90 0" />
-          </defs>
-          <text
-            fill="currentColor"
-            className="text-green/70"
-            fontSize="3.1"
-            letterSpacing="0.9"
-            fontWeight="500"
-          >
-            <textPath href="#hero-ring">{RING_TEXT}</textPath>
-          </text>
-        </svg>
-      </Layer>
-
-      <Layer className="inset-[23%] z-10" mouse={14}>
-        <div className="relative h-full w-full">
-          <div className="h-full w-full overflow-hidden rounded-full border-[6px] border-background">
-            <Img
-              media={media.hero.centerpiece}
-              priority
-              sizes="(min-width: 1024px) 22rem, 54vw"
-              className="h-full w-full"
-            />
-          </div>
-          <Steam />
-        </div>
-      </Layer>
-
-      <Layer className="inset-0 z-20" mouse={-18}>
-        <div className="animate-orbit relative h-full w-full">
-          {ingredients.map((ing, i) => {
-            const angle = (i * 90 + 35) * (Math.PI / 180);
-            const size = i % 2 ? 17 : 21;
-            return (
-              <div
-                key={ing.name}
-                className="absolute"
-                style={{
-                  width: `${size}%`,
-                  left: `${50 + 41 * Math.cos(angle) - size / 2}%`,
-                  top: `${50 + 41 * Math.sin(angle) - size / 2}%`,
-                }}
-              >
-                <div className="animate-orbit-counter group relative">
-                  <Img
-                    media={media.ingredients[ing.image]}
-                    sizes="9rem"
-                    className="aspect-square w-full rounded-full border-4 border-background"
-                  />
-                  <span className="pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-background px-3 py-1 text-xs text-green opacity-0 shadow-soft transition-opacity duration-300 group-hover:opacity-100">
-                    <span lang="zh-Hans">{ing.hanzi}</span> {ing.name}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Layer>
-
-      <Layer className="bottom-[2%] right-[-2%] z-30 w-[30%] lg:right-[-6%]" mouse={22}>
-        <LoopVideo
-          video={media.hero.video}
-          onPausedChange={setPaused}
-          className="aspect-[4/5] w-full rounded-card border-4 border-background bg-beige"
-        />
-      </Layer>
-    </div>
+    <Link to={href} className={className}>
+      {children}
+    </Link>
   );
 }
 
-/** Three soft wisps of steam above the cup (desktop: rising loop; elsewhere: still). */
-function Steam() {
+/** Floating card: the featured product, its rating and price, and "Add to cart" (desktop). */
+function ProductCard({ featured }: { featured: Product }) {
+  const { add } = useCart();
+  const variant = featured.variants[0];
+  const price = money(featured.priceRange.minVariantPrice);
+  const mrp = featured.compareAtPriceRange
+    ? money(featured.compareAtPriceRange.minVariantPrice)
+    : 0;
   return (
-    <svg
-      viewBox="0 0 60 80"
-      aria-hidden="true"
-      className="absolute bottom-[78%] left-1/2 w-[30%] -translate-x-1/2 text-background"
+    <div
+      data-piece
+      className="absolute right-10 top-1/2 z-20 hidden w-72 -translate-y-1/2 xl:block"
     >
-      {[
-        "M18 78 C8 62 28 52 18 36 C10 24 22 14 18 2",
-        "M30 78 C22 60 40 50 30 34 C22 22 36 12 30 0",
-        "M42 78 C34 62 52 52 42 36 C34 24 46 14 42 2",
-      ].map((d, i) => (
-        <path
-          key={d}
-          d={d}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-          className="animate-steam opacity-60"
-          style={{ animationDelay: `${i * -1.3}s` }}
-        />
-      ))}
-    </svg>
+      <div className="rounded-[1.5rem] bg-background/95 p-4 text-foreground backdrop-blur-md">
+        <Link
+          to="/products/$handle"
+          params={{ handle: featured.handle }}
+          className="block overflow-hidden rounded-xl"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <Img media={media.hero.product} sizes="16rem" className="aspect-[4/3] w-full" />
+        </Link>
+        <p className="mt-3 text-sm leading-snug">
+          <Link
+            to="/products/$handle"
+            params={{ handle: featured.handle }}
+            className="underline-offset-4 hover:underline"
+          >
+            {featured.title}
+          </Link>
+        </p>
+        {featured.rating && (
+          <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+            <Stars value={featured.rating.value} size={12} />
+            {featured.rating.value.toFixed(1)} ({featured.rating.count.toLocaleString("en-IN")}{" "}
+            {heroSlider.card.reviews})
+          </p>
+        )}
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p>
+            {inr(price)}
+            {mrp > price && (
+              <span className="ml-1.5 text-sm text-muted-foreground line-through">{inr(mrp)}</span>
+            )}
+          </p>
+          <button
+            type="button"
+            disabled={!variant?.availableForSale}
+            onClick={() => variant && add(featured, variant)}
+            className="btn btn-primary min-h-10 px-4 py-2 text-sm"
+          >
+            {heroSlider.card.add}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

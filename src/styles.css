@@ -317,40 +317,30 @@
     animation: float 8s ease-in-out infinite;
   }
 }
-/* Hero ritual: ingredients orbit the cup, a ring of names turns, steam rises. Desktop with a
-   mouse only; paused off-screen, in hidden tabs and by the hero video's pause button. */
-@keyframes spin {
+/* Hero slider: the active slide's progress bar fills (transform only), its picture zooms in
+   slowly. Reduced motion: no fill (so no autoplay) and no zoom. */
+@keyframes slide-progress {
+  from {
+    transform: scaleX(0);
+  }
   to {
-    transform: rotate(360deg);
+    transform: scaleX(1);
   }
 }
-@keyframes steam {
-  0% {
-    opacity: 0;
-    transform: translateY(12%) scaleY(0.9);
+@keyframes kenburns {
+  from {
+    transform: scale(1);
   }
-  35% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-30%) scaleY(1.05);
+  to {
+    transform: scale(1.08);
   }
 }
-@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .animate-orbit {
-    animation: spin 45s linear infinite;
+@media (prefers-reduced-motion: no-preference) {
+  .animate-slide-progress {
+    animation: slide-progress 6.5s linear both;
   }
-  .animate-orbit-counter {
-    animation: spin 45s linear infinite reverse;
-  }
-  .animate-ring {
-    animation: spin 35s linear infinite reverse;
-  }
-  .animate-steam {
-    transform-box: fill-box;
-    transform-origin: 50% 100%;
-    animation: steam 4s ease-in-out infinite;
+  .animate-kenburns {
+    animation: kenburns 9s ease-out both;
   }
 }
 @keyframes marquee {

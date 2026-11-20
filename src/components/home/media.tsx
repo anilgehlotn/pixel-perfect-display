@@ -49,6 +49,7 @@ export function LoopVideo({
   className = "",
   priority = false,
   onPausedChange,
+  controlClassName = "bottom-3 right-3",
   children,
 }: {
   video: MediaVideo;
@@ -56,6 +57,8 @@ export function LoopVideo({
   className?: string;
   priority?: boolean;
   onPausedChange?: (paused: boolean) => void;
+  /** Where the pause button sits inside the frame. */
+  controlClassName?: string;
   children?: ReactNode;
 }) {
   const frame = useRef<HTMLDivElement>(null);
@@ -178,7 +181,7 @@ export function LoopVideo({
           type="button"
           onClick={toggle}
           aria-label={paused ? "Play background video" : "Pause background video"}
-          className="absolute bottom-3 right-3 grid h-11 w-11 place-items-center rounded-full bg-background/85 text-green backdrop-blur-sm transition-colors hover:bg-background"
+          className={`absolute ${controlClassName} z-10 grid h-11 w-11 place-items-center rounded-full bg-background/85 text-green backdrop-blur-sm transition-colors hover:bg-background`}
         >
           {paused ? (
             <Play size={16} weight="fill" aria-hidden="true" />

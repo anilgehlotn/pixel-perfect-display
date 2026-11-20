@@ -47,6 +47,51 @@ export const hero = {
   from: "From",
 };
 
+// Hero banner slider. Each slide: kicker, title, line, primary and optional secondary
+// action. "add" buttons add a pack of the featured product instead of linking. Media for each
+// slide is media.hero.slides[i] (same order).
+export type HeroSlide = {
+  kicker: string;
+  title: string;
+  line: string;
+  primary: { label: string; href?: string; addPack?: string };
+  secondary?: { label: string; href: string };
+};
+
+export const heroSlides: HeroSlide[] = [
+  {
+    kicker: "Our bestseller",
+    title: "Glow from within, one cup at a time.",
+    line: "Jujube, snow fungus, goji and ginger, brewed whole into a naturally sweet, caffeine-free daily ritual.",
+    primary: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
+    secondary: { label: "Take the quiz", href: "/quiz" },
+  },
+  {
+    kicker: "Bundle and save",
+    title: "Save up to 15% on your ritual.",
+    line: "Two or four pouches of Skin Glow Tea, with free shipping on the four-pack. Your ritual, never interrupted.",
+    primary: { label: "Add 4 pouches", addPack: "4 Pouches" },
+    secondary: { label: "See all packs", href: "/products/skin-glow-tea" },
+  },
+  {
+    kicker: "What's inside",
+    title: "Four whole ingredients. Nothing else.",
+    line: "Red dates, snow fungus, goji and ginger from the Traditional Chinese Medicine kitchen. No tea dust, no added sugar.",
+    primary: { label: "Meet the ingredients", href: "/#ingredients" },
+    secondary: { label: "Shop now", href: "/products/skin-glow-tea" },
+  },
+];
+
+export const heroSlider = {
+  label: "Featured",
+  previous: "Previous slide",
+  next: "Next slide",
+  pause: "Pause slideshow",
+  play: "Play slideshow",
+  goTo: "Show slide",
+  card: { add: "Add to cart", reviews: "reviews" },
+};
+
 /* ---------------------------------------------------------------------------
    PRODUCTS (local stand-in for Shopify)
    Shaped like the Shopify Storefront API (see src/lib/shopify/types.ts). Components never

@@ -284,10 +284,11 @@ const site = {
 
 export const media = {
   hero: {
-    // Replace with the SkinFusion pouch photo when it arrives (src/assets/skinfusion-pouch).
-    centerpiece: site.brew,
-    orbit: [site.jujube, site.goji, site.snowFungus, site.ginger],
-    video: videos.morningWindow,
+    // Banner slides, in the order of heroSlides in content.ts. Real stock media (Mixkit,
+    // Pexels); replace with SkinFusion campaign shots before launch.
+    slides: [videos.skincareRoutine, photos.glassTeapot, photos.redDates] as Media[],
+    // Product photo in the floating card.
+    product: site.brew,
   },
   // Product row: keyed by Shopify product handle. `video` plays on hover (desktop) or in view
   // (phones); `fallback` shows when the product has no image yet.
