@@ -233,6 +233,20 @@ const photos = {
     "Vlada Karpovich on Pexels",
     "https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/",
   ),
+  herbalApothecary: photo(
+    "herbal-apothecary",
+    "A glass teapot of herbal tea beside small bowls of dried flowers, herbs and berries on a wooden tray",
+    [1400, 2020],
+    "Pexels photographer (photo 8330249)",
+    "https://www.pexels.com/photo/assorted-herbs-on-bowls-8330249/",
+  ),
+  porcelainPour: photo(
+    "porcelain-pour",
+    "Tea poured from a blue and white porcelain teapot into small cups",
+    [1400, 2100],
+    "Pexels photographer (photo 7364044)",
+    "https://www.pexels.com/photo/woman-poring-tea-into-ceramic-cups-7364044/",
+  ),
   handsCup: photo(
     "hands-cup",
     "Hands in a knit sweater holding a cup of tea",
@@ -308,7 +322,8 @@ export const media = {
   ritual: { image: site.ritual, video: videos.teaSteam },
   tcm: { thumbnail: site.cups, video: videos.teaSteeping },
   reviews: [photos.windowTea, photos.handsGlass, site.ritual],
-  hero: site.flatlay,
+  // Hero: a real herbal-tea photograph with an arch-framed porcelain pour beside it.
+  hero: { main: photos.herbalApothecary, inset: photos.porcelainPour },
   // "Shop by ritual" arches, keyed by product handle.
   rituals: {
     "skin-glow-tea": site.brew,

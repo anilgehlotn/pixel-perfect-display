@@ -1,8 +1,9 @@
 import { useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { hero } from "@/data/content";
+import { hero, ingredients } from "@/data/content";
 import { media } from "@/data/media";
-import type { Product } from "@/lib/shopify/types";
+import { inr } from "@/lib/format";
+import { money, type Product } from "@/lib/shopify/types";
 import { gsap, useGSAP } from "@/lib/animations/gsap";
 import { heroEntrance, type HeroParts } from "@/lib/animations/hero";
 import { isHydrated } from "@/lib/animations/hydration";
@@ -13,8 +14,9 @@ import { Stars } from "@/components/site/Stars";
 import { Img } from "./media";
 
 /**
- * 1. HERO: full-bleed photograph. Desktop: copy over the calm left side with a cream wash.
- * Phones: photo on top, copy below on cream.
+ * 1. HERO: names the product and shows the real thing. Desktop: copy, price, rating and the
+ * four ingredients on the left; a herbal-tea photograph on the right with an arch-framed
+ * porcelain pour overlapping it (xl only). Phones: photo first, copy below.
  */
 export function Hero({ featured }: { featured: Product }) {
   const section = useRef<HTMLElement>(null);
@@ -58,53 +60,93 @@ export function Hero({ featured }: { featured: Product }) {
   );
 
   const rating = featured.rating;
+  const from = money(featured.priceRange.minVariantPrice);
+  const mrp = featured.compareAtPriceRange
+    ? money(featured.compareAtPriceRange.minVariantPrice)
+    : 0;
   return (
     <section
       ref={section}
       aria-labelledby="hero-title"
-      className="relative bg-sand lg:flex lg:min-h-[min(46rem,calc(100dvh-8rem))] lg:items-center"
+      className="relative overflow-hidden bg-sand"
     >
-      <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
-        <Img
-          media={media.hero}
-          priority
-          sizes="100vw"
-          className="h-full w-full object-[72%_50%] lg:object-[62%_50%]"
-        />
-        {/* Soft cream wash on the left keeps the headline readable over the photo. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 hidden bg-gradient-to-r from-sand via-sand/75 to-transparent lg:block"
-        />
-      </div>
-      <div className="relative mx-auto w-full max-w-[80rem] px-6 pb-14 pt-10 lg:py-24">
-        <div className="max-w-xl">
-          <p data-piece className="text-sm font-medium tracking-[0.08em] text-gold-deep">
-            {hero.kicker}
-          </p>
-          <h1 id="hero-title" ref={heading} className="display mt-4 text-green">
-            {hero.title}
-          </h1>
-          <p ref={line} className="mt-6 max-w-md text-[1.1rem] leading-relaxed text-ink/80">
-            {hero.line}
-          </p>
-          <div ref={actions} className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link to={hero.shopCta.href} className="btn btn-primary">
-              {hero.shopCta.label}
-            </Link>
-            <Link to={hero.quizCta.href} className="btn btn-outline">
-              {hero.quizCta.label}
-            </Link>
+      <div className="grid lg:min-h-[min(44rem,calc(100dvh-8.5rem))] lg:grid-cols-[1fr_1.05fr]">
+        {/* Photo: first on phones, right-hand column on desktop. */}
+        <div className="relative aspect-[4/3] sm:aspect-[16/9] lg:order-2 lg:aspect-auto">
+          <Img
+            media={media.hero.main}
+            priority
+            sizes="(min-width: 1024px) 52vw, 100vw"
+            className="absolute inset-0 h-full w-full object-[50%_30%]"
+          />
+          <div
+            data-piece
+            className="absolute bottom-[12%] -left-20 hidden w-[28%] max-w-[15rem] xl:block"
+          >
+            <div className="aspect-[3/4] overflow-hidden rounded-t-full border-[6px] border-sand">
+              <Img media={media.hero.inset} sizes="15rem" className="h-full w-full" />
+            </div>
           </div>
-          {rating && (
-            <p data-piece className="mt-8 flex items-center gap-3 text-sm text-ink/80">
-              <Stars value={rating.value} size={16} />
-              <span>
-                <span className="font-medium text-ink">{rating.value.toFixed(1)}</span> from{" "}
-                {rating.count.toLocaleString("en-IN")} {hero.ratingLabel}
-              </span>
+        </div>
+
+        <div className="flex items-center px-6 pb-14 pt-10 lg:order-1 lg:py-16 lg:pl-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))] lg:pr-16 xl:pr-28">
+          <div className="max-w-xl">
+            <p data-piece className="text-sm font-medium tracking-[0.08em] text-gold-deep">
+              {hero.kicker}
             </p>
-          )}
+            <h1 id="hero-title" ref={heading} className="display mt-4 text-green">
+              {hero.title}
+            </h1>
+            <p ref={line} className="mt-5 max-w-md text-[1.075rem] leading-relaxed text-ink/80">
+              {hero.line}
+            </p>
+
+            <p data-piece className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+              <span>
+                <span className="text-muted-foreground">From </span>
+                <span className="text-lg text-ink">{inr(from)}</span>
+                {mrp > from && (
+                  <span className="ml-2 text-muted-foreground line-through">{inr(mrp)}</span>
+                )}
+              </span>
+              {rating && (
+                <span className="flex items-center gap-2 text-ink/80">
+                  <Stars value={rating.value} size={15} />
+                  <span>
+                    <span className="font-medium text-ink">{rating.value.toFixed(1)}</span> (
+                    {rating.count.toLocaleString("en-IN")} {hero.ratingLabel})
+                  </span>
+                </span>
+              )}
+            </p>
+
+            <div ref={actions} className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link to={hero.shopCta.href} className="btn btn-primary">
+                {hero.shopCta.label}
+              </Link>
+              <Link to={hero.quizCta.href} className="btn btn-outline">
+                {hero.quizCta.label}
+              </Link>
+            </div>
+
+            <div data-piece className="mt-10 border-t border-ink/10 pt-6">
+              <p className="text-xs font-medium tracking-[0.08em] text-gold-deep">{hero.inside}</p>
+              <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
+                {ingredients.map((ing) => (
+                  <li key={ing.name} className="flex items-center gap-2.5">
+                    <span className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-surface">
+                      <Img
+                        media={media.ingredients[ing.image]}
+                        sizes="2.5rem"
+                        className="h-full w-full"
+                      />
+                    </span>
+                    <span className="text-sm text-ink">{ing.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </section>

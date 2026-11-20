@@ -46,11 +46,12 @@ export const FREE_SHIPPING_THRESHOLD = 699;
 
 export const hero = {
   kicker: "Traditional Chinese Medicine, brewed whole",
-  title: "Your daily glow ritual starts within",
-  line: "Jujube, snow fungus, goji and ginger, kept whole and brewed into a naturally sweet daily ritual.",
-  shopCta: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
+  title: "TCM Skin Glow Tea",
+  line: "Jujube, snow fungus, goji and ginger, kept whole. A naturally sweet, caffeine-free cup that turns a centuries-old Chinese beauty recipe into a five-minute daily ritual.",
+  shopCta: { label: "Shop now", href: "/products/skin-glow-tea" },
   quizCta: { label: "Take the skin quiz", href: "/quiz" },
   ratingLabel: "reviews",
+  inside: "What's inside",
 };
 
 // Gold strip under the hero. Only true, checkable facts.
