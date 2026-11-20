@@ -1,7 +1,7 @@
 import { useId, type ReactNode, type RefObject } from "react";
 import { Link } from "@tanstack/react-router";
 import { Check, Minus, Plus } from "@phosphor-icons/react";
-import { home, pdp, type ProductDetails } from "@/data/content";
+import { pdp, type ProductDetails } from "@/data/content";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
 import { money, type Product } from "@/lib/shopify/types";
@@ -65,7 +65,9 @@ export function BuyBox({
           <span className="text-lg text-muted-foreground line-through">{inr(was)}</span>
         )}
         {save > 0 && (
-          <span className="bg-rose px-2 py-0.5 text-xs font-medium text-green">{save}% OFF</span>
+          <span className="rounded-full bg-rose px-2.5 py-0.5 text-xs font-medium text-green">
+            Save {save}%
+          </span>
         )}
       </p>
       {perCup > 0 && (
@@ -89,7 +91,7 @@ export function BuyBox({
               return (
                 <label
                   key={v.id}
-                  className={`relative flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center border px-2 py-3 text-center transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${on ? "border-green bg-green text-cream" : "border-ink/25 bg-surface hover:border-green"} ${v.availableForSale ? "" : "cursor-not-allowed opacity-50"}`}
+                  className={`relative flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center rounded-2xl border px-2 py-3 text-center transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${on ? "border-green bg-green text-cream" : "border-ink/25 bg-surface hover:border-green"} ${v.availableForSale ? "" : "cursor-not-allowed opacity-50"}`}
                 >
                   <input
                     type="radio"
@@ -121,7 +123,7 @@ export function BuyBox({
       )}
 
       <div className="mt-6 flex gap-3">
-        <div className="flex items-center border border-ink/30 bg-surface">
+        <div className="flex items-center rounded-full border border-ink/25 bg-surface">
           <button
             type="button"
             aria-label="Decrease quantity"
@@ -180,7 +182,7 @@ export function BuyBox({
           params={{ handle: product.handle }}
           className="mt-6 inline-flex min-h-11 items-center text-sm font-medium text-green underline underline-offset-[6px]"
         >
-          {home.featured.details}
+          {pdp.details}
           <span className="sr-only">: {product.title}</span>
         </Link>
       ) : (

@@ -1,23 +1,20 @@
 @import "@fontsource-variable/jost/wght.css"; /* self-hosted Jost, weights 100-900 */
-@import "@fontsource/marcellus/400.css"; /* display serif for headings */
 @import "tailwindcss" source(none);
 @source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-serif: "Marcellus", Georgia, serif;
+  --font-serif: "Jost Variable", "Jost", system-ui, sans-serif;
   --font-sans: "Jost Variable", "Jost", system-ui, sans-serif;
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
-  --radius-card: 2px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-card: 28px;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
   --color-blush: var(--blush);
-  --color-blush-deep: var(--blush-deep);
   --color-beige: var(--beige);
   --color-ink: var(--ink);
   --color-card: var(--card);
@@ -30,21 +27,16 @@
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-teal: var(--teal);
-  --color-jujube: var(--jujube);
-  --color-jujube-soft: var(--jujube-soft);
-  --color-rose: var(--rose);
-  --color-gold: var(--gold);
-  --color-coral: var(--coral);
   --color-green: var(--green);
-  --color-gold-deep: var(--gold-deep);
-  --color-wine: var(--wine);
-  --color-sand: var(--sand);
-  --color-peach: var(--peach);
-  --color-lilac: var(--lilac);
-  --color-sage: var(--sage);
-  --color-butter: var(--butter);
+  --color-green-soft: var(--green-soft);
   --color-cream: var(--cream);
   --color-error-on-dark: var(--error-on-dark);
+  --color-surface: var(--surface);
+  --color-sand: var(--sand);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-rose: var(--rose);
+  --color-jujube: var(--jujube);
   --color-on-image: var(--on-image);
   --color-pastel-peach: var(--pastel-peach);
   --color-pastel-pink: var(--pastel-pink);
@@ -66,70 +58,62 @@
 }
 
 :root {
-  /* White pages with warm cream sections, like a premium Indian tea house. */
-  --background: #ffffff;
-  --surface: #ffffff;
-  --sand: #f6efe3;
-  --blush: #f9f4ec;
-  --blush-deep: #efe4d0;
-  --beige: #f3ebdc;
-  --foreground: #23201c;
-  --ink: #23201c;
+  --background: #fbf7f2;
+  --blush: #f3e4e0;
+  --beige: #efe9e1;
+  --foreground: #1f1f1f;
+  --ink: #1f1f1f;
   --on-image: #ffffff;
-  --card: #ffffff;
-  --card-foreground: #23201c;
-  --popover: #ffffff;
-  --popover-foreground: #23201c;
-  /* Deep tea green: brand colour, buttons, header and footer. White on green is 10.6:1. */
-  --green: #1d4a39;
-  --primary: #1d4a39;
-  --primary-hover: #143628;
-  --primary-foreground: #ffffff;
-  /* Older token names point at the green so every component stays on palette. */
-  --coral: #1d4a39;
-  --wine: #1d4a39;
-  --jujube: #1d4a39;
-  --jujube-soft: #2b5e4b;
-  /* Antique gold: large serif headings and stars (3.3:1, large text only); gold-deep for
-     small gold text (5.2:1 on white). */
-  --gold: #a8803f;
-  --gold-deep: #84612b;
-  /* Soft gold-beige for badges and highlights, with green text. */
-  --rose: #efe2c6;
-  --peach: #f6efe3;
-  --lilac: #f6efe3;
-  --sage: #e9efe6;
-  --butter: #f6efe3;
-  --cream: #fffaf2;
-  --error-on-dark: #ffd2cc;
-  --brand: #1d4a39;
-  --brand-foreground: #ffffff;
-  --teal: #5f5a52;
-  --pastel-peach: #f6e6d6;
-  --pastel-pink: #f6e2e0;
-  --pastel-blue: #e3ecef;
-  --pastel-green: #e3ece0;
-  --pastel-orange: #f6e6cf;
-  --pastel-yellow: #f5edcf;
-  --secondary: #f6efe3;
-  --secondary-foreground: #23201c;
-  --muted: #f6efe3;
-  /* 6.4:1 on white, 5.8:1 on sand. */
-  --muted-foreground: #5f5a52;
-  --accent: #f6efe3;
-  --accent-foreground: #23201c;
-  --destructive: #b3372f;
+  --card: #fbf7f2;
+  --card-foreground: #1f1f1f;
+  --popover: #fbf7f2;
+  --popover-foreground: #1f1f1f;
+  --primary: #e8807a;
+  --primary-hover: #d96e68;
+  /* Ink on coral is 6.1:1. White on coral (2.69:1) fails WCAG AA, see CLAUDE.md. */
+  --primary-foreground: #1f1f1f;
+  /* Deep brand green: headlines and dark blocks. Cream text on it is 9:1. */
+  --green: #1e4d3a;
+  --green-soft: #2a5e49;
+  --cream: #fbf7f2;
+  /* Product page names mapped onto this palette: white surfaces, beige photo backdrops, green
+     headings and accents, blush chips. */
+  --surface: #ffffff;
+  --sand: #efe9e1;
+  --gold: #1e4d3a;
+  --gold-deep: #2a5e49;
+  --rose: #f3e4e0;
+  --jujube: #1e4d3a;
+  /* Error text on the deep green footer (8:1). */
+  --error-on-dark: #ffc9c2;
+  /* single-accent system: "brand" and "teal" map to text/accent so older markup stays on-palette */
+  --brand: #1e4d3a;
+  --brand-foreground: #fbf7f2;
+  --teal: #6b635c;
+  --pastel-peach: #f8dccb;
+  --pastel-pink: #f6d6da;
+  --pastel-blue: #d9e6ee;
+  --pastel-green: #dbe8d8;
+  --pastel-orange: #f7e0c4;
+  --pastel-yellow: #f6ecc6;
+  --secondary: #f3e4e0;
+  --secondary-foreground: #1f1f1f;
+  --muted: #efe9e1;
+  --muted-foreground: #6b635c;
+  --accent: #f3e4e0;
+  --accent-foreground: #1f1f1f;
+  --destructive: #c0453f;
   --destructive-foreground: #ffffff;
-  --border: rgba(35, 32, 28, 0.1);
-  --input: rgba(35, 32, 28, 0.25);
-  --ring: #1d4a39;
+  --border: rgba(0, 0, 0, 0.06);
+  --input: rgba(0, 0, 0, 0.15);
+  --ring: #1e4d3a;
   --hero-scrim: linear-gradient(
     20deg,
-    rgba(35, 32, 28, 0.55) 0%,
-    rgba(35, 32, 28, 0.25) 40%,
-    rgba(35, 32, 28, 0) 70%
+    rgba(31, 31, 31, 0.55) 0%,
+    rgba(31, 31, 31, 0.25) 40%,
+    rgba(31, 31, 31, 0) 70%
   );
-  --header-scrim: linear-gradient(180deg, rgba(35, 32, 28, 0.35), rgba(35, 32, 28, 0));
+  --header-scrim: linear-gradient(180deg, rgba(31, 31, 31, 0.35), rgba(31, 31, 31, 0));
   --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -144,20 +128,20 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-size: 16px;
-    line-height: 1.65;
+    font-size: 17px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
-  /* Headings default to Jost in ink. Use `display` / `headline` (serif) for big sentence-case
-     headlines and `title` (uppercase, wide-spaced) for section headings. */
+  /* Sentence-case headlines in deep green, slightly tight. Small uppercase text is only for
+     tiny eyebrow labels (label-caps). */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-sans);
     color: var(--green);
-    letter-spacing: 0;
-    line-height: 1.2;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
     font-weight: 400;
     text-wrap: balance;
   }
@@ -178,7 +162,7 @@
 
 @utility label-caps {
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -206,53 +190,49 @@
 @utility rounded-stadium {
   border-radius: 9999px;
 }
-/* Serif headlines (Marcellus), sentence case. */
+/* Big sentence-case display headline. */
 @utility display {
-  font-family: var(--font-serif);
-  font-size: clamp(2.3rem, 1.5rem + 3.4vw, 4.4rem);
-  line-height: 1.08;
-  letter-spacing: 0;
+  font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   font-weight: 400;
 }
+/* Product title and feature headings, one step below title. */
 @utility headline {
-  font-family: var(--font-serif);
-  font-size: clamp(1.75rem, 1.35rem + 1.6vw, 2.6rem);
-  line-height: 1.15;
-  letter-spacing: 0;
+  font-size: clamp(1.75rem, 1.35rem + 1.5vw, 2.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
   font-weight: 400;
 }
-/* Section titles: serif in antique gold (set the colour per section). */
 @utility title {
-  font-family: var(--font-serif);
-  font-size: clamp(1.9rem, 1.45rem + 1.8vw, 2.85rem);
-  line-height: 1.15;
-  letter-spacing: 0;
+  font-size: clamp(1.875rem, 1.3rem + 2.2vw, 3.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
   font-weight: 400;
 }
 @utility shadow-soft {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
-/* Square-cornered buttons, uppercase and wide-spaced. Press shrinks to 98%. */
+/* Pill buttons in sentence case. Press shrinks to 98%. */
 @utility btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   min-height: 48px;
-  padding: 0.8rem 1.9rem;
-  border-radius: 2px;
-  font-size: 0.875rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 9999px;
+  font-size: 1rem;
   line-height: 1.2;
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   white-space: nowrap;
   transition:
     transform 300ms var(--ease-soft),
-    background-color 250ms,
-    color 250ms,
-    border-color 250ms;
+    background-color 200ms,
+    color 200ms,
+    border-color 200ms;
   &:active {
     transform: scale(0.98);
   }
@@ -268,60 +248,30 @@
   }
 }
 @utility btn-outline {
-  border: 1px solid var(--green);
+  border: 1px solid currentColor;
   color: var(--green);
   &:hover {
     background: var(--green);
-    color: var(--surface);
+    border-color: var(--green);
+    color: var(--cream);
   }
 }
-/* Outline button on the jujube blocks and over photos. */
+/* Outline pill on the deep green blocks. */
 @utility btn-cream {
   border: 1px solid var(--cream);
   color: var(--cream);
   &:hover {
     background: var(--cream);
-    color: var(--wine);
+    color: var(--green);
   }
 }
-/* Solid cream button for the wine blocks. */
-@utility btn-light {
-  background: var(--cream);
-  color: var(--wine);
-  &:hover {
-    background: var(--blush);
-  }
-}
-/* Text link: uppercase, underlined, for "Read more" style links. */
-@utility link-caps {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  text-decoration: underline;
-  text-underline-offset: 6px;
-  text-decoration-thickness: 1px;
-}
-/* Cards lift slightly on hover; photos inside .zoom scale up a little. Desktop with a mouse
-   only. */
+/* Cards lift slightly on hover, desktop with a mouse only. */
 @media (hover: hover) and (pointer: fine) {
   .lift {
     transition: transform 500ms var(--ease-soft);
   }
   .lift:hover {
-    transform: translateY(-4px);
-  }
-  .zoom img,
-  .zoom video {
-    transition: transform 1200ms var(--ease-soft);
-  }
-  .zoom:hover img,
-  .zoom:hover video {
-    transform: scale(1.04);
+    transform: translateY(-6px);
   }
 }
 
@@ -425,26 +375,5 @@ html.lenis.lenis-smooth {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
-  }
-}
-
-/* Product gallery: the new photo fades in (opacity only). */
-@keyframes gallery-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Floating buttons (WhatsApp, 10% off) move up while the product page's sticky
-   "Add to cart" bar shows on phones and tablets. */
-[data-float] {
-  transition: translate 500ms var(--ease-soft);
-}
-@media (max-width: 1023px) {
-  html[data-sticky-cta] [data-float] {
-    translate: 0 -4.75rem;
   }
 }

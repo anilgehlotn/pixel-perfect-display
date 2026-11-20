@@ -1,86 +1,27 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { campaign, home, productDetails, rituals, trust } from "@/data/content";
+import { ArrowRight } from "@phosphor-icons/react";
+import { home } from "@/data/content";
 import { media } from "@/data/media";
-import type { Product } from "@/lib/shopify/types";
-import { BuyBox } from "@/components/product/BuyBox";
-import { usePurchase } from "@/components/product/purchase";
-import { ProductCard } from "@/components/product/ProductCard";
-import { SectionIntro } from "@/components/product/Blocks";
-import { Icon } from "@/components/product/icons";
+import { useCart } from "@/lib/cart/context";
+import { inr } from "@/lib/format";
+import { cornerLabel, hasTag, money, type Product } from "@/lib/shopify/types";
 import { ProductImage } from "@/components/site/ProductImage";
-import { Img, PlayPill, VideoDialog } from "./media";
+import { Stars } from "@/components/site/Stars";
+import { Img, LoopVideo, PlayPill, VideoDialog } from "./media";
 
-/* 2. BENEFIT STRIP: gold band with true facts. Wraps on phones, never scrolls sideways. */
-export function TrustBar() {
+/* 3. PRODUCT ROW: products from getProducts(). Swipe on phones, four columns on desktop. */
+export function ProductRow({ products }: { products: Product[] }) {
   return (
-    <section aria-label="Why SkinFusion" className="bg-gold-deep text-white">
-      <ul className="mx-auto flex max-w-[80rem] flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 py-3.5 md:px-6">
-        {trust.map((t) => (
-          <li key={t.label} className="flex items-center gap-2 text-[0.8rem] tracking-[0.04em]">
-            <Icon name={t.icon} size={18} className="shrink-0" />
-            {t.label}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-/* 3. SHOP BY RITUAL: arch-framed photos (like a jharokha window), one per product. */
-export function ShopByRitual({ products }: { products: Product[] }) {
-  return (
-    <section aria-labelledby="ritual-shop-title" className="bg-blush px-4 py-16 md:px-6 lg:py-20">
-      <div className="mx-auto max-w-[80rem]">
-        <SectionIntro id="ritual-shop-title" eyebrow={rituals.eyebrow} title={rituals.title} />
-        <ul
-          data-anim="cards"
-          className="no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:gap-6 md:overflow-visible md:px-0 lg:mt-12 [&>li]:w-[62%] [&>li]:shrink-0 [&>li]:snap-start md:[&>li]:w-auto"
-        >
-          {rituals.items.map((r) => {
-            const p = products.find((x) => x.handle === r.handle);
-            const img = media.rituals[r.handle];
-            if (!p) return null;
-            return (
-              <li key={r.handle}>
-                <Link
-                  to="/products/$handle"
-                  params={{ handle: r.handle }}
-                  className="zoom group block text-center"
-                >
-                  <div className="aspect-[4/5] overflow-hidden rounded-t-full bg-sand">
-                    {img && (
-                      <Img
-                        media={img}
-                        sizes="(min-width: 768px) 18rem, 62vw"
-                        className="h-full w-full"
-                      />
-                    )}
-                  </div>
-                  <p className="mt-4 font-serif text-xl text-green">{r.label}</p>
-                  <p className="mt-1 text-sm text-muted-foreground underline-offset-4 group-hover:underline">
-                    {p.title}
-                  </p>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-/* 4. BESTSELLERS: product cards from getProducts(). Swipe on phones, four columns on desktop. */
-export function Bestsellers({ products }: { products: Product[] }) {
-  return (
-    <section id="shop" aria-labelledby="shop-title" className="scroll-mt-28 py-16 lg:py-20">
-      <div className="px-4 md:px-6">
-        <SectionIntro id="shop-title" eyebrow={home.products.eyebrow} title={home.products.title} />
+    <section id="shop" aria-labelledby="shop-title" className="section-y scroll-mt-20">
+      <div className="container-x">
+        <h2 id="shop-title" data-anim="lines" className="title max-w-xl">
+          {home.products.title}
+        </h2>
       </div>
       <ul
         data-anim="cards"
-        className="no-scrollbar mx-auto mt-10 flex max-w-[80rem] snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 md:px-6 lg:mt-12 lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible [&>li]:w-[72%] [&>li]:shrink-0 [&>li]:snap-start sm:[&>li]:w-[44%] lg:[&>li]:w-auto"
+        className="no-scrollbar mx-auto mt-10 flex max-w-[80rem] snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 pb-2 md:mt-14 lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible"
       >
         {products.map((p) => (
           <ProductCard key={p.id} p={p} />
@@ -90,48 +31,209 @@ export function Bestsellers({ products }: { products: Product[] }) {
   );
 }
 
-/* 5. FEATURED: the signature tea with its pack choice, bought right here. */
-export function FeaturedRitual({ product }: { product: Product }) {
-  const purchase = usePurchase(product);
-  const details = productDetails[product.handle];
-  const art = media.products[product.handle] ?? media.productDefault;
+/**
+ * Product card: a short video plays over the photo on hover (desktop) or in view (phones).
+ * The picture and the name open the product page; rating, price with the MRP crossed out and
+ * the saving help people decide; "Add to cart" adds the first pack.
+ */
+export function ProductCard({ p, sizes }: { p: Product; sizes?: string }) {
+  const { add } = useCart();
+  const variant = p.variants[0];
+  const art = media.products[p.handle] ?? media.productDefault;
+  const badge = hasTag(p, "best-seller") ? "Best seller" : null;
+  const label = cornerLabel(p);
+  const available = !!variant?.availableForSale;
+  const price = money(p.priceRange.minVariantPrice);
+  const mrp = p.compareAtPriceRange ? money(p.compareAtPriceRange.minVariantPrice) : 0;
+  const off = mrp > price ? Math.round((1 - price / mrp) * 100) : 0;
   return (
-    <section
-      id="bundle"
-      aria-labelledby="featured-intro"
-      className="scroll-mt-28 bg-blush px-4 py-16 md:px-6 lg:py-20"
-    >
-      <SectionIntro
-        id="featured-intro"
-        eyebrow={home.featured.eyebrow}
-        title={home.featured.title}
-      />
-      <div className="mx-auto mt-10 grid max-w-[68rem] items-center gap-10 lg:mt-12 lg:grid-cols-2 lg:gap-16">
-        <div
-          data-anim="media"
-          className="relative aspect-square overflow-hidden rounded-t-full bg-sand"
+    <li data-video-hover className="lift w-[78%] shrink-0 snap-start sm:w-[45%] lg:w-auto">
+      <div className="relative">
+        <Link
+          to="/products/$handle"
+          params={{ handle: p.handle }}
+          tabIndex={-1}
+          aria-hidden="true"
+          className="block"
         >
-          {product.featuredImage ? (
-            <ProductImage
-              image={product.featuredImage}
-              alt={product.featuredImage.altText ?? product.title}
-              className="h-full w-full"
-            />
-          ) : (
-            <Img
-              media={art.fallback}
-              sizes="(min-width: 1024px) 34rem, 100vw"
-              className="h-full w-full"
-            />
+          <LoopVideo
+            video={art.video}
+            trigger="hover"
+            className="aspect-[4/5] w-full rounded-card bg-blush"
+          >
+            {p.featuredImage ? (
+              <ProductImage
+                image={p.featuredImage}
+                alt={p.featuredImage.altText ?? p.title}
+                className="h-full w-full"
+              />
+            ) : (
+              <Img
+                media={art.fallback}
+                sizes={sizes ?? "(min-width: 1024px) 18rem, 78vw"}
+                className="h-full w-full"
+              />
+            )}
+          </LoopVideo>
+        </Link>
+        {(badge || label) && (
+          <div className="pointer-events-none absolute left-4 top-4 z-10 flex flex-wrap gap-2">
+            {badge && (
+              <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-green">
+                {badge}
+              </span>
+            )}
+            {label && (
+              <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                {label}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+      {p.rating && (
+        <p className="mt-5 flex items-center gap-2 px-1 text-sm text-muted-foreground">
+          <Stars value={p.rating.value} size={14} />
+          <span>
+            {p.rating.value.toFixed(1)} ({p.rating.count.toLocaleString("en-IN")})
+          </span>
+        </p>
+      )}
+      <h3 className="mt-2 px-1 text-xl leading-snug">
+        <Link
+          to="/products/$handle"
+          params={{ handle: p.handle }}
+          className="underline-offset-4 hover:underline"
+        >
+          {p.title}
+        </Link>
+      </h3>
+      <p className="mt-1 flex flex-wrap items-center gap-x-2 px-1">
+        <span className="text-muted-foreground">{home.products.from}</span>
+        <span className="text-foreground">{inr(price)}</span>
+        {mrp > price && (
+          <span className="text-sm text-muted-foreground line-through">{inr(mrp)}</span>
+        )}
+        {off > 0 && (
+          <span className="rounded-full bg-blush px-2 py-0.5 text-xs font-medium text-green">
+            Save {off}%
+          </span>
+        )}
+      </p>
+      <button
+        type="button"
+        onClick={() => variant && add(p, variant)}
+        disabled={!available}
+        aria-label={available ? `${home.products.cta}: ${p.title}` : undefined}
+        className="btn btn-outline mt-5 w-full"
+      >
+        {available ? home.products.cta : "Sold out"}
+      </button>
+    </li>
+  );
+}
+
+/* 4. BUNDLE: copy and a 2x2 collage. The button adds the 4-pouch pack. */
+export function Bundle({ product }: { product: Product }) {
+  const { add } = useCart();
+  const pack = product.variants.find((v) => v.title === home.bundle.variantTitle);
+  const [a, b, c, d] = media.bundle;
+  return (
+    <section id="bundle" aria-labelledby="bundle-title" className="scroll-mt-20 px-4 md:px-6">
+      <div className="mx-auto grid max-w-[84rem] items-center gap-10 rounded-card bg-blush p-6 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:p-16">
+        <div className="max-w-md">
+          <h2 id="bundle-title" data-anim="lines" className="title">
+            {home.bundle.title}
+          </h2>
+          <p data-anim="fade" className="mt-5 text-lg leading-relaxed text-muted-foreground">
+            {home.bundle.text}
+          </p>
+          {pack && (
+            <div data-anim="fade" className="mt-8 flex flex-wrap items-center gap-4">
+              <button
+                type="button"
+                onClick={() => add(product, pack)}
+                disabled={!pack.availableForSale}
+                className="btn btn-primary"
+              >
+                {home.bundle.cta}
+              </button>
+              <p className="text-muted-foreground">
+                {inr(money(pack.price))}
+                {pack.compareAtPrice && (
+                  <span className="ml-2 line-through">{inr(money(pack.compareAtPrice))}</span>
+                )}
+              </p>
+            </div>
           )}
         </div>
-        <div className="min-w-0">
-          <BuyBox
-            product={product}
-            details={details}
-            purchase={purchase}
-            compact
-            heading={<h3 className="headline text-green">{product.title}</h3>}
+        <div
+          data-anim="cards"
+          className="mx-auto grid w-full max-w-lg grid-cols-2 gap-3 sm:gap-4 lg:max-w-none"
+        >
+          {a && (
+            <div className="aspect-square overflow-hidden rounded-[1.5rem]">
+              <Img media={a} sizes="(min-width: 1024px) 18rem, 45vw" className="h-full w-full" />
+            </div>
+          )}
+          {b && (
+            <div className="aspect-square overflow-hidden rounded-full">
+              <Img media={b} sizes="(min-width: 1024px) 18rem, 45vw" className="h-full w-full" />
+            </div>
+          )}
+          {c && (
+            <div className="aspect-square overflow-hidden rounded-[1.5rem] rounded-tl-full">
+              <Img media={c} sizes="(min-width: 1024px) 18rem, 45vw" className="h-full w-full" />
+            </div>
+          )}
+          {d && (
+            <div className="aspect-square overflow-hidden rounded-[1.5rem]">
+              <Img media={d} sizes="(min-width: 1024px) 18rem, 45vw" className="h-full w-full" />
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* 5. HOW IT WORKS: deep green block, true-fact counters, steeping video, two columns. */
+export function HowItWorks() {
+  const copy = home.howItWorks;
+  return (
+    <section
+      id="ingredients"
+      aria-labelledby="ingredients-title"
+      className="section-y scroll-mt-20 px-4 md:px-6"
+    >
+      <div className="mx-auto grid max-w-[84rem] gap-12 rounded-card bg-green p-6 text-cream sm:p-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:p-16">
+        <div className="flex flex-col">
+          <h2 id="ingredients-title" data-anim="lines" className="title max-w-xl text-cream">
+            {copy.title}
+          </h2>
+          <dl className="mt-10 grid grid-cols-3 gap-4 border-y border-cream/20 py-8">
+            {copy.facts.map((f) => (
+              <div key={f.label} className="flex flex-col">
+                <dt className="order-2 mt-2 text-sm leading-snug text-cream/85">{f.label}</dt>
+                <dd data-count className="display order-1 text-cream tabular-nums">
+                  {f.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <div data-anim="cards" className="mt-10 grid gap-8 sm:grid-cols-2">
+            {copy.columns.map((col) => (
+              <div key={col.title}>
+                <h3 className="text-xl text-cream">{col.title}</h3>
+                <p className="mt-3 leading-relaxed text-cream/85">{col.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div data-anim="media" className="overflow-hidden rounded-card">
+          <LoopVideo
+            video={media.howItWorks.video}
+            className="aspect-[4/5] h-full w-full rounded-card bg-green-soft lg:aspect-auto lg:min-h-[32rem]"
           />
         </div>
       </div>
@@ -139,105 +241,127 @@ export function FeaturedRitual({ product }: { product: Product }) {
   );
 }
 
-/* CAMPAIGN BANNER: wide photo with copy, like a magazine spread. */
-export function CampaignBanner() {
+/* 6. TCM 101: stacked copy, then a wide video thumbnail with a play pill (video modal). */
+export function Tcm101() {
+  const copy = home.tcm;
+  const [open, setOpen] = useState(false);
   return (
-    <section aria-labelledby="campaign-title" className="px-4 py-16 md:px-6 lg:py-20">
-      <div className="relative mx-auto grid max-w-[80rem] overflow-hidden bg-green text-cream lg:grid-cols-[1.1fr_1fr]">
-        <div data-anim="media" className="aspect-[16/10] overflow-hidden lg:aspect-auto">
-          <Img
-            media={media.campaign}
-            sizes="(min-width: 1024px) 44rem, 100vw"
-            className="h-full w-full"
-          />
-        </div>
-        <div className="flex flex-col justify-center px-6 py-12 sm:px-10 lg:px-14 lg:py-16">
-          <p data-anim="fade" className="text-sm tracking-[0.08em] text-rose">
-            {campaign.eyebrow}
-          </p>
-          <h2 id="campaign-title" data-anim="fade" className="headline mt-3 text-cream">
-            {campaign.title}
+    <section id="learn" aria-labelledby="learn-title" className="section-y scroll-mt-20">
+      <div className="container-x">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 id="learn-title" data-anim="lines" className="title">
+            {copy.title}
           </h2>
-          <p data-anim="fade" className="mt-5 leading-relaxed text-cream/85">
-            {campaign.text}
+          <p data-anim="fade" className="mt-5 text-lg leading-relaxed text-muted-foreground">
+            {copy.text}
           </p>
           <div data-anim="fade" className="mt-8">
-            <Link to={campaign.cta.href} className="btn btn-cream">
-              {campaign.cta.label}
+            <Link to={copy.cta.href} className="btn btn-outline">
+              {copy.cta.label}
             </Link>
           </div>
         </div>
+        <div
+          data-anim="media"
+          className="relative mt-12 aspect-[4/5] overflow-hidden rounded-card bg-beige sm:aspect-[16/9] md:mt-16"
+        >
+          <Img
+            media={media.tcm.thumbnail}
+            sizes="(min-width: 1280px) 80rem, 100vw"
+            className="h-full w-full"
+          />
+          <PlayPill
+            label={copy.play}
+            onClick={() => setOpen(true)}
+            className="absolute bottom-5 left-5 md:bottom-8 md:left-8"
+          />
+        </div>
+      </div>
+      <VideoDialog
+        video={media.tcm.video}
+        title={copy.videoTitle}
+        open={open}
+        onClose={() => setOpen(false)}
+      />
+    </section>
+  );
+}
+
+/* 8. SOURCING: location label, heading, large rounded image. Origin copy is demo. */
+export function Sourcing() {
+  const copy = home.sourcing;
+  return (
+    <section id="sourcing" aria-labelledby="sourcing-title" className="section-y scroll-mt-20">
+      <div className="container-x grid items-center gap-10 lg:grid-cols-2 lg:gap-20">
+        <div data-anim="media" className="overflow-hidden rounded-card bg-beige">
+          <Img
+            media={media.sourcing}
+            sizes="(min-width: 1024px) 40rem, 100vw"
+            className="aspect-[4/5] w-full lg:aspect-square"
+          />
+        </div>
+        <div className="max-w-md">
+          <p
+            data-anim="fade"
+            className="label-caps flex items-center gap-2.5 text-muted-foreground"
+          >
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" />
+            {copy.location}
+          </p>
+          <h2 id="sourcing-title" data-anim="lines" className="title mt-5">
+            {copy.title}
+          </h2>
+          <p data-anim="fade" className="mt-5 text-lg leading-relaxed text-muted-foreground">
+            {copy.text}
+          </p>
+          <Link
+            to={copy.cta.href}
+            data-anim="fade"
+            className="group mt-8 inline-flex min-h-11 items-center gap-2 font-medium text-green underline underline-offset-4"
+          >
+            {copy.cta.label}
+            <span className="sr-only"> about {copy.title.toLowerCase()}</span>
+            <ArrowRight size={18} weight="light" className="arrow-nudge" aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     </section>
   );
 }
 
-/* LEARN: three journal-style cards. The first plays the TCM 101 film. */
-export function Learn() {
-  const copy = home.learn;
-  const [open, setOpen] = useState(false);
-  const images = [media.tcm.thumbnail, media.ingredients.jujube, media.reviews[0]];
+/* 9. CLOSING CTA: a soft bookend. */
+export function ClosingCta() {
+  const copy = home.closing;
   return (
-    <section
-      id="learn"
-      aria-labelledby="learn-title"
-      className="scroll-mt-28 bg-blush px-4 py-16 md:px-6 lg:py-20"
-    >
-      <div className="mx-auto max-w-[80rem]">
-        <SectionIntro id="learn-title" title={copy.title} />
-        <ul data-anim="cards" className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8 lg:mt-12">
-          {copy.cards.map((c, i) => {
-            const img = images[i];
-            return (
-              <li key={c.title} className="flex flex-col bg-surface">
-                <div className="relative aspect-[16/10] overflow-hidden bg-sand">
-                  {img && (
-                    <Img
-                      media={img}
-                      sizes="(min-width: 768px) 26rem, 100vw"
-                      className="h-full w-full"
-                    />
-                  )}
-                  {c.kind === "video" && (
-                    <PlayPill
-                      label={home.tcm.play}
-                      onClick={() => setOpen(true)}
-                      className="absolute bottom-4 left-4"
-                    />
-                  )}
-                </div>
-                <div className="flex flex-1 flex-col p-6">
-                  <p className="text-xs font-medium tracking-[0.08em] text-gold-deep">{c.tag}</p>
-                  <h3 className="mt-2 font-serif text-[1.4rem] leading-snug">{c.title}</h3>
-                  <p className="mt-3 flex-1 leading-relaxed text-ink/80">{c.text}</p>
-                  {c.kind === "video" ? (
-                    <button
-                      type="button"
-                      onClick={() => setOpen(true)}
-                      className="mt-4 inline-flex min-h-11 items-center self-start text-sm font-medium text-green underline underline-offset-[6px]"
-                    >
-                      {c.cta}
-                    </button>
-                  ) : (
-                    <a
-                      href={c.href}
-                      className="mt-4 inline-flex min-h-11 items-center self-start text-sm font-medium text-green underline underline-offset-[6px]"
-                    >
-                      {c.cta}
-                    </a>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+    <section aria-labelledby="closing-title" className="px-4 pb-16 md:px-6 md:pb-24">
+      <div className="mx-auto grid max-w-[84rem] items-center gap-10 overflow-hidden rounded-card bg-blush p-6 sm:p-10 lg:grid-cols-[1fr_1.3fr_1fr] lg:gap-12 lg:p-14">
+        <div data-anim="media" className="hidden overflow-hidden rounded-stadium lg:block">
+          <Img media={media.closing.portrait} sizes="18rem" className="aspect-[3/4.5] w-full" />
+        </div>
+        <div className="text-center">
+          <h2 id="closing-title" data-anim="lines" className="display">
+            {copy.title}
+          </h2>
+          <p data-anim="fade" className="mx-auto mt-5 max-w-sm text-lg text-muted-foreground">
+            {copy.line}
+          </p>
+          <div data-anim="fade" className="mt-8">
+            <a href={copy.cta.href} className="btn btn-primary">
+              {copy.cta.label}
+            </a>
+          </div>
+        </div>
+        <div
+          data-anim="media"
+          className="mx-auto w-2/3 overflow-hidden rounded-full sm:w-1/2 lg:w-full"
+        >
+          <Img
+            media={media.closing.circle}
+            sizes="(min-width: 1024px) 18rem, 50vw"
+            className="aspect-square w-full"
+          />
+        </div>
       </div>
-      <VideoDialog
-        video={media.tcm.video}
-        title={home.tcm.videoTitle}
-        open={open}
-        onClose={() => setOpen(false)}
-      />
     </section>
   );
 }

@@ -17,14 +17,7 @@ import {
   WhatsappLogo,
   CheckCircle,
 } from "@phosphor-icons/react";
-import {
-  announcement,
-  brand,
-  nav,
-  footer,
-  FREE_SHIPPING_THRESHOLD,
-  type FooterLink,
-} from "@/data/content";
+import { brand, nav, footer, FREE_SHIPPING_THRESHOLD, type FooterLink } from "@/data/content";
 import { useCart } from "@/lib/cart/context";
 import { useScrollLock } from "@/lib/scroll-lock";
 import { useNotify } from "@/lib/notify-context";
@@ -39,29 +32,13 @@ import { ProductImage } from "./ProductImage";
 
 const ICON = 22;
 
-/** Wordmark with a small sliced-jujube mark (twelve petals around a stone). */
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <span translate="no" className={`inline-flex items-center gap-2.5 ${className}`}>
-      <span className="font-serif text-[1.35rem] tracking-[0.04em] md:text-[1.7rem]">
-        SkinFusion
-      </span>
-      <svg viewBox="0 0 40 40" aria-hidden="true" className="h-6 w-6 md:h-7 md:w-7">
-        {Array.from({ length: 12 }, (_, i) => (
-          <ellipse
-            key={i}
-            cx="20"
-            cy="8.5"
-            rx="2.2"
-            ry="7"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.1"
-            transform={`rotate(${i * 30} 20 20)`}
-          />
-        ))}
-        <circle cx="20" cy="20" r="3.2" fill="currentColor" />
-      </svg>
+    <span
+      translate="no"
+      className={`text-base font-medium uppercase tracking-[0.3em] md:text-lg ${className}`}
+    >
+      SkinFusion
     </span>
   );
 }
@@ -81,28 +58,14 @@ function NavLink({
   return <Link to={href} {...props} />;
 }
 
-/** Jujube top bar. Desktop shows every message; phones show the first one. No motion. */
-function AnnouncementBar() {
-  return (
-    <div className="bg-wine text-cream">
-      <ul className="mx-auto flex min-h-10 max-w-[80rem] items-center justify-center gap-8 px-4 py-2 text-center text-[0.7rem] font-medium uppercase tracking-[0.18em]">
-        {announcement.map((m, i) => (
-          <li key={m} className={i === 0 ? "" : "hidden lg:block"}>
-            {m}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-const NAV_LINK =
-  "inline-flex h-11 items-center text-[0.8rem] font-medium uppercase tracking-[0.12em] text-green underline-offset-[6px] hover:underline";
+// Translucent cream pill with a light blur: used only by the nav.
+const PILL =
+  "flex h-14 items-center rounded-full border border-green/10 bg-background/80 backdrop-blur-md";
 
 /**
- * Announcement bar, then a sticky header: links on the left, centred logo, account and cart
- * on the right. Phones: menu button, logo, cart. The header hides while scrolling down and
- * comes back on scroll up or when anything inside gets keyboard focus.
+ * Floating pill nav. Desktop: left pill (logo + main links) and right pill (account, cart,
+ * "Get started"). Phones: one pill with logo, cart and menu button. Hides while scrolling
+ * down, comes back on scroll up or when anything inside gets keyboard focus.
  */
 export function Header() {
   const [menu, setMenu] = useState(false);
@@ -120,7 +83,7 @@ export function Header() {
         frame = 0;
         const y = window.scrollY;
         if (Math.abs(y - last) < 8) return;
-        setHidden(y > last && y > 240);
+        setHidden(y > last && y > 160);
         last = y;
       });
     };
@@ -136,11 +99,11 @@ export function Header() {
       type="button"
       aria-label={`Open cart, ${count} items`}
       onClick={() => setOpen(true)}
-      className="relative grid h-11 w-11 place-items-center"
+      className="relative grid h-11 w-11 place-items-center rounded-full hover:bg-blush"
     >
       <Handbag size={ICON} weight="light" />
       {count > 0 && (
-        <span className="absolute right-0.5 top-1 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-green px-1 text-[10px] font-medium text-cream">
+        <span className="absolute right-0.5 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground">
           {count}
         </span>
       )}
@@ -149,48 +112,48 @@ export function Header() {
 
   return (
     <>
-      <AnnouncementBar />
       <div
         data-hero="header"
         onFocusCapture={() => setHidden(false)}
-        className={`sticky top-0 z-40 border-b border-ink/10 bg-surface/95 text-ink backdrop-blur-md transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${hidden && !menu ? "-translate-y-full" : ""}`}
+        className={`fixed inset-x-0 top-0 z-40 text-green transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${hidden && !menu ? "-translate-y-[calc(100%+0.5rem)]" : ""}`}
       >
-        <header className="mx-auto max-w-[80rem] px-3 md:px-6">
-          <div className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-3 lg:h-[4.5rem]">
-            <div className="flex items-center">
+        <header className="mx-auto mt-4 flex max-w-[84rem] items-center justify-between gap-3 px-4 md:mt-6 md:px-6">
+          <div className={`${PILL} flex-1 justify-between pl-5 pr-1.5 lg:flex-none lg:pr-2`}>
+            <Link to="/" aria-label="SkinFusion home" className="lg:mr-6">
+              <Logo />
+            </Link>
+            <nav aria-label="Main" className="hidden items-center lg:flex">
+              {nav.main.map((n) => (
+                <NavLink
+                  key={n.label}
+                  href={n.href}
+                  className="grid h-11 place-items-center rounded-full px-4 hover:bg-blush"
+                >
+                  {n.label}
+                </NavLink>
+              ))}
+            </nav>
+            <div className="flex items-center lg:hidden">
+              {cartButton}
               <button
                 type="button"
                 aria-label="Open menu"
                 aria-expanded={menu}
                 aria-controls="mobile-menu"
                 onClick={() => setMenu(true)}
-                className="grid h-11 w-11 place-items-center lg:hidden"
+                className="grid h-11 w-11 place-items-center rounded-full hover:bg-blush"
               >
                 <List size={ICON} weight="light" />
               </button>
-              <span className="hidden lg:block">
-                <NavLink href={nav.cta.href} className={NAV_LINK}>
-                  {nav.cta.label}
-                </NavLink>
-              </span>
-            </div>
-            <Link to="/" aria-label="SkinFusion home" className="flex h-11 items-center text-green">
-              <Logo />
-            </Link>
-            <div className="flex items-center justify-end gap-3">
-              <div className="hidden lg:block">
-                <AccountLink />
-              </div>
-              {cartButton}
             </div>
           </div>
-          <nav aria-label="Main" className="hidden justify-center gap-10 pb-2 lg:flex">
-            {nav.main.map((n) => (
-              <NavLink key={n.label} href={n.href} className={NAV_LINK}>
-                {n.label}
-              </NavLink>
-            ))}
-          </nav>
+          <div className={`${PILL} hidden gap-1 py-1.5 pl-2 pr-1.5 lg:flex`}>
+            <AccountLink />
+            {cartButton}
+            <NavLink href={nav.cta.href} className="btn btn-primary min-h-11 px-5 py-2">
+              {nav.cta.label}
+            </NavLink>
+          </div>
         </header>
       </div>
 
@@ -203,29 +166,28 @@ export function Header() {
           onKeyDown={(e) => {
             if (e.key === "Escape") setMenu(false);
           }}
-          className="fixed inset-0 z-50 flex flex-col overflow-y-auto overscroll-contain bg-background text-ink"
+          className="fixed inset-0 z-50 flex flex-col overflow-y-auto overscroll-contain bg-background text-green"
         >
-          <div className="grid h-16 grid-cols-[1fr_auto_1fr] items-center border-b px-3">
+          <div className="mx-4 mt-4 flex h-14 items-center justify-between pl-5 pr-1.5">
+            <Logo />
             <button
               type="button"
               aria-label="Close menu"
               onClick={() => setMenu(false)}
               autoFocus
-              className="grid h-11 w-11 place-items-center"
+              className="grid h-11 w-11 place-items-center rounded-full bg-blush"
             >
               <X size={ICON} weight="light" />
             </button>
-            <Logo />
-            <span />
           </div>
-          <nav className="mt-8 flex flex-col px-6" aria-label="Mobile">
+          <nav className="mt-10 flex flex-col px-9" aria-label="Mobile">
             {[...nav.main, ...nav.more].map((n, k) => (
               <NavLink
                 key={n.label}
                 href={n.href}
                 onClick={() => setMenu(false)}
                 style={{ animationDelay: `${k * 60}ms` }}
-                className="animate-fade-up border-b border-ink/10 py-4 font-serif text-[1.75rem] text-green"
+                className="animate-fade-up py-3 text-3xl tracking-[-0.02em]"
               >
                 {n.label}
               </NavLink>
@@ -283,14 +245,14 @@ export function CartDrawer() {
         className={`absolute inset-0 bg-ink/30 transition-opacity duration-500 ${open ? "opacity-100" : "opacity-0"}`}
       />
       <aside
-        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-background transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-background sm:rounded-l-[2rem] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${open ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="flex items-center justify-between border-b px-6 py-5">
           <span className="label-caps">Your cart</span>
           <button
             aria-label="Close cart"
             onClick={() => setOpen(false)}
-            className="grid h-11 w-11 place-items-center hover:bg-blush"
+            className="grid h-11 w-11 place-items-center rounded-full hover:bg-blush"
           >
             <X size={ICON} weight="light" />
           </button>
@@ -306,9 +268,9 @@ export function CartDrawer() {
               "You have unlocked free shipping"
             )}
           </p>
-          <div className="mt-3 h-1 overflow-hidden bg-blush">
+          <div className="mt-3 h-1 overflow-hidden rounded-full bg-blush">
             <div
-              className="h-full origin-left bg-jujube transition-transform duration-700"
+              className="h-full origin-left bg-primary transition-transform duration-700"
               style={{ transform: `scaleX(${pct / 100})` }}
             />
           </div>
@@ -323,16 +285,16 @@ export function CartDrawer() {
                 <ProductImage
                   image={l.merchandise.image}
                   alt={l.merchandise.product.title}
-                  className="h-24 w-20"
+                  className="h-24 w-20 rounded-xl"
                 />
               ) : (
-                <div className="h-24 w-20 bg-beige" />
+                <div className="h-24 w-20 rounded-xl bg-beige" />
               )}
               <div className="flex-1">
                 <p className="label-caps text-[0.7rem]">{l.merchandise.product.title}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{l.merchandise.title}</p>
                 <div className="mt-3 flex items-center justify-between">
-                  <div className="flex items-center border border-input">
+                  <div className="flex items-center rounded-full border border-input">
                     <button
                       aria-label="Decrease quantity"
                       onClick={() => setQty(l.id, l.quantity - 1)}
@@ -382,7 +344,10 @@ function AccountLink() {
   const initial = session.firstName?.trim().charAt(0).toUpperCase();
   if (!session.signedIn)
     return (
-      <Link to="/account/login" className={NAV_LINK}>
+      <Link
+        to="/account/login"
+        className="grid h-11 place-items-center rounded-full px-4 hover:bg-blush"
+      >
         Sign in
       </Link>
     );
@@ -390,12 +355,12 @@ function AccountLink() {
     <Link
       to="/account"
       aria-label={session.firstName ? `My account, ${session.firstName}` : "My account"}
-      className="grid h-11 w-11 place-items-center"
+      className="grid h-11 w-11 place-items-center rounded-full hover:bg-blush"
     >
       {initial ? (
         <span
           aria-hidden="true"
-          className="grid h-8 w-8 place-items-center rounded-full bg-jujube text-sm text-cream"
+          className="grid h-8 w-8 place-items-center rounded-full bg-green text-sm text-cream"
         >
           {initial}
         </span>
@@ -416,7 +381,7 @@ export function Notice() {
       className={`fixed bottom-40 left-1/2 z-50 -translate-x-1/2 transition-[transform,opacity] duration-500 ${notice ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"}`}
     >
       {notice ? (
-        <p className="flex items-center gap-3 bg-ink px-5 py-3.5 text-sm whitespace-nowrap text-cream">
+        <p className="flex items-center gap-3 rounded-full bg-green px-5 py-3 text-sm whitespace-nowrap text-cream">
           <CheckCircle size={20} weight="light" aria-hidden="true" /> {notice}
         </p>
       ) : null}
@@ -434,7 +399,7 @@ export function Toast() {
     >
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-3 bg-ink px-5 py-3.5 text-sm text-cream"
+        className="flex items-center gap-3 rounded-full bg-green px-5 py-3 text-sm text-cream"
       >
         <CheckCircle size={20} weight="light" /> {toast ?? "Added to cart"}{" "}
         <span className="label-caps text-[0.65rem] underline">View</span>
@@ -450,8 +415,7 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noreferrer"
       aria-label="Chat with us on WhatsApp"
-      data-float
-      className="fixed bottom-4 right-4 z-30 grid h-12 w-12 lg:bottom-5 lg:left-5 lg:right-auto lg:h-14 lg:w-14 place-items-center rounded-full bg-surface text-jujube ring-1 ring-ink/10 transition-transform hover:bg-blush active:scale-95"
+      className="fixed bottom-5 left-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground transition-transform hover:bg-primary-hover active:scale-95"
     >
       <WhatsappLogo size={28} weight="light" />
     </a>
@@ -499,14 +463,14 @@ export function NewsletterForm({
           placeholder="name@example.com"
           aria-invalid={!!error}
           aria-describedby={describedBy || undefined}
-          className={`min-h-[52px] border px-5 outline-none ${dark ? "border-cream/40 bg-cream/10 text-cream placeholder:text-cream/75 focus:border-cream" : "border-input bg-surface focus:border-ink"}`}
+          className={`min-h-12 rounded-full border px-5 outline-none ${dark ? "border-cream/40 bg-cream/10 text-cream placeholder:text-cream/75 focus:border-cream" : "border-input bg-background focus:border-green"}`}
         />
-        <button className={`btn ${dark ? "btn-light" : "btn-primary"}`}>Subscribe</button>
+        <button className="btn btn-primary">Subscribe</button>
       </div>
       {error && (
         <p
           id={`${id}-err`}
-          className={`mt-2 text-sm ${dark ? "text-error-on-dark" : "text-destructive"}`}
+          className={`mt-2 px-5 text-sm ${dark ? "text-error-on-dark" : "text-destructive"}`}
         >
           {error}
         </p>
@@ -514,7 +478,7 @@ export function NewsletterForm({
       {consent && (
         <p
           id={`${id}-consent`}
-          className={`mt-3 text-xs ${dark ? "text-cream/80" : "text-muted-foreground"}`}
+          className={`mt-3 px-5 text-xs ${dark ? "text-cream/80" : "text-muted-foreground"}`}
         >
           {consent}
         </p>
@@ -530,9 +494,8 @@ export function DiscountBadge() {
     <>
       <button
         data-hero="badge"
-        data-float
         onClick={() => setOpen(true)}
-        className="label-caps fixed bottom-5 right-5 z-30 hidden h-20 w-20 lg:grid place-items-center rounded-full bg-jujube text-center text-[0.62rem] leading-tight text-cream transition-transform active:scale-95"
+        className="label-caps fixed bottom-5 right-5 z-30 grid h-20 w-20 place-items-center rounded-full bg-green text-center text-[0.62rem] leading-tight text-cream transition-transform active:scale-95"
       >
         10% off?
       </button>
@@ -544,11 +507,11 @@ export function DiscountBadge() {
           aria-labelledby="disc-title"
         >
           <div className="absolute inset-0 bg-ink/40" onClick={() => setOpen(false)} />
-          <div className="relative w-full max-w-md animate-fade-up bg-background p-8 md:p-10">
+          <div className="relative w-full max-w-md animate-fade-up rounded-card bg-background p-8 md:p-10">
             <button
               aria-label="Close"
               onClick={() => setOpen(false)}
-              className="absolute right-3 top-3 grid h-11 w-11 place-items-center hover:bg-blush"
+              className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full hover:bg-blush"
             >
               <X size={ICON} weight="light" />
             </button>
@@ -596,16 +559,19 @@ export function Footer() {
     { scope: ref },
   );
   return (
-    <footer ref={ref} className="overflow-clip bg-green text-cream">
+    <footer
+      ref={ref}
+      className="overflow-clip rounded-t-[2rem] bg-green text-cream md:rounded-t-[3rem]"
+    >
       <div
         data-footer-columns
-        className="container-x grid gap-12 py-16 md:py-20 lg:grid-cols-[1.1fr_2fr] lg:gap-20"
+        className="container-x grid gap-12 py-16 md:py-24 lg:grid-cols-[1.2fr_2fr]"
       >
         <div>
-          <Logo />
-          <p className="mt-5 max-w-sm leading-relaxed text-cream/80">{footer.mission}</p>
-          <p className="mt-10 font-serif text-xl text-rose">{footer.newsletter.title}</p>
-          <div className="mt-4">
+          <Logo className="text-xl text-cream md:text-2xl" />
+          <p className="mt-5 max-w-sm text-lg leading-snug text-cream/90">{footer.mission}</p>
+          <p className="mt-10 text-xl tracking-[-0.01em]">{footer.newsletter.title}</p>
+          <div className="mt-5">
             <NewsletterForm id="nl-footer" tone="dark" consent={footer.newsletter.consent} />
           </div>
         </div>
@@ -616,8 +582,8 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-cream/15">
-        <div className="container-x grid gap-2 py-6 text-xs text-cream/70 md:grid-cols-[auto_1fr] md:gap-8">
-          <p className="uppercase tracking-[0.16em]">{footer.legal}</p>
+        <div className="container-x grid gap-2 py-6 text-xs text-cream/80 md:grid-cols-[auto_1fr] md:gap-8">
+          <p>{footer.legal}</p>
           <p className="md:text-right">{footer.disclaimer}</p>
         </div>
       </div>
@@ -628,7 +594,7 @@ export function Footer() {
 function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <div>
-      <p className="font-serif text-lg text-rose">{title}</p>
+      <p className="label-caps text-cream/80">{title}</p>
       <ul className="mt-5 space-y-3">
         {links.map((l) => (
           <li key={l.label}>
@@ -636,12 +602,12 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
               <a
                 href={l.href}
                 {...(l.href.startsWith("http") && { target: "_blank", rel: "noreferrer" })}
-                className="inline-flex min-h-6 text-cream/85 underline-offset-4 hover:text-cream hover:underline"
+                className="text-cream underline-offset-4 hover:underline"
               >
                 {l.label}
               </a>
             ) : (
-              <span className="text-cream/60">{l.label}</span>
+              <span className="text-cream/80">{l.label}</span>
             )}
           </li>
         ))}

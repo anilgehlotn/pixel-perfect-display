@@ -20,67 +20,31 @@ export const brand = {
   instagram: "https://instagram.com/skinfusion",
 };
 
-// Top bar messages (rotate on phones, all shown on desktop). Keep each one short and true.
-export const announcement = [
-  "Free shipping on orders above ₹699",
-  "Save up to 15% on the 2 and 4 pouch packs",
-  "Caffeine free, no added sugar, nothing artificial",
-];
-
-// Header. `main` is the desktop bar (left of the logo); `more` is added in the mobile menu.
+// Floating pill nav. `main` sits in the left pill on desktop; `more` is added in the mobile
+// menu and the footer. `cta` is the filled pill on the right.
 export const nav = {
   main: [
     { label: "Shop", href: "/#shop" },
-    { label: "Skin Glow Tea", href: "/products/skin-glow-tea" },
     { label: "Ingredients", href: "/#ingredients" },
     { label: "Learn", href: "/#learn" },
   ],
   more: [
+    { label: "Stories", href: "/#stories" },
     { label: "Real results", href: "/real-results" },
     { label: "Skin quiz", href: "/quiz" },
   ],
-  cta: { label: "Take the quiz", href: "/quiz" },
+  cta: { label: "Get started", href: "/quiz" },
 };
 
 export const FREE_SHIPPING_THRESHOLD = 699;
 
 export const hero = {
-  kicker: "Traditional Chinese Medicine, brewed whole",
-  title: "TCM Skin Glow Tea",
-  line: "Jujube, snow fungus, goji and ginger, kept whole. A naturally sweet, caffeine-free cup that turns a centuries-old Chinese beauty recipe into a five-minute daily ritual.",
-  shopCta: { label: "Shop now", href: "/products/skin-glow-tea" },
-  quizCta: { label: "Take the skin quiz", href: "/quiz" },
+  title: "Glow from within, one cup at a time.",
+  line: "Jujube, snow fungus and goji, brewed whole into a caffeine-free cup for your daily ritual.",
+  quizCta: { label: "Take the quiz", href: "/quiz" },
+  shopCta: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
   ratingLabel: "reviews",
-  inside: "What's inside",
-};
-
-// Gold strip under the hero. Only true, checkable facts.
-export const trust = [
-  { icon: "Leaf", label: "4 whole TCM ingredients" },
-  { icon: "Moon", label: "Caffeine free" },
-  { icon: "Drop", label: "No added sugar" },
-  { icon: "ShieldCheck", label: "No preservatives" },
-  { icon: "Truck", label: "Free shipping over ₹699" },
-] as const;
-
-// "Shop by ritual": arch-framed photos, one per product. Images: media.rituals[handle].
-export const rituals = {
-  eyebrow: "A cup for every moment",
-  title: "Shop by ritual",
-  items: [
-    { handle: "skin-glow-tea", label: "Morning glow" },
-    { handle: "calm-night", label: "Calm evenings" },
-    { handle: "gut-balance", label: "After meals" },
-    { handle: "glow-bundle", label: "Gift sets" },
-  ],
-};
-
-// Wide campaign banner between sections.
-export const campaign = {
-  eyebrow: "The red date ritual",
-  title: "Brewed whole, the way Chinese kitchens have for centuries",
-  text: "Jujube, snow fungus, goji and ginger in every bag. Naturally sweet, caffeine free, ready in five minutes.",
-  cta: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
+  from: "From",
 };
 
 /* ---------------------------------------------------------------------------
@@ -211,6 +175,89 @@ export const localProducts: Product[] = [
    MARKETING COPY (stays here after Shopify is connected)
 --------------------------------------------------------------------------- */
 
+// Sample customer quotes for the client preview. isDemo: true means the quote is invented
+// and must be replaced with a real, permitted customer quote before launch.
+export type StoryQuote = { text: string; name: string; city: string; isDemo: boolean };
+
+export const home = {
+  products: {
+    title: "Daily rituals for radiant skin",
+    from: "From",
+    cta: "Add to cart",
+  },
+  bundle: {
+    title: "Bundle and save",
+    text: "Two or four pouches of Skin Glow Tea, so your ritual never runs out. Save up to 15%, with free shipping on the four-pack.",
+    cta: "Add 4 pouches",
+    handle: "skin-glow-tea",
+    variantTitle: "4 Pouches",
+  },
+  howItWorks: {
+    title: "Four whole ingredients, brewed into a daily ritual.",
+    // Counters: only true facts. The number counts up from 0 when it scrolls into view.
+    facts: [
+      { value: "4", label: "whole ingredients" },
+      { value: "0", label: "preservatives" },
+      { value: "0", label: "caffeine" },
+    ],
+    columns: [
+      {
+        title: "What goes in",
+        text: "Jujube, snow fungus and goji berries, with a little ginger for warmth. Every piece stays whole, so you can see what you are drinking: no tea dust, no flavourings, no added colour.",
+      },
+      {
+        title: "How it fits your day",
+        text: "Steep one bag in hot water for about five minutes. In Traditional Chinese Medicine these ingredients are traditionally used to support skin and digestive wellness as part of a calm routine.",
+      },
+    ],
+  },
+  tcm: {
+    title: "Ancient wisdom, modern ritual",
+    text: "For generations, Traditional Chinese Medicine kitchens have simmered jujube, snow fungus and goji together. We keep the ingredients whole and the method simple, so the ritual fits a busy morning.",
+    cta: { label: "Discover", href: "/real-results" },
+    play: "Play",
+    videoTitle: "How a cup of Skin Glow Tea comes together",
+  },
+  stories: {
+    title: "Stories from tea makers, skin lovers and members like you.",
+    play: "Play",
+    quotes: [
+      {
+        text: "It tastes like the jujube tea my grandmother made. My evening cup is the calmest part of my day.",
+        name: "Ananya",
+        city: "Bengaluru",
+        isDemo: true,
+      },
+      {
+        text: "I swapped my second chai for it. Light, warm and easy to make at work.",
+        name: "Priya",
+        city: "Mumbai",
+        isDemo: true,
+      },
+      {
+        text: "You can see every whole piece in the bag. Naturally sweet, no sugar needed.",
+        name: "Meera",
+        city: "Pune",
+        isDemo: true,
+      },
+    ] as StoryQuote[],
+    videoCaptions: ["My morning routine", "Ten quiet minutes", "Windows open, kettle on"],
+  },
+  // Origin details are DEMO copy until the client confirms where each ingredient comes from.
+  sourcing: {
+    isDemo: true,
+    location: "Xinjiang, China",
+    title: "Where our jujubes ripen",
+    text: "Long, dry summers and cool nights let the dates sweeten slowly on the tree before they are sun-dried. Our goji berries and snow fungus come from small family farms we taste from every season.",
+    cta: { label: "Read more", href: "/real-results" },
+  },
+  closing: {
+    title: "Start your glow ritual",
+    line: "One warm cup a day. Free shipping on orders above ₹699.",
+    cta: { label: "Shop now", href: "/products/skin-glow-tea" },
+  },
+};
+
 // Icons are Phosphor names, mapped in src/components/product/icons.tsx.
 export type IconName =
   | "Leaf"
@@ -268,6 +315,8 @@ export const ingredients: Ingredient[] = [
 
 // Comparison table (homepage and product page). Claims about other products stay general
 // and factual; the client should confirm this table before launch.
+// Comparison table (homepage and product page). Claims about other products stay general
+// and factual; the client should confirm this table before launch.
 export const comparison = {
   eyebrow: "Why SkinFusion",
   title: "SkinFusion vs. the rest",
@@ -292,16 +341,7 @@ export const standards: { icon: IconName; label: string }[] = [
   { icon: "YinYang", label: "Rooted in TCM" },
 ];
 
-// Sample customer quotes for the client preview. isDemo: true means the quote is invented
-// and must be replaced with a real, permitted customer quote before launch.
-export type StoryQuote = {
-  text: string;
-  title: string;
-  name: string;
-  city: string;
-  isDemo: boolean;
-};
-
+// Customer quotes for the product page reviews block (the homepage uses home.stories).
 export const reviews = {
   eyebrow: "Customers say",
   title: "Loved as a daily ritual",
@@ -327,90 +367,8 @@ export const reviews = {
       city: "Pune",
       isDemo: true,
     },
-  ] as StoryQuote[],
+  ] as (StoryQuote & { title: string })[],
   verified: "Verified buyer",
-};
-
-export const home = {
-  products: {
-    eyebrow: "Discover your favourite",
-    title: "Shop our bestsellers",
-    from: "From",
-    cta: "Add to cart",
-    soldOut: "Sold out",
-    view: "View details",
-    all: "Shop all teas",
-  },
-  featured: {
-    eyebrow: "Our signature blend",
-    title: "Meet Skin Glow Tea",
-    details: "View product details",
-    badge: "Best seller",
-  },
-  standards: { eyebrow: "Our promise", title: "Nothing artificial, nothing hidden" },
-  ingredients: {
-    eyebrow: "What's inside",
-    title: "Four whole ingredients",
-    text: "Open a tea bag and you can see every piece: red dates, snow fungus, goji and ginger, from the Traditional Chinese Medicine kitchen.",
-  },
-  // Counters: only true facts. The number counts up from 0 when it scrolls into view.
-  facts: [
-    { value: "4", label: "whole ingredients" },
-    { value: "0", label: "caffeine" },
-    { value: "0", label: "added sugar" },
-  ],
-  mission: {
-    title: "Our story",
-    text: "Busy days leave little room for slow care. We keep one warm, naturally sweet cup within reach, made the way Chinese kitchens have made it for centuries, so your daily ritual takes five minutes and a kettle.",
-    cta: { label: "Watch how it is made", href: "/#learn" },
-  },
-  learn: {
-    title: "Learn, sip and glow",
-    cards: [
-      {
-        kind: "video",
-        tag: "TCM 101",
-        title: "Ancient wisdom, modern ritual",
-        text: "For generations, TCM kitchens have simmered jujube, snow fungus and goji together. See how a cup comes together.",
-        cta: "Watch the film",
-        href: "/#learn",
-      },
-      {
-        kind: "link",
-        tag: "Ingredients",
-        title: "Why red dates are everywhere in China",
-        text: "Jujubes are the sweet heart of countless TCM soups and teas. Meet them and the three ingredients they are brewed with.",
-        cta: "Meet the ingredients",
-        href: "/#ingredients",
-      },
-      {
-        kind: "link",
-        tag: "Customers",
-        title: "How they made it a habit",
-        text: "Morning cup, desk break or after dinner: real customers share where SkinFusion fits in their day.",
-        cta: "Read their stories",
-        href: "/real-results",
-      },
-    ] as {
-      kind: "video" | "link";
-      tag: string;
-      title: string;
-      text: string;
-      cta: string;
-      href: string;
-    }[],
-  },
-  tcm: {
-    play: "Play",
-    videoTitle: "How a cup of Skin Glow Tea comes together",
-  },
-  // Origin details are DEMO copy until the client confirms where each ingredient comes from.
-  sourcing: {
-    isDemo: true,
-    location: "Xinjiang, China",
-    title: "Where our jujubes ripen",
-    text: "Long, dry summers and cool nights let the dates sweeten slowly on the tree before they are sun-dried. Our goji berries and snow fungus come from small family farms we taste from every season.",
-  },
 };
 
 /* ---------------------------------------------------------------------------
@@ -553,6 +511,7 @@ export const pdp = {
   comingSoon:
     "Full ingredient list and brewing notes are coming soon. Message us on WhatsApp with any questions about this blend.",
   sticky: "Add to cart",
+  details: "View product details",
   disclaimer:
     "SkinFusion teas are food products and are not intended to diagnose, treat, cure or prevent any disease. Individual experiences vary. If you are pregnant, nursing, taking medication or have a health condition, check with your doctor first.",
 };
@@ -578,7 +537,7 @@ export const footer: {
       title: "Shop",
       links: [
         { label: "Skin Glow Tea", href: "/products/skin-glow-tea" },
-        { label: "All teas", href: "/#shop" },
+        { label: "Bundles", href: "/#bundle" },
         { label: "Skin quiz", href: "/quiz" },
       ],
     },

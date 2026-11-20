@@ -13,7 +13,7 @@ import { BuyBox } from "@/components/product/BuyBox";
 import { usePurchase, type Purchase } from "@/components/product/purchase";
 import { Gallery } from "@/components/product/Gallery";
 import { fromMedia, fromShopify } from "@/components/product/gallery-image";
-import { ProductCard } from "@/components/product/ProductCard";
+import { ProductCard } from "@/components/home/Sections";
 import {
   ComparisonTable,
   Disclosure,
@@ -80,7 +80,7 @@ function ProductPage() {
 
   return (
     <main ref={scope} key={product.handle}>
-      <nav aria-label="Breadcrumb" className="mx-auto max-w-[80rem] px-4 pt-6 md:px-6 md:pt-8">
+      <nav aria-label="Breadcrumb" className="mx-auto max-w-[80rem] px-4 pt-24 md:px-6 md:pt-28">
         <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
           <li>
             <Link to="/" className="inline-flex min-h-11 items-center hover:text-ink">
@@ -235,7 +235,7 @@ function Benefits({ benefits }: { benefits: ProductDetails["benefits"] }) {
           className="mt-10 grid gap-4 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-6"
         >
           {benefits.map((b) => (
-            <li key={b.title} className="flex flex-col bg-surface p-7 md:p-8">
+            <li key={b.title} className="flex flex-col rounded-card bg-surface p-7 md:p-8">
               <span className="grid h-14 w-14 place-items-center rounded-full border border-gold/50 text-gold-deep">
                 <Icon name={b.icon} size={28} />
               </span>

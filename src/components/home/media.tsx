@@ -178,7 +178,7 @@ export function LoopVideo({
           type="button"
           onClick={toggle}
           aria-label={paused ? "Play background video" : "Pause background video"}
-          className="absolute bottom-3 right-3 grid h-11 w-11 place-items-center rounded-full bg-background/85 text-jujube backdrop-blur-sm transition-colors hover:bg-background"
+          className="absolute bottom-3 right-3 grid h-11 w-11 place-items-center rounded-full bg-background/85 text-green backdrop-blur-sm transition-colors hover:bg-background"
         >
           {paused ? (
             <Play size={16} weight="fill" aria-hidden="true" />
@@ -205,7 +205,7 @@ export function PlayPill({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex min-h-11 items-center gap-2 rounded-full bg-background/90 px-4 text-sm font-medium text-jujube backdrop-blur-sm transition-transform duration-300 hover:bg-background active:scale-[0.98] ${className}`}
+      className={`inline-flex min-h-11 items-center gap-2 rounded-full bg-background/90 px-4 text-sm font-medium text-green backdrop-blur-sm transition-transform duration-300 hover:bg-background active:scale-[0.98] ${className}`}
     >
       <Play size={14} weight="fill" aria-hidden="true" />
       {label}
@@ -252,7 +252,7 @@ export function VideoDialog({
           type="button"
           onClick={onClose}
           aria-label="Close video"
-          className="grid h-11 w-11 place-items-center rounded-full bg-background text-jujube"
+          className="grid h-11 w-11 place-items-center rounded-full bg-background text-green"
         >
           <X size={20} weight="light" />
         </button>

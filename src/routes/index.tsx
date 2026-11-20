@@ -1,18 +1,19 @@
 import { useRef } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
-import { FEATURED_PRODUCT_HANDLE, home, ingredients } from "@/data/content";
+import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
 import { getProduct, getProducts } from "@/lib/shopify/products";
 import { Hero } from "@/components/home/Hero";
 import {
-  TrustBar,
-  ShopByRitual,
-  Bestsellers,
-  FeaturedRitual,
-  CampaignBanner,
-  Learn,
+  ProductRow,
+  Bundle,
+  HowItWorks,
+  Tcm101,
+  Sourcing,
+  ClosingCta,
 } from "@/components/home/Sections";
-import { ComparisonTable, Ingredients, Reviews, Standards } from "@/components/product/Blocks";
+import { Stories } from "@/components/home/Stories";
+import { ComparisonTable } from "@/components/product/Blocks";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
@@ -34,22 +35,14 @@ function Index() {
   return (
     <main ref={scope}>
       <Hero featured={featured} />
-      <TrustBar />
-      <Bestsellers products={products} />
-      <ShopByRitual products={products} />
-      <Ingredients
-        items={ingredients}
-        eyebrow={home.ingredients.eyebrow}
-        title={home.ingredients.title}
-        text={home.ingredients.text}
-        facts={home.facts}
-      />
-      <FeaturedRitual product={featured} />
-      <CampaignBanner />
+      <ProductRow products={products} />
+      <Bundle product={featured} />
+      <HowItWorks />
       <ComparisonTable />
-      <Standards eyebrow={home.standards.eyebrow} title={home.standards.title} />
-      <Reviews rating={featured.rating} />
-      <Learn />
+      <Tcm101 />
+      <Stories />
+      <Sourcing />
+      <ClosingCta />
     </main>
   );
 }

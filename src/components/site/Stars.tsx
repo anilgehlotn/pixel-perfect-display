@@ -3,7 +3,7 @@ import { Star } from "@phosphor-icons/react";
 export function Stars({
   value,
   size = 14,
-  className = "text-gold",
+  className = "text-primary",
 }: {
   value: number;
   size?: number;

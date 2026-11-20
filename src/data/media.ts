@@ -233,20 +233,6 @@ const photos = {
     "Vlada Karpovich on Pexels",
     "https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/",
   ),
-  herbalApothecary: photo(
-    "herbal-apothecary",
-    "A glass teapot of herbal tea beside small bowls of dried flowers, herbs and berries on a wooden tray",
-    [1400, 2020],
-    "Pexels photographer (photo 8330249)",
-    "https://www.pexels.com/photo/assorted-herbs-on-bowls-8330249/",
-  ),
-  porcelainPour: photo(
-    "porcelain-pour",
-    "Tea poured from a blue and white porcelain teapot into small cups",
-    [1400, 2100],
-    "Pexels photographer (photo 7364044)",
-    "https://www.pexels.com/photo/woman-poring-tea-into-ceramic-cups-7364044/",
-  ),
   handsCup: photo(
     "hands-cup",
     "Hands in a knit sweater holding a cup of tea",
@@ -297,8 +283,14 @@ const site = {
 };
 
 export const media = {
-  // Product cards: keyed by Shopify product handle. `video` plays on hover (desktop) or in
-  // view (phones); `fallback` shows when the product has no image yet.
+  hero: {
+    // Replace with the SkinFusion pouch photo when it arrives (src/assets/skinfusion-pouch).
+    centerpiece: site.brew,
+    orbit: [site.jujube, site.goji, site.snowFungus, site.ginger],
+    video: videos.morningWindow,
+  },
+  // Product row: keyed by Shopify product handle. `video` plays on hover (desktop) or in view
+  // (phones); `fallback` shows when the product has no image yet.
   products: {
     "skin-glow-tea": { video: videos.skincareCloseup, fallback: site.brew },
     "calm-night": { video: videos.windowCalm, fallback: photos.windowTea },
@@ -306,7 +298,23 @@ export const media = {
     "glow-bundle": { video: videos.teaSteeping, fallback: photos.herbalFlatlay },
   } as Record<string, { video: MediaVideo; fallback: MediaImage } | undefined>,
   productDefault: { video: videos.teaSteeping, fallback: site.brew },
-  // Extra photos after the product's own images in the product page gallery.
+  bundle: [photos.glassTeapot, site.jujube, photos.handsCup, photos.bathroomShelf],
+  howItWorks: { video: videos.teaSteam },
+  tcm: { thumbnail: site.cups, video: videos.teaSteeping },
+  stories: {
+    edgeStart: site.goji,
+    portraitA: photos.windowTea,
+    stadium: photos.teacupMint,
+    videoA: videos.skincareRoutine,
+    portraitB: photos.handsGlass,
+    videoB: videos.flowersBreeze,
+    portraitC: site.ritual,
+    videoC: videos.teaSteeping,
+    edgeEnd: site.snowFungus,
+  },
+  sourcing: photos.redDates,
+  closing: { portrait: photos.bathroomSink, circle: site.evening },
+  // Product page (/products/$handle): extra gallery photos after the product's own images.
   gallery: {
     "skin-glow-tea": [site.flatlay, site.ritual, site.cups, site.jujube, site.snowFungus],
     "calm-night": [photos.windowTea, photos.handsCup],
@@ -320,20 +328,7 @@ export const media = {
     ginger: site.ginger,
   },
   ritual: { image: site.ritual, video: videos.teaSteam },
-  tcm: { thumbnail: site.cups, video: videos.teaSteeping },
   reviews: [photos.windowTea, photos.handsGlass, site.ritual],
-  // Hero: a real herbal-tea photograph with an arch-framed porcelain pour beside it.
-  hero: { main: photos.herbalApothecary, inset: photos.porcelainPour },
-  // "Shop by ritual" arches, keyed by product handle.
-  rituals: {
-    "skin-glow-tea": site.brew,
-    "calm-night": photos.windowTea,
-    "gut-balance": photos.gingerLemon,
-    "glow-bundle": photos.herbalFlatlay,
-  } as Record<string, MediaImage | undefined>,
-  campaign: site.cups,
-  mission: site.cups,
-  sourcing: photos.redDates,
 } as const;
 
 /** Every demo item, for MEDIA_CREDITS.md and the launch checklist. */

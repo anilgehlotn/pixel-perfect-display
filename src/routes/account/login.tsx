@@ -64,7 +64,7 @@ function Login() {
   const message = error ? (ERRORS[error] ?? ERRORS["callback"]) : null;
 
   return (
-    <main ref={scope} className="pt-12 pb-16 md:pt-16 lg:pt-20 lg:pb-24">
+    <main ref={scope} className="pt-32 pb-16 md:pt-40 lg:pt-48 lg:pb-24">
       <div className="container-x grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <div className="hidden overflow-hidden bg-beige lg:block">
           <img

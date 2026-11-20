@@ -62,7 +62,7 @@ function PageHero() {
   const h = realResults.hero;
   const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   return (
-    <section className="bg-blush px-6 pb-20 pt-16 text-center md:pb-28 md:pt-24">
+    <section className="bg-blush px-6 pb-20 pt-40 text-center md:pb-28 md:pt-52">
       <div>
         <p className="label-caps text-muted-foreground">{h.kicker}</p>
         <h1 data-anim="heading" className="mt-4 text-2xl md:text-4xl">
