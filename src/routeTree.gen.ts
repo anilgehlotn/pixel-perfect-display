@@ -17,6 +17,7 @@ import { Route as AccountAuthorizeRouteImport } from './routes/account/authorize
 import { Route as AccountCallbackRouteImport } from './routes/account/callback'
 import { Route as AccountLoginRouteImport } from './routes/account/login'
 import { Route as AccountLogoutRouteImport } from './routes/account/logout'
+import { Route as ProductsHandleRouteImport } from './routes/products/$handle'
 import { Route as AccountDashboardIndexRouteImport } from './routes/account/_dashboard/index'
 import { Route as AccountDashboardAddressesRouteImport } from './routes/account/_dashboard/addresses'
 import { Route as AccountDashboardDetailsRouteImport } from './routes/account/_dashboard/details'
@@ -63,6 +64,11 @@ const AccountLogoutRoute = AccountLogoutRouteImport.update({
   path: '/account/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductsHandleRoute = ProductsHandleRouteImport.update({
+  id: '/products/$handle',
+  path: '/products/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountDashboardIndexRoute = AccountDashboardIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/account/callback': typeof AccountCallbackRoute
   '/account/login': typeof AccountLoginRoute
   '/account/logout': typeof AccountLogoutRoute
+  '/products/$handle': typeof ProductsHandleRoute
   '/account/addresses': typeof AccountDashboardAddressesRoute
   '/account/details': typeof AccountDashboardDetailsRoute
   '/account/': typeof AccountDashboardIndexRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/account/callback': typeof AccountCallbackRoute
   '/account/login': typeof AccountLoginRoute
   '/account/logout': typeof AccountLogoutRoute
+  '/products/$handle': typeof ProductsHandleRoute
   '/account/addresses': typeof AccountDashboardAddressesRoute
   '/account/details': typeof AccountDashboardDetailsRoute
   '/account': typeof AccountDashboardIndexRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/account/callback': typeof AccountCallbackRoute
   '/account/login': typeof AccountLoginRoute
   '/account/logout': typeof AccountLogoutRoute
+  '/products/$handle': typeof ProductsHandleRoute
   '/account/_dashboard/addresses': typeof AccountDashboardAddressesRoute
   '/account/_dashboard/details': typeof AccountDashboardDetailsRoute
   '/account/_dashboard/': typeof AccountDashboardIndexRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/account/callback'
     | '/account/login'
     | '/account/logout'
+    | '/products/$handle'
     | '/account/addresses'
     | '/account/details'
     | '/account/'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/account/callback'
     | '/account/login'
     | '/account/logout'
+    | '/products/$handle'
     | '/account/addresses'
     | '/account/details'
     | '/account'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/account/callback'
     | '/account/login'
     | '/account/logout'
+    | '/products/$handle'
     | '/account/_dashboard/addresses'
     | '/account/_dashboard/details'
     | '/account/_dashboard/'
@@ -193,6 +205,7 @@ export interface RootRouteChildren {
   AccountCallbackRoute: typeof AccountCallbackRoute
   AccountLoginRoute: typeof AccountLoginRoute
   AccountLogoutRoute: typeof AccountLogoutRoute
+  ProductsHandleRoute: typeof ProductsHandleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/account/logout'
       fullPath: '/account/logout'
       preLoaderRoute: typeof AccountLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$handle': {
+      id: '/products/$handle'
+      path: '/products/$handle'
+      fullPath: '/products/$handle'
+      preLoaderRoute: typeof ProductsHandleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account/_dashboard/': {
@@ -319,6 +339,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountCallbackRoute: AccountCallbackRoute,
   AccountLoginRoute: AccountLoginRoute,
   AccountLogoutRoute: AccountLogoutRoute,
+  ProductsHandleRoute: ProductsHandleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

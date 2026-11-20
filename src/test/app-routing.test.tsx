@@ -14,4 +14,13 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
   });
+
+  it("matches the product page for /products/<handle>", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+
+    const match = router.matchRoutes("/products/skin-glow-tea").at(-1);
+
+    expect(match?.routeId).toBe("/products/$handle");
+    expect(match?.params).toMatchObject({ handle: "skin-glow-tea" });
+  });
 });

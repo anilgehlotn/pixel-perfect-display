@@ -1,23 +1,26 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { hero } from "@/data/content";
 import { media } from "@/data/media";
+import type { Product } from "@/lib/shopify/types";
 import { gsap, useGSAP } from "@/lib/animations/gsap";
 import { heroEntrance, type HeroParts } from "@/lib/animations/hero";
 import { isHydrated } from "@/lib/animations/hydration";
 import { takeIntroDelay } from "@/lib/animations/intro";
 import { MOTION_CONDITIONS } from "@/lib/animations/media";
 import { safely } from "@/lib/animations/safety";
-import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
-import { Img, LoopVideo } from "./media";
+import { Stars } from "@/components/site/Stars";
+import { Img } from "./media";
 
-/* 1. HERO: headline, one line, two pills, and the floating product composition. */
-export function Hero() {
+/**
+ * 1. HERO: full-bleed blush photo. Desktop: copy sits over the calm left side of the photo.
+ * Phones: photo on top, copy below on blush.
+ */
+export function Hero({ featured }: { featured: Product }) {
   const section = useRef<HTMLElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const line = useRef<HTMLParagraphElement>(null);
   const actions = useRef<HTMLDivElement>(null);
-  usePauseWhenHidden(section);
 
   useGSAP(
     () => {
@@ -54,106 +57,56 @@ export function Hero() {
     { scope: section },
   );
 
+  const rating = featured.rating;
   return (
     <section
       ref={section}
-      className="container-x grid items-center gap-12 pb-16 pt-28 md:pt-36 lg:min-h-[100dvh] lg:grid-cols-[1fr_1.1fr] lg:gap-10 lg:pb-16 lg:pt-28"
+      aria-labelledby="hero-title"
+      className="relative bg-blush lg:flex lg:min-h-[min(48rem,calc(100dvh-7.5rem))] lg:items-center"
     >
-      <div className="max-w-xl">
-        <h1 ref={heading} className="display">
-          {hero.title}
-        </h1>
-        <p ref={line} className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
-          {hero.line}
-        </p>
-        <div ref={actions} className="mt-9 flex flex-wrap gap-3">
-          <Link to={hero.quizCta.href} className="btn btn-primary">
-            {hero.quizCta.label}
-          </Link>
-          <a href={hero.shopCta.href} className="btn btn-outline">
-            {hero.shopCta.label}
-          </a>
-        </div>
-      </div>
-      <Composition />
-    </section>
-  );
-}
-
-/**
- * Each piece: entrance wrapper (data-piece) > scroll parallax (data-depth, desktop) > CSS
- * float (desktop) > media. Three layers so the three transforms never fight.
- */
-function Piece({
-  className,
-  depth,
-  delay,
-  children,
-}: {
-  className: string;
-  depth: number;
-  delay: string;
-  children: ReactNode;
-}) {
-  return (
-    <div data-piece className={`absolute ${className}`}>
-      <div data-depth={depth} className="h-full w-full">
-        <div className="animate-float h-full w-full" style={{ animationDelay: delay }}>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const CIRCLE = "aspect-square overflow-hidden rounded-full border-4 border-background";
-
-// The video's pause button also stops the floating pieces (data-paused, see styles.css).
-function Composition() {
-  const [jujube, goji, snowFungus, ginger] = media.hero.orbit;
-  const [paused, setPaused] = useState(false);
-  return (
-    <div
-      data-paused={paused || undefined}
-      className="relative mx-auto aspect-square w-full max-w-[38rem] lg:aspect-[1/1.02]"
-    >
-      <Piece className="right-0 top-[6%] w-[44%]" depth={-0.35} delay="-2s">
-        <LoopVideo
-          video={media.hero.video}
-          onPausedChange={setPaused}
-          className="aspect-[4/5] w-full rounded-card bg-beige"
+      <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
+        <Img
+          media={media.hero.image}
+          priority
+          sizes="100vw"
+          className="h-full w-full object-[72%_50%] lg:object-[60%_50%]"
         />
-      </Piece>
-      <Piece className="left-[17%] top-[3%] z-10 w-[50%]" depth={0.15} delay="0s">
-        <div className="aspect-[3/4.4] w-full overflow-hidden rounded-stadium bg-beige">
-          <Img
-            media={media.hero.centerpiece}
-            priority
-            sizes="(min-width: 1024px) 19rem, 50vw"
-            className="h-full w-full"
-          />
+        {/* Soft blush wash on the left keeps the headline readable over the photo. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 hidden bg-gradient-to-r from-blush via-blush/70 to-transparent lg:block"
+        />
+      </div>
+      <div className="relative mx-auto w-full max-w-[80rem] px-6 pb-14 pt-10 lg:py-24">
+        <div className="max-w-xl">
+          <p data-piece className="label-caps text-jujube">
+            {hero.kicker}
+          </p>
+          <h1 id="hero-title" ref={heading} className="display mt-5 text-ink">
+            {hero.title}
+          </h1>
+          <p ref={line} className="mt-6 max-w-md text-lg leading-relaxed text-ink/80">
+            {hero.line}
+          </p>
+          <div ref={actions} className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Link to={hero.shopCta.href} className="btn btn-primary">
+              {hero.shopCta.label}
+            </Link>
+            <Link to={hero.quizCta.href} className="btn btn-outline">
+              {hero.quizCta.label}
+            </Link>
+          </div>
+          {rating && (
+            <p data-piece className="mt-8 flex items-center gap-3 text-sm text-ink/80">
+              <Stars value={rating.value} size={16} />
+              <span>
+                <span className="text-ink">{rating.value.toFixed(1)}</span> from{" "}
+                {rating.count.toLocaleString("en-IN")} {hero.ratingLabel}
+              </span>
+            </p>
+          )}
         </div>
-      </Piece>
-      {jujube && (
-        <Piece className="left-0 top-[44%] z-20 w-[23%]" depth={0.5} delay="-4s">
-          <Img media={jujube} sizes="9rem" className={`w-full ${CIRCLE}`} />
-        </Piece>
-      )}
-      {goji && (
-        <Piece className="left-[8%] top-0 z-20 w-[15%]" depth={0.7} delay="-1s">
-          <Img media={goji} sizes="6rem" className={`w-full ${CIRCLE}`} />
-        </Piece>
-      )}
-      {snowFungus && (
-        <Piece className="bottom-[3%] right-[18%] z-20 w-[26%]" depth={0.4} delay="-3s">
-          <Img media={snowFungus} sizes="10rem" className={`w-full ${CIRCLE}`} />
-        </Piece>
-      )}
-      {ginger && (
-        <Piece className="bottom-[22%] right-0 z-20 w-[16%]" depth={0.8} delay="-5s">
-          <Img media={ginger} sizes="6rem" className={`w-full ${CIRCLE}`} />
-        </Piece>
-      )}
-    </div>
+      </div>
+    </section>
   );
 }

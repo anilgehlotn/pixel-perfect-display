@@ -25,6 +25,8 @@ import ginger800 from "@/assets/web/ing-ginger-800.webp";
 import evening400 from "@/assets/web/journal-3-400.webp";
 import evening800 from "@/assets/web/journal-3-800.webp";
 import heroCups1600 from "@/assets/web/hero-2-1600.webp";
+import flatlay800 from "@/assets/web/hero-1-800.webp";
+import flatlay1600 from "@/assets/web/hero-1-1600.webp";
 
 type Credit = { credit: string; source: string; license: string; isDemo: boolean };
 export type MediaImage = Credit & {
@@ -251,14 +253,22 @@ const site = {
     "A glass cup of golden tea with whole jujubes and goji berries",
     [800, 800],
   ),
+  flatlay: own(
+    [
+      [flatlay800, 800],
+      [flatlay1600, 1600],
+    ],
+    "Glass cups of golden tea with jujubes, goji and snow fungus on a blush linen table",
+    [1600, 907],
+  ),
   cups: own(
     [...pair(heroCups400, heroCups800), [heroCups1600, 1600]],
-    "Hands pouring golden tea from a glass teapot",
+    "A woman in a soft robe holding a glass cup of golden tea in bed",
     [1600, 907],
   ),
   ritual: own(
     pair(ritual400, ritual800),
-    "A woman in bed holding a glass cup of golden tea",
+    "Hands pouring golden tea from a glass teapot",
     [800, 1000],
   ),
   evening: own(
@@ -274,13 +284,12 @@ const site = {
 
 export const media = {
   hero: {
-    // Replace with the SkinFusion pouch photo when it arrives (src/assets/skinfusion-pouch).
-    centerpiece: site.brew,
-    orbit: [site.jujube, site.goji, site.snowFungus, site.ginger],
-    video: videos.morningWindow,
+    // Full-bleed hero photo. Replace with a campaign shot of the SkinFusion pouch when it
+    // arrives (keep a calm area on the left for the headline).
+    image: site.flatlay,
   },
-  // Product row: keyed by Shopify product handle. `video` plays on hover (desktop) or in view
-  // (phones); `fallback` shows when the product has no image yet.
+  // Product cards: keyed by Shopify product handle. `video` plays on hover (desktop) or in
+  // view (phones); `fallback` shows when the product has no image yet.
   products: {
     "skin-glow-tea": { video: videos.skincareCloseup, fallback: site.brew },
     "calm-night": { video: videos.windowCalm, fallback: photos.windowTea },
@@ -288,22 +297,24 @@ export const media = {
     "glow-bundle": { video: videos.teaSteeping, fallback: photos.herbalFlatlay },
   } as Record<string, { video: MediaVideo; fallback: MediaImage } | undefined>,
   productDefault: { video: videos.teaSteeping, fallback: site.brew },
-  bundle: [photos.glassTeapot, site.jujube, photos.handsCup, photos.bathroomShelf],
-  howItWorks: { video: videos.teaSteam },
-  tcm: { thumbnail: site.cups, video: videos.teaSteeping },
-  stories: {
-    edgeStart: site.goji,
-    portraitA: photos.windowTea,
-    stadium: photos.teacupMint,
-    videoA: videos.skincareRoutine,
-    portraitB: photos.handsGlass,
-    videoB: videos.flowersBreeze,
-    portraitC: site.ritual,
-    videoC: videos.teaSteeping,
-    edgeEnd: site.snowFungus,
+  // Extra photos after the product's own images in the product page gallery.
+  gallery: {
+    "skin-glow-tea": [site.flatlay, site.ritual, site.cups, site.jujube, site.snowFungus],
+    "calm-night": [photos.windowTea, photos.handsCup],
+    "gut-balance": [photos.gingerLemon, photos.teacupMint],
+    "glow-bundle": [photos.herbalFlatlay, photos.glassTeapot, photos.bathroomShelf],
+  } as Record<string, MediaImage[] | undefined>,
+  ingredients: {
+    jujube: site.jujube,
+    snowFungus: site.snowFungus,
+    goji: site.goji,
+    ginger: site.ginger,
   },
+  ritual: { image: site.ritual, video: videos.teaSteam },
+  tcm: { thumbnail: site.cups, video: videos.teaSteeping },
+  reviews: [photos.windowTea, photos.handsGlass, site.ritual],
   sourcing: photos.redDates,
-  closing: { portrait: photos.bathroomSink, circle: site.evening },
+  closing: site.evening,
 } as const;
 
 /** Every demo item, for MEDIA_CREDITS.md and the launch checklist. */

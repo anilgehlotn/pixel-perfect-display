@@ -1,18 +1,18 @@
 import { useRef } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
-import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
+import { FEATURED_PRODUCT_HANDLE, home, ingredients } from "@/data/content";
 import { getProduct, getProducts } from "@/lib/shopify/products";
 import { Hero } from "@/components/home/Hero";
 import {
-  ProductRow,
-  Bundle,
-  HowItWorks,
+  TrustBar,
+  Bestsellers,
+  FeaturedRitual,
   Tcm101,
   Sourcing,
   ClosingCta,
 } from "@/components/home/Sections";
-import { Stories } from "@/components/home/Stories";
+import { ComparisonTable, Ingredients, Reviews, Standards } from "@/components/product/Blocks";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
@@ -33,12 +33,21 @@ function Index() {
   useScrollAnimations(scope);
   return (
     <main ref={scope}>
-      <Hero />
-      <ProductRow products={products} />
-      <Bundle product={featured} />
-      <HowItWorks />
+      <Hero featured={featured} />
+      <TrustBar />
+      <Bestsellers products={products} />
+      <FeaturedRitual product={featured} />
+      <ComparisonTable />
+      <Ingredients
+        items={ingredients}
+        eyebrow={home.ingredients.eyebrow}
+        title={home.ingredients.title}
+        text={home.ingredients.text}
+        facts={home.facts}
+      />
+      <Standards />
       <Tcm101 />
-      <Stories />
+      <Reviews rating={featured.rating} />
       <Sourcing />
       <ClosingCta />
     </main>
