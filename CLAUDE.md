@@ -139,9 +139,14 @@ Seed-inspired layout (layout and motion only; no Seed content, media or fonts). 
 order (`src/routes/index.tsx`):
 
 1. **Hero** (`Hero.tsx`): sentence-case headline, one line, "Shop Skin Glow Tea" (coral, to
-   the product page) and "Take the quiz" (outline), then the star rating and "From" price. Product composition: the centre image in a stadium crop, four ingredient
-   circles and a small looping video. Desktop: pieces float gently (CSS) and drift at different
-   speeds with scroll (`data-depth`).
+   the product page) and "Take the quiz" (outline), then customer avatars, star rating and the
+   "From" price. Composition, "the steeping ritual": the cup in a circle on a blush disc, a
+   ring of names (product and the four ingredients in Chinese and English) turning slowly
+   around it, steam rising from the cup, the four ingredients orbiting the cup (each stays
+   upright; hover shows its name) and a small looping video. Desktop: the orbit, ring and
+   steam run as CSS loops, and every layer drifts with the pointer by its own amount
+   (`data-mouse`, GSAP `quickTo`). Phones and reduced motion: all still. The video's pause
+   button stops everything (`data-paused`), and `usePauseWhenHidden` pauses it off-screen.
 2. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
    video on hover (desktop) or while in view (phones) over the product photo; products without a
    photo show the fallback image from media.ts. Swipe with snap points on phones. Photo and
@@ -522,25 +527,25 @@ Add an attribute in the markup. No refs or effects needed on pages that already 
 | `data-count`          | The number in this element's text counts up once (final value is in the server HTML)                  |
 
 A new page opts in with `const scope = useRef<HTMLElement>(null); useScrollAnimations(scope);`
-and `<main ref={scope}>`. Never put `data-depth` and another transform animation (CSS float,
-`data-anim`) on the same element: nest wrappers (see `Piece` in Hero.tsx).
+and `<main ref={scope}>`. Never put `data-depth`, `data-mouse` and another transform animation (CSS loop, `data-anim`) on
+the same element: nest wrappers (see `Layer` in Hero.tsx).
 
 ### What plays where
 
-| Animation                             | Desktop (>=1024px, mouse)                                                  | Mobile and tablet                                 |
-| ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
-| Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
-| Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero composition                      | Pieces float (8s CSS loop) and drift at different speeds with scroll       | Static                                            |
-| Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
-| Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
-| Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
-| Product videos                        | Play on hover / keyboard focus                                             | Play while in view (max 2 videos at once)         |
-| Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards | Native swipe with snap points                     |
-| Counters                              | Count up once                                                              | Same                                              |
-| Nav                                   | Hides on scroll down, shows on scroll up                                   | Same                                              |
-| Footer                                | Slides up, columns fade in one by one                                      | Same, smaller distances                           |
-| Smooth scroll                         | Lenis                                                                      | Native                                            |
+| Animation                             | Desktop (>=1024px, mouse)                                                         | Mobile and tablet                                 |
+| ------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                             | Same, max 1s                                      |
+| Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in           | Text fades up, composition fades in, buttons last |
+| Hero composition                      | Ingredients orbit (80s), ring turns (60s), steam rises; layers follow the pointer | Static                                            |
+| Big headlines (`lines`)               | Lines rise from a mask once                                                       | Fade up once                                      |
+| Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                                   | Same, 0.9s                                        |
+| Cards                                 | y 48, stagger 0.1; lift 6px on hover                                              | y 20, stagger 0.05, max 6 per group               |
+| Product videos                        | Play on hover / keyboard focus                                                    | Play while in view (max 2 videos at once)         |
+| Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards        | Native swipe with snap points                     |
+| Counters                              | Count up once                                                                     | Same                                              |
+| Nav                                   | Hides on scroll down, shows on scroll up                                          | Same                                              |
+| Footer                                | Slides up, columns fade in one by one                                             | Same, smaller distances                           |
+| Smooth scroll                         | Lenis                                                                             | Native                                            |
 
 Reduced motion: no loader, no movement, no float, no video autoplay (posters only; videos play
 only when opened in the dialog), no smooth scroll, everything visible immediately. Without
