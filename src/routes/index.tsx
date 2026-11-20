@@ -5,6 +5,7 @@ import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
 import { getProduct, getProducts } from "@/lib/shopify/products";
 import { Hero } from "@/components/home/Hero";
 import {
+  WhyEdible,
   ProductRow,
   Bundle,
   HowItWorks,
@@ -35,6 +36,7 @@ function Index() {
   return (
     <main ref={scope}>
       <Hero featured={featured} />
+      <WhyEdible />
       <ProductRow products={products} />
       <Bundle product={featured} />
       <HowItWorks />

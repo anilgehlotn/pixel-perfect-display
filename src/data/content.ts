@@ -57,27 +57,27 @@ export type HeroSlide = {
   primary: { label: string; href?: string; addPack?: string };
   secondary?: { label: string; href: string };
   /** What the right-hand side shows on wide screens. */
-  visual: "product" | "swap" | "ingredients";
+  visual: "product" | "layers" | "ingredients";
 };
 
 // SkinFusion's idea, in plain words: skin care you eat and drink, made from whole food,
 // instead of more products on your face. No result promises (see "Rules for all future work").
 export const heroSlides: HeroSlide[] = [
   {
-    kicker: "Food for your skin",
-    title: "Skin care you drink, not apply.",
-    line: "SkinFusion makes teas from whole food. Instead of adding another serum or cream to your face, you look after your skin from the inside, one cup a day.",
+    kicker: "Edible skin care",
+    title: "Skin care you eat, not apply.",
+    line: "SkinFusion makes teas from whole food. Instead of adding another cream or serum to your face, you look after your skin from the inside, one cup a day.",
     primary: { label: "Shop our teas", href: "/#shop" },
-    secondary: { label: "See what's inside", href: "/#ingredients" },
+    secondary: { label: "How it works", href: "/#how-it-works" },
     visual: "product",
   },
   {
-    kicker: "A simpler routine",
-    title: "Fewer bottles. One cup a day.",
-    line: "Most skin care goes on your face and often comes with a long ingredient list. Our tea goes in a cup, and you can see everything in it.",
+    kicker: "Why edible",
+    title: "Cream stays on top. Food goes deeper.",
+    line: "Creams and serums sit on the outer layer of your skin. What you eat and drink is carried by your blood to the deeper layers.",
     primary: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
-    secondary: { label: "Take the quiz", href: "/quiz" },
-    visual: "swap",
+    secondary: { label: "How it works", href: "/#how-it-works" },
+    visual: "layers",
   },
   {
     kicker: "What's inside",
@@ -89,6 +89,30 @@ export const heroSlides: HeroSlide[] = [
   },
 ];
 
+// The skin-layers drawing (hero slide 2 and the "How it works" section). The idea is the
+// brand's belief, written without result promises; the client should confirm this wording.
+export const skinLayers = {
+  label: "How cream and food reach your skin",
+  layers: ["Outer layer", "Middle layer", "Deep layer"],
+  cream: "Cream stays on top",
+  food: "Food travels in your blood",
+  cup: "One cup a day",
+};
+
+export const howItWorks = {
+  title: "Why we make skin care you eat",
+  text: "Your skin has layers. Creams and serums are applied to the outer one. Your blood reaches the deeper layers, and it carries what you eat and drink. So we put whole foods in a tea bag.",
+  points: [
+    { title: "Creams and serums", text: "Applied to the outer layer of your skin." },
+    { title: "Food", text: "Carried by your blood to the deeper layers." },
+    {
+      title: "SkinFusion",
+      text: "Four whole foods, traditionally used in Chinese kitchens for the skin, in one cup a day.",
+    },
+  ],
+  cta: { label: "Shop our teas", href: "/#shop" },
+};
+
 export const heroSlider = {
   label: "Featured",
   previous: "Previous slide",
@@ -97,12 +121,6 @@ export const heroSlider = {
   play: "Play slideshow",
   goTo: "Show slide",
   card: { add: "Add to cart", reviews: "reviews" },
-  swap: {
-    title: "Your shelf",
-    out: ["Serum", "Toner", "Night cream", "Face mask"],
-    in: "One cup of Skin Glow Tea",
-    note: "Four whole foods, steeped for five minutes.",
-  },
   ingredients: "Everything in the bag",
 };
 

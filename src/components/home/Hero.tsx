@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { Link } from "@tanstack/react-router";
-import { CaretLeft, CaretRight, Check, Pause, Play, X } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, Pause, Play } from "@phosphor-icons/react";
 import { heroSlider, heroSlides, ingredients, type HeroSlide } from "@/data/content";
 import { media, type Media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
@@ -15,6 +15,7 @@ import { MOTION_CONDITIONS } from "@/lib/animations/media";
 import { safely } from "@/lib/animations/safety";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Img, LoopVideo } from "./media";
+import { SkinLayers } from "./SkinLayers";
 
 /**
  * 1. HERO: a full-width banner slider. Three slides (heroSlides in content.ts, media in
@@ -23,7 +24,7 @@ import { Img, LoopVideo } from "./media";
  * the pause button, an off-screen hero or a hidden tab pause it; reduced motion turns autoplay,
  * zoom and text motion off. Arrows, the bars and a swipe on touch screens change slides.
  * On wide screens each slide has its own animated visual on the right: the product card with
- * floating ingredients, a "your shelf" list that crosses skin products out for one cup of tea,
+ * floating ingredients, the skin-layers drawing (cream stays on top, food rises from inside),
  * and the four ingredients popping in.
  */
 export function Hero({ featured }: { featured: Product }) {
@@ -113,7 +114,7 @@ export function Hero({ featured }: { featured: Product }) {
       className="px-4 pt-24 md:px-6 md:pt-28"
     >
       <div
-        data-paused={paused || undefined}
+        data-hold={paused || undefined}
         onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
         onPointerLeave={() => setHovered(false)}
         onFocusCapture={() => setHovered(true)}
@@ -320,50 +321,23 @@ function Slide({
       {/* Right-hand visual (wide screens): plays its animation each time the slide shows. */}
       <div
         key={active ? "v-on" : "v-off"}
-        className="absolute right-10 top-1/2 z-10 hidden w-[19rem] -translate-y-1/2 xl:block 2xl:right-14"
+        className={`absolute right-10 top-1/2 z-10 hidden -translate-y-1/2 xl:block 2xl:right-14 ${slide.visual === "layers" ? "w-[25rem]" : "w-[19rem]"}`}
       >
         {slide.visual === "product" && <ProductCard featured={featured} play={active} />}
-        {slide.visual === "swap" && <SwapList play={active} />}
+        {slide.visual === "layers" && <LayersCard play={active} />}
         {slide.visual === "ingredients" && <IngredientStack play={active} />}
       </div>
     </div>
   );
 }
 
-/** "Your shelf": skin products crossed out one by one, then the tea ticked in. */
-function SwapList({ play }: { play: boolean }) {
-  const copy = heroSlider.swap;
-  const pop = play ? "animate-pop-in" : "";
+/** Slide 2 visual: the skin-layers drawing (cream stays on top, food rises from inside). */
+function LayersCard({ play }: { play: boolean }) {
   return (
     <div
-      className={`rounded-[1.5rem] bg-background/95 p-6 text-foreground backdrop-blur-md ${pop}`}
+      className={`rounded-[1.5rem] bg-background/95 p-5 backdrop-blur-md ${play ? "animate-pop-in" : ""}`}
     >
-      <p className="label-caps text-muted-foreground">{copy.title}</p>
-      <ul className="mt-4 space-y-2.5">
-        {copy.out.map((item, i) => (
-          <li key={item} className="flex items-center gap-3 text-muted-foreground">
-            <X size={16} weight="light" aria-hidden="true" className="shrink-0" />
-            <span className="relative">
-              {item}
-              <span
-                aria-hidden="true"
-                className={`absolute inset-x-0 top-1/2 h-px origin-left bg-foreground/60 ${play ? "animate-strike" : ""}`}
-                style={{ animationDelay: `${500 + i * 350}ms` }}
-              />
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p
-        className={`mt-5 flex items-center gap-3 border-t pt-4 font-medium text-green ${pop}`}
-        style={{ animationDelay: `${600 + copy.out.length * 350}ms` }}
-      >
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-          <Check size={14} weight="bold" aria-hidden="true" />
-        </span>
-        {copy.in}
-      </p>
-      <p className="mt-2 pl-10 text-sm text-muted-foreground">{copy.note}</p>
+      <SkinLayers play={play} className="w-full" />
     </div>
   );
 }

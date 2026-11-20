@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "@phosphor-icons/react";
-import { home } from "@/data/content";
+import { home, howItWorks } from "@/data/content";
 import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
@@ -9,6 +9,53 @@ import { cornerLabel, hasTag, money, type Product } from "@/lib/shopify/types";
 import { ProductImage } from "@/components/site/ProductImage";
 import { Stars } from "@/components/site/Stars";
 import { Img, LoopVideo, PlayPill, VideoDialog } from "./media";
+import { SkinLayers } from "./SkinLayers";
+
+/* 2. WHY EDIBLE (#how-it-works): SkinFusion's idea in one picture. The skin-layers drawing
+   plays when it scrolls into view; three short points say the same thing in words. */
+export function WhyEdible() {
+  const copy = howItWorks;
+  return (
+    <section
+      id="how-it-works"
+      aria-labelledby="how-title"
+      className="section-y scroll-mt-20 px-4 md:px-6"
+    >
+      <div className="mx-auto grid max-w-[80rem] items-center gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
+        <div className="max-w-lg">
+          <h2 id="how-title" data-anim="lines" className="title">
+            {copy.title}
+          </h2>
+          <p data-anim="fade" className="mt-5 text-lg leading-relaxed text-muted-foreground">
+            {copy.text}
+          </p>
+          <ul data-anim="cards" className="mt-8 space-y-5">
+            {copy.points.map((pt) => (
+              <li key={pt.title} className="flex gap-4">
+                <span
+                  aria-hidden="true"
+                  className="mt-2.5 h-2.5 w-2.5 shrink-0 rounded-full bg-primary"
+                />
+                <p>
+                  <span className="font-medium text-green">{pt.title}.</span>{" "}
+                  <span className="text-muted-foreground">{pt.text}</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+          <div data-anim="fade" className="mt-9">
+            <a href={copy.cta.href} className="btn btn-primary">
+              {copy.cta.label}
+            </a>
+          </div>
+        </div>
+        <div className="rounded-card bg-blush p-6 sm:p-10">
+          <SkinLayers playOnView className="mx-auto w-full max-w-md" />
+        </div>
+      </div>
+    </section>
+  );
+}
 
 /* 3. PRODUCT ROW: products from getProducts(). Swipe on phones, four columns on desktop. */
 export function ProductRow({ products }: { products: Product[] }) {
