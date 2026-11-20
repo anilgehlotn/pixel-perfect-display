@@ -27,6 +27,7 @@ This project is built and maintained with Claude Code only.
 | GSAP + @gsap/react        | 3.15     | Scroll animations: ScrollTrigger, SplitText (free since 3.13), useGSAP               |
 | Lenis                     | 1.3      | Smooth scrolling, desktop with a mouse only                                          |
 | @fontsource-variable/jost | 5.x      | Self-hosted Jost (no Google Fonts request)                                           |
+| @fontsource/marcellus     | 5.x      | Self-hosted Marcellus, the serif for headings                                        |
 | Vitest + Testing Library  | 4.x      | Tests (`src/test/`)                                                                  |
 | ESLint 9 + Prettier 3     |          | Lint and formatting (Prettier runs as an ESLint rule, so `npm run lint` checks both) |
 
@@ -44,17 +45,15 @@ each route's `head()` (per page).
 ├── src/
 │   ├── assets/                Site images (JPG originals); web/ holds 400/800px WebP copies
 │   ├── components/home/       Homepage sections (see "Homepage" below)
-│   │   ├── Hero.tsx           Wine hero with headline, two buttons, rating and the pouch trio
-│   │   ├── Sections.tsx       Trust strip, bestsellers, featured ritual, mission banner, learn cards
+│   │   ├── Hero.tsx           Full-bleed photo hero with headline, two buttons and rating
+│   │   ├── Sections.tsx       Benefit strip, bestsellers, shop by ritual, featured product,
+│   │   │                      campaign banner, learn cards
 │   │   └── media.tsx          Img, LoopVideo, PlayPill, VideoDialog (all media goes through these)
 │   ├── components/product/    Shared by the homepage and the product page
-│   │   ├── ProductCard.tsx    Product tile (photo/video, badge, rating, price, Add to cart)
+│   │   ├── ProductCard.tsx    Product card (photo, tag, rating, MRP, % OFF, pack dropdown, Add to cart)
 │   │   ├── BuyBox.tsx         Price, pack choice, quantity, Add to cart, highlights
 │   │   ├── purchase.ts        usePurchase() (selected pack + quantity), pouches(), savePercent()
-│   │   ├── Gallery.tsx        Product gallery, pouch render first (+ gallery-image.ts converters)
-│   │   ├── Pouch.tsx          Illustrated SkinFusion pouch (SVG), until real packshots exist
-│   │   ├── Wash.tsx           Watercolour disc behind icons and ingredient photos
-│   ├── .claude/skills/frontend-design  Anthropic's official frontend-design skill (Apache 2.0)
+│   │   ├── Gallery.tsx        Product photo gallery (+ gallery-image.ts converters)
 │   │   ├── Blocks.tsx         SectionIntro, ComparisonTable, Standards, Ingredients, Steps,
 │   │   │                      Reviews, Disclosure (accordion), Faq
 │   │   └── icons.tsx          Icon: Phosphor icon by the name used in content.ts
@@ -146,29 +145,29 @@ regenerates `routeTree.gen.ts` automatically.
 
 ## Homepage
 
-Close in feel to the-qi.com (a structure reference only: never copy its text, images, icons,
-logos or press). Sections, in order (`src/routes/index.tsx`):
+Indian premium wellness style, from the client's references: Vahdam and Kama Ayurveda (cream,
+deep green, gold serif headings, arch-framed photos), Ritual (calm, roomy sections) and Blue Tea
+(shop-first product cards). They are references for style only: never copy their text, images,
+logos or press. Sections, in order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): wine block. Copy on the left (kicker, `display` headline, line,
-   coral "Shop Skin Glow Tea", cream outline "Take the skin quiz", rating); on the right the
-   three pouches standing together like a product photograph. Phones: pouches first.
-2. **Trust strip**: four true facts with icons (`trust`).
-3. **Bestsellers** (`#shop`): `ProductCard`s: the pouch on the product's colour backdrop (a
-   lifestyle photo fades in on hover, desktop only), round "Best seller" badge, uppercase name,
-   coral stars, price with compare-at, full-width coral "Add to cart". Swipe on phones.
-4. **Featured ritual** (`#bundle`): pouch tile with a "No. 1 best seller" badge and the
-   featured product's `BuyBox` (pack 1/2/4, quantity, Add to cart, "View product details").
-5. **Comparison** (`ComparisonTable`, blush): "SkinFusion vs. the rest", our column in rose
-   with the pouch on top.
-6. **Standards**: six line icons on watercolour discs.
-7. **Mission**: full-bleed photo (`media.mission`) with white copy.
-8. **Ingredients** (`#ingredients`, sand): four photos on watercolour with Chinese names,
-   plus true-fact counters.
-9. **Reviews** (`#reviews`): rating and three quotes (demo).
-10. **Learn, sip and glow** (`#learn`): three journal cards; the first plays the TCM 101 film.
+1. **Hero** (`Hero.tsx`): full-bleed photo (`media.hero`). Desktop: copy over the calm left
+   side with a cream wash; phones: photo on top. Gold kicker, green serif headline, line,
+   green "Shop Skin Glow Tea", outline "Take the skin quiz", gold star rating.
+2. **Benefit strip**: gold band with five true facts (`trust`).
+3. **Bestsellers** (`#shop`): `ProductCard`s: square real photo, "Best seller" tag, rating
+   and count, name, price with MRP crossed out and "% OFF", pack dropdown (products with several
+   packs), green "Add to cart". Swipe on phones.
+4. **Shop by ritual**: four arch-framed photos (`rituals`, `media.rituals`), one per product.
+5. **Ingredients** (`#ingredients`): four arch photos with Chinese names, then counters.
+6. **Featured** (`#bundle`): arch photo and the featured product's `BuyBox`.
+7. **Campaign banner**: wide photo and green panel (`campaign`, `media.campaign`).
+8. **Comparison**: "SkinFusion vs. the rest", our column in green.
+9. **Our promise** (`Standards`): gold line icons in circles.
+10. **Reviews** (`#reviews`): arch photos with quotes (demo).
+11. **Learn, sip and glow** (`#learn`): three cards; the first plays the TCM 101 film.
 
-Copy: `hero`, `trust`, `home`, `comparison`, `standards`, `ingredients`, `reviews`,
-`packaging` in content.ts. Media: `src/data/media.ts`.
+Copy: `hero`, `trust`, `rituals`, `campaign`, `home`, `comparison`, `standards`,
+`ingredients`, `reviews` in content.ts. Media: `src/data/media.ts`.
 
 ## Product page
 
@@ -176,15 +175,14 @@ Copy: `hero`, `trust`, `home`, `comparison`, `standards`, `ingredients`, `review
 related products. `head()` sets the title, description, share image and price tags.
 
 1. Breadcrumb (Home / Shop / product).
-2. `Gallery` (sticky on desktop): the pouch render on its backdrop (until Shopify has a
-   packshot, i.e. an absolute image URL), then the product's images and `media.gallery[handle]`.
+2. `Gallery` (sticky on desktop): the product's images, then `media.gallery[handle]`.
 3. `BuyBox`: uppercase title, subtitle, rating (links to `#reviews`), price, compare-at price and
    "Save x%", price per cup, tagline, pack choice (radio inputs), quantity, "Add to cart · price"
    (opens the cart drawer), highlights, "Why you'll love it", assurance icons. Then accordions
    (native `<details>`, content in the server HTML): Description, Ingredients, How to brew,
    Shipping.
 4. Products with an entry in `productDetails` (content.ts) also get: "Why it belongs in your
-   day" (six benefits on watercolour discs), "How to enjoy" with tasting notes, the
+   day" (six benefit cards), "How to enjoy" with tasting notes, the
    ingredients block, the comparison table and an FAQ. Today only `skin-glow-tea` has details; the others show the buy
    box, a "coming soon" description, reviews and related products, and no ingredient claims.
 5. Reviews, related products ("You may also like"), wellness disclaimer.
@@ -441,39 +439,34 @@ use absolute URLs. The favicon is `public/favicon.svg` (placeholder "S"; replace
 
 ## Design system
 
-Qi-inspired, product-first direction (replaces the jujube/serif version and the earlier
-Seed-inspired style). Read from `src/styles.css`. Use the tokens, never raw hex values in
-components (the pouch colours in `packaging` are the one exception: they are artwork).
+Indian premium wellness direction (replaces the Qi-inspired, jujube/serif and Seed-inspired
+versions). Read from `src/styles.css`. Use the tokens, never raw hex values in components.
 
 Colors (Tailwind class names in brackets):
 
-- White pages (`bg-background`, `bg-surface`). Sand `#f1e9df` (`bg-sand`) is the seamless
-  backdrop for product pictures and the ingredients block
-- Coral `#f47f78` (`bg-coral`, `bg-primary`): every buying button, selected pack, stars,
-  cart count. Text on coral is wine `#3d0c18` (5.7:1); never white (2.6:1)
-- Wine `#5a1426` (`bg-wine`, `text-wine`): announcement bar, hero, small accents. Cream
-  `#fff8f4` (`text-cream`) on wine is 12:1
-- Blush `#fbe7e2` (`bg-blush`): comparison, FAQ, footer, step numbers. Rose `#f6c3bd`
-  (`bg-rose`): badges, "Save x%", our comparison column (wine text)
-- Product colour worlds: peach, lilac, sage, butter (`packaging[handle].backdrop`)
-- Ink `#1e1b1c`; muted text `#6a6063` (5.8:1 on white)
-- Watercolour pastels for icon discs: `WASHES` in Blocks.tsx
+- White pages (`bg-background`, `bg-surface`); cream sections `#f9f4ec` (`bg-blush`) and the
+  photo backdrop `#f6efe3` (`bg-sand`)
+- Deep tea green `#1d4a39` (`bg-green`, `text-green`, also `bg-primary`): buttons, headline
+  text, announcement bar, footer, our comparison column. White on green is 10.6:1. The older
+  names `coral`, `wine` and `jujube` point at the same green
+- Antique gold `#a8803f` (`text-gold`): large serif section titles and stars only (3.3:1, large
+  text). Gold-deep `#84612b` (`text-gold-deep`, `bg-gold-deep`): small gold text, the benefit
+  strip (white text 5.4:1)
+- Gold-beige `#efe2c6` (`bg-rose`): "Best seller" tags and "% OFF" chips, green text
+- Ink `#23201c`; muted text `#5f5a52` (6.4:1 on white)
 
-Typography: Jost only (self-hosted). Headings are uppercase and wide-spaced, weight 500:
-`display` (hero, 32-60px, 0.1em), `headline` (product title, 24-36px, 0.12em), `title`
-(section titles, 19-28px, 0.2em). Product names on cards: 0.88rem uppercase, 0.18em. Body
-16px, line-height 1.65. At most one small kicker line above a section title, and only where it
-says something (not on every section). No middle-dot meta strings.
+Typography: Marcellus (self-hosted) for headings, sentence case: `display` (hero, 37-70px),
+`headline` (product title, feature headings), `title` (section titles in gold, 30-46px). h1-h4
+default to Jost in green; use the utilities for serif. Jost for everything else:
+body 16px / 1.65, buttons uppercase 0.875rem with 0.1em spacing. One short eyebrow line in ink
+above a section title.
 
-Shapes: square buttons (`btn`, radius 0, 50px high), square product tiles, circles for badges,
-ingredient photos and icon discs, rounded top/bottom only on the comparison column.
+Shapes: arch frames (`rounded-t-full` on a 4:5 or square box) for ritual, ingredient, featured
+and review photos; square product photos; buttons 2px radius, 48px high; circles for icons.
 
-Buttons: `btn btn-primary` (coral, wine text), `btn btn-outline` (ink), `btn btn-cream`
-(cream outline on wine), `btn-light`. Text links: plain underline with 6px offset.
-
-Packaging: `Pouch` draws the pouch from `packaging[handle]` (colour, shade, watercolour wash,
-one Chinese character, name, line, weight). It stands in for photography everywhere a product is
-shown; a Shopify packshot (absolute URL) replaces it automatically.
+Buttons: `btn btn-primary` (green, white text), `btn btn-outline` (green line), `btn btn-cream`
+(cream outline on green), `btn-light` (cream fill on green). Text links: green underline,
+6px offset.
 
 ## Animations
 
@@ -560,7 +553,8 @@ JavaScript: everything visible, posters instead of videos, no loader.
 
 ## Design skills and priority rules
 
-Design skills are installed in `.claude/skills/` (17 skills: design-taste-frontend,
+Design skills are installed in `.claude/skills/` (18 skills: frontend-design (Anthropic,
+Apache 2.0), design-taste-frontend,
 high-end-visual-design, minimalist-ui, redesign-existing-projects, ui-ux-pro-max, ui-styling,
 design-system, brand, web-design-guidelines, writing-guidelines, full-output-enforcement,
 vercel-react-best-practices, vercel-composition-patterns, gsap-core, gsap-react,
@@ -573,17 +567,15 @@ When rules conflict, this order wins:
 2. Accessibility, performance and mobile rules.
 3. Skill defaults.
 
-Approved style (Qi-inspired, product-first; ignore any skill rule that bans it):
+Approved style (Indian premium wellness; ignore any skill rule that bans it):
 
-- Square coral buttons, square product tiles on colour backdrops, circles for badges.
-- Jost only, uppercase wide-spaced headings (the brief asks for this, so the
-  frontend-design skill's "no all caps" default does not apply to headings).
-- White pages, coral for buying, wine for the hero and announcement bar, blush and sand for
-  soft blocks, watercolour pastels for icons.
+- Deep green and antique gold on white and cream; Marcellus serif headings, Jost body.
+- Arch-framed photos, square product photos, green buttons.
+- Real photography only: no illustrated packaging.
 - Conversion-first structure: announcement bar, trust strip, product grid with Add to cart,
   comparison table, standards icons, reviews, detailed product page.
-- the-qi.com is a reference for structure ONLY: never copy its media, logos, icons, text,
-  product names or press logos.
+- Vahdam, Kama Ayurveda, Ritual and Blue Tea are style references ONLY: never copy their
+  media, logos, icons, text, product names or press logos.
 
 Ignore every "variance" or "randomize the layout" rule: SkinFusion pages must stay
 consistent with each other.
@@ -593,18 +585,17 @@ purple or blue gradients, no heavy shadows, 44px touch targets, 4.5:1 text contr
 focus states, zero layout shift, transform/opacity-only animation, reduced-motion support,
 complete code with no placeholders.
 
-Coral contrast: white text on coral fails WCAG AA (2.6:1), so coral buttons use wine text
-(5.7:1). If the client insists on white text, the coral must darken to about `#c64a44`.
+Gold contrast: `#a8803f` is for large serif text and stars only; small gold text uses
+`gold-deep` `#84612b`.
 
 ## Rules for all future work
 
 - No emojis anywhere (UI, copy, code comments, commits).
 - No AI clichés in copy: "elevate", "seamless", "unlock", "transform your", "journey",
   "game-changer", "delve", "curated", "empower", "revolutionize" and similar.
-- Never use Inter, Roboto or Arial. Jost is the only font.
-- Headings: `display`, `headline`, `title` (uppercase Jost). h1-h4 default to Jost in ink.
-- Buttons: square (`btn btn-primary` coral with wine text, `btn btn-outline`). One label per
-  intent on a page.
+- Never use Inter, Roboto or Arial. Jost (body) and Marcellus (headings) are the only fonts.
+- Headings: `display`, `headline`, `title` (Marcellus, sentence case).
+- Buttons: `btn btn-primary` (green, white text), `btn btn-outline`. One label per intent.
 - Homepage photos and videos come only from `src/data/media.ts`; videos only through
   `LoopVideo` / `VideoDialog`.
 - Animate only `transform` and `opacity`. Never animate width, height, top, left, margin or
@@ -698,9 +689,6 @@ Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
 
 Other:
 
-- [ ] Real packshots: the illustrated pouches (`Pouch.tsx`, `packaging` in content.ts) are
-      stand-ins. Upload packshots to Shopify and they replace the illustrations automatically;
-      confirm the Chinese characters on the artwork (颜 静 和 礼) with the client
 - [ ] SkinFusion pouch photo (`src/assets/skinfusion-pouch.jpg` is missing; the hero photo and
       the Skin Glow Tea product use the blush flat-lay and brewed-cup photos instead)
 - [ ] Client confirms ownership of the existing site images in `src/assets/` (brew, hero-1, hero-2,
