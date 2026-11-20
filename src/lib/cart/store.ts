@@ -151,7 +151,10 @@ function toCart(raw: RawCart): Cart {
 }
 
 type UserErrors = { userErrors: { message: string }[] };
-function cartFrom<K extends string>(data: Record<K, { cart: RawCart | null } & UserErrors>, key: K) {
+function cartFrom<K extends string>(
+  data: Record<K, { cart: RawCart | null } & UserErrors>,
+  key: K,
+) {
   const result = data[key];
   if (result.userErrors.length) throw new Error(result.userErrors.map((e) => e.message).join("; "));
   if (!result.cart) throw new Error("Shopify returned no cart");
@@ -212,7 +215,9 @@ export const shopifyCartStore: CartStore = {
   async update(cart, lineId, quantity) {
     if (!cart.id) return cart;
     if (quantity <= 0) {
-      const data = await storefrontFetch<{ cartLinesRemove: { cart: RawCart | null } & UserErrors }>(
+      const data = await storefrontFetch<{
+        cartLinesRemove: { cart: RawCart | null } & UserErrors;
+      }>(
         `mutation CartLinesRemove($id: ID!, $lineIds: [ID!]!) {
           cartLinesRemove(cartId: $id, lineIds: $lineIds) { cart { ${SHOPIFY_CART_FIELDS} } userErrors { message } }
         }`,
