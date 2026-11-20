@@ -56,29 +56,36 @@ export type HeroSlide = {
   line: string;
   primary: { label: string; href?: string; addPack?: string };
   secondary?: { label: string; href: string };
+  /** What the right-hand side shows on wide screens. */
+  visual: "product" | "swap" | "ingredients";
 };
 
+// SkinFusion's idea, in plain words: skin care you eat and drink, made from whole food,
+// instead of more products on your face. No result promises (see "Rules for all future work").
 export const heroSlides: HeroSlide[] = [
   {
-    kicker: "Our bestseller",
-    title: "Glow from within, one cup at a time.",
-    line: "Jujube, snow fungus, goji and ginger, brewed whole into a naturally sweet, caffeine-free daily ritual.",
-    primary: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
-    secondary: { label: "Take the quiz", href: "/quiz" },
+    kicker: "Food for your skin",
+    title: "Skin care you drink, not apply.",
+    line: "SkinFusion makes teas from whole food. Instead of adding another serum or cream to your face, you look after your skin from the inside, one cup a day.",
+    primary: { label: "Shop our teas", href: "/#shop" },
+    secondary: { label: "See what's inside", href: "/#ingredients" },
+    visual: "product",
   },
   {
-    kicker: "Bundle and save",
-    title: "Save up to 15% on your ritual.",
-    line: "Two or four pouches of Skin Glow Tea, with free shipping on the four-pack. Your ritual, never interrupted.",
-    primary: { label: "Add 4 pouches", addPack: "4 Pouches" },
-    secondary: { label: "See all packs", href: "/products/skin-glow-tea" },
+    kicker: "A simpler routine",
+    title: "Fewer bottles. One cup a day.",
+    line: "Most skin care goes on your face and often comes with a long ingredient list. Our tea goes in a cup, and you can see everything in it.",
+    primary: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
+    secondary: { label: "Take the quiz", href: "/quiz" },
+    visual: "swap",
   },
   {
     kicker: "What's inside",
-    title: "Four whole ingredients. Nothing else.",
-    line: "Red dates, snow fungus, goji and ginger from the Traditional Chinese Medicine kitchen. No tea dust, no added sugar.",
+    title: "Four whole foods. Nothing added.",
+    line: "Red dates, snow fungus, goji berries and ginger. No sugar, no caffeine, no preservatives.",
     primary: { label: "Meet the ingredients", href: "/#ingredients" },
     secondary: { label: "Shop now", href: "/products/skin-glow-tea" },
+    visual: "ingredients",
   },
 ];
 
@@ -90,6 +97,13 @@ export const heroSlider = {
   play: "Play slideshow",
   goTo: "Show slide",
   card: { add: "Add to cart", reviews: "reviews" },
+  swap: {
+    title: "Your shelf",
+    out: ["Serum", "Toner", "Night cream", "Face mask"],
+    in: "One cup of Skin Glow Tea",
+    note: "Four whole foods, steeped for five minutes.",
+  },
+  ingredients: "Everything in the bag",
 };
 
 /* ---------------------------------------------------------------------------
@@ -226,19 +240,19 @@ export type StoryQuote = { text: string; name: string; city: string; isDemo: boo
 
 export const home = {
   products: {
-    title: "Daily rituals for radiant skin",
+    title: "Our teas",
     from: "From",
     cta: "Add to cart",
   },
   bundle: {
-    title: "Bundle and save",
-    text: "Two or four pouches of Skin Glow Tea, so your ritual never runs out. Save up to 15%, with free shipping on the four-pack.",
+    title: "Buy more, pay less",
+    text: "Get two or four pouches of Skin Glow Tea. Two pouches cost 10% less. Four pouches cost 15% less and ship free.",
     cta: "Add 4 pouches",
     handle: "skin-glow-tea",
     variantTitle: "4 Pouches",
   },
   howItWorks: {
-    title: "Four whole ingredients, brewed into a daily ritual.",
+    title: "Four whole ingredients. Nothing added.",
     // Counters: only true facts. The number counts up from 0 when it scrolls into view.
     facts: [
       { value: "4", label: "whole ingredients" },
@@ -251,20 +265,20 @@ export const home = {
         text: "Jujube, snow fungus and goji berries, with a little ginger for warmth. Every piece stays whole, so you can see what you are drinking: no tea dust, no flavourings, no added colour.",
       },
       {
-        title: "How it fits your day",
-        text: "Steep one bag in hot water for about five minutes. In Traditional Chinese Medicine these ingredients are traditionally used to support skin and digestive wellness as part of a calm routine.",
+        title: "How to make it",
+        text: "Put one tea bag in hot water and wait about five minutes. In Traditional Chinese Medicine, these ingredients are traditionally used to support the skin and digestion.",
       },
     ],
   },
   tcm: {
-    title: "Ancient wisdom, modern ritual",
-    text: "For generations, Traditional Chinese Medicine kitchens have simmered jujube, snow fungus and goji together. We keep the ingredients whole and the method simple, so the ritual fits a busy morning.",
-    cta: { label: "Discover", href: "/real-results" },
+    title: "Why food, not serums",
+    text: "In Chinese homes, jujube, snow fungus and goji have been cooked together for generations as food for the skin. We keep them whole and put them in a tea bag, so you can make a cup at home or at work.",
+    cta: { label: "Read customer stories", href: "/real-results" },
     play: "Play",
     videoTitle: "How a cup of Skin Glow Tea comes together",
   },
   stories: {
-    title: "Stories from tea makers, skin lovers and members like you.",
+    title: "What our customers say",
     play: "Play",
     quotes: [
       {
@@ -292,13 +306,13 @@ export const home = {
   sourcing: {
     isDemo: true,
     location: "Xinjiang, China",
-    title: "Where our jujubes ripen",
+    title: "Where our jujubes grow",
     text: "Long, dry summers and cool nights let the dates sweeten slowly on the tree before they are sun-dried. Our goji berries and snow fungus come from small family farms we taste from every season.",
     cta: { label: "Read more", href: "/real-results" },
   },
   closing: {
-    title: "Start your glow ritual",
-    line: "One warm cup a day. Free shipping on orders above ₹699.",
+    title: "Try it for yourself",
+    line: "One cup a day. Free shipping on orders above ₹699.",
     cta: { label: "Shop now", href: "/products/skin-glow-tea" },
   },
 };
@@ -389,7 +403,7 @@ export const standards: { icon: IconName; label: string }[] = [
 // Customer quotes for the product page reviews block (the homepage uses home.stories).
 export const reviews = {
   eyebrow: "Customers say",
-  title: "Loved as a daily ritual",
+  title: "What our customers say",
   quotes: [
     {
       title: "The calmest part of my day",
@@ -570,7 +584,7 @@ export const footer: {
   legal: string;
   disclaimer: string;
 } = {
-  mission: "Whole TCM ingredients, brewed into a calm daily cup. Made in Mumbai.",
+  mission: "Teas made from whole food, for your skin. Made in Mumbai.",
   newsletter: {
     title: "Get 10% off your first order",
     consent:

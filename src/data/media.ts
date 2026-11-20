@@ -286,7 +286,7 @@ export const media = {
   hero: {
     // Banner slides, in the order of heroSlides in content.ts. Real stock media (Mixkit,
     // Pexels); replace with SkinFusion campaign shots before launch.
-    slides: [videos.skincareRoutine, photos.glassTeapot, photos.redDates] as Media[],
+    slides: [videos.skincareRoutine, photos.bathroomShelf, photos.redDates] as Media[],
     // Product photo in the floating card.
     product: site.brew,
   },

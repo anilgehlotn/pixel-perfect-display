@@ -335,7 +335,42 @@
     transform: scale(1.08);
   }
 }
+@keyframes word-rise {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes strike {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
 @media (prefers-reduced-motion: no-preference) {
+  .animate-word-rise {
+    animation: word-rise 800ms var(--ease-soft) both;
+  }
+  .animate-pop-in {
+    animation: pop-in 700ms var(--ease-soft) both;
+  }
+  .animate-strike {
+    animation: strike 450ms ease-out both;
+  }
   .animate-slide-progress {
     animation: slide-progress 6.5s linear both;
   }

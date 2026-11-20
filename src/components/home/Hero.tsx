@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { Link } from "@tanstack/react-router";
-import { CaretLeft, CaretRight, Pause, Play } from "@phosphor-icons/react";
-import { heroSlider, heroSlides, type HeroSlide } from "@/data/content";
+import { CaretLeft, CaretRight, Check, Pause, Play, X } from "@phosphor-icons/react";
+import { heroSlider, heroSlides, ingredients, type HeroSlide } from "@/data/content";
 import { media, type Media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
@@ -22,7 +22,9 @@ import { Img, LoopVideo } from "./media";
  * progress bar fills, moving to the next slide when it is full (6.5s). Hover, keyboard focus,
  * the pause button, an off-screen hero or a hidden tab pause it; reduced motion turns autoplay,
  * zoom and text motion off. Arrows, the bars and a swipe on touch screens change slides.
- * A floating card sells the featured product right in the hero (desktop).
+ * On wide screens each slide has its own animated visual on the right: the product card with
+ * floating ingredients, a "your shelf" list that crosses skin products out for one cup of tea,
+ * and the four ingredients popping in.
  */
 export function Hero({ featured }: { featured: Product }) {
   const section = useRef<HTMLElement>(null);
@@ -132,8 +134,6 @@ export function Hero({ featured }: { featured: Product }) {
             refs={i === 0 ? { heading, line, actions } : undefined}
           />
         ))}
-
-        <ProductCard featured={featured} />
 
         {/* Controls: progress bars (also buttons), pause, previous, next. */}
         <div className="absolute inset-x-0 bottom-0 z-20 flex items-center gap-3 px-6 pb-5 sm:px-10 sm:pb-7 lg:px-14">
@@ -267,24 +267,32 @@ function Slide({
           >
             {slide.kicker}
           </p>
-          <Heading
-            ref={refs?.heading}
-            className={`display mt-5 text-cream ${rise}`}
-            style={rise ? { animationDelay: "80ms" } : undefined}
-          >
-            {slide.title}
+          <Heading ref={refs?.heading} className="display mt-5 text-cream">
+            {rise
+              ? slide.title.split(" ").map((word, w) => (
+                  <span key={w} className="inline-block overflow-hidden pb-[0.08em] align-top">
+                    <span
+                      className="animate-word-rise inline-block"
+                      style={{ animationDelay: `${120 + w * 70}ms` }}
+                    >
+                      {word}
+                      {"\u00a0"}
+                    </span>
+                  </span>
+                ))
+              : slide.title}
           </Heading>
           <p
             ref={refs?.line}
             className={`mt-5 max-w-md text-lg leading-relaxed text-cream/90 ${rise}`}
-            style={rise ? { animationDelay: "160ms" } : undefined}
+            style={rise ? { animationDelay: "420ms" } : undefined}
           >
             {slide.line}
           </p>
           <div
             ref={refs?.actions}
             className={`mt-8 flex flex-wrap gap-3 ${rise}`}
-            style={rise ? { animationDelay: "240ms" } : undefined}
+            style={rise ? { animationDelay: "520ms" } : undefined}
           >
             {pack ? (
               <button
@@ -309,6 +317,83 @@ function Slide({
           </div>
         </div>
       </div>
+      {/* Right-hand visual (wide screens): plays its animation each time the slide shows. */}
+      <div
+        key={active ? "v-on" : "v-off"}
+        className="absolute right-10 top-1/2 z-10 hidden w-[19rem] -translate-y-1/2 xl:block 2xl:right-14"
+      >
+        {slide.visual === "product" && <ProductCard featured={featured} play={active} />}
+        {slide.visual === "swap" && <SwapList play={active} />}
+        {slide.visual === "ingredients" && <IngredientStack play={active} />}
+      </div>
+    </div>
+  );
+}
+
+/** "Your shelf": skin products crossed out one by one, then the tea ticked in. */
+function SwapList({ play }: { play: boolean }) {
+  const copy = heroSlider.swap;
+  const pop = play ? "animate-pop-in" : "";
+  return (
+    <div
+      className={`rounded-[1.5rem] bg-background/95 p-6 text-foreground backdrop-blur-md ${pop}`}
+    >
+      <p className="label-caps text-muted-foreground">{copy.title}</p>
+      <ul className="mt-4 space-y-2.5">
+        {copy.out.map((item, i) => (
+          <li key={item} className="flex items-center gap-3 text-muted-foreground">
+            <X size={16} weight="light" aria-hidden="true" className="shrink-0" />
+            <span className="relative">
+              {item}
+              <span
+                aria-hidden="true"
+                className={`absolute inset-x-0 top-1/2 h-px origin-left bg-foreground/60 ${play ? "animate-strike" : ""}`}
+                style={{ animationDelay: `${500 + i * 350}ms` }}
+              />
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p
+        className={`mt-5 flex items-center gap-3 border-t pt-4 font-medium text-green ${pop}`}
+        style={{ animationDelay: `${600 + copy.out.length * 350}ms` }}
+      >
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+          <Check size={14} weight="bold" aria-hidden="true" />
+        </span>
+        {copy.in}
+      </p>
+      <p className="mt-2 pl-10 text-sm text-muted-foreground">{copy.note}</p>
+    </div>
+  );
+}
+
+/** The four whole ingredients, popping in one after another with a gentle float. */
+function IngredientStack({ play }: { play: boolean }) {
+  return (
+    <div className="rounded-[1.5rem] bg-background/95 p-5 text-foreground backdrop-blur-md">
+      <p className="label-caps text-muted-foreground">{heroSlider.ingredients}</p>
+      <ul className="mt-4 grid grid-cols-2 gap-4">
+        {ingredients.map((ing, i) => (
+          <li
+            key={ing.name}
+            className={`flex flex-col items-center text-center ${play ? "animate-pop-in" : ""}`}
+            style={{ animationDelay: `${300 + i * 180}ms` }}
+          >
+            <span className="animate-float block" style={{ animationDelay: `${-i * 1.7}s` }}>
+              <Img
+                media={media.ingredients[ing.image]}
+                sizes="6rem"
+                className="aspect-square w-24 rounded-full"
+              />
+            </span>
+            <span className="mt-2 text-sm">{ing.name}</span>
+            <span lang="zh-Hans" className="text-xs text-muted-foreground">
+              {ing.hanzi}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -336,20 +421,37 @@ function ActionLink({
   );
 }
 
-/** Floating card: the featured product, its rating and price, and "Add to cart" (desktop). */
-function ProductCard({ featured }: { featured: Product }) {
+/** Slide 1 visual: the featured product with its rating, price and "Add to cart", with the
+ * four ingredients floating around it. */
+function ProductCard({ featured, play }: { featured: Product; play: boolean }) {
   const { add } = useCart();
   const variant = featured.variants[0];
   const price = money(featured.priceRange.minVariantPrice);
   const mrp = featured.compareAtPriceRange
     ? money(featured.compareAtPriceRange.minVariantPrice)
     : 0;
+  const spots = ["-left-10 -top-6", "-right-8 top-16", "-left-12 bottom-24", "left-20 -bottom-12"];
   return (
-    <div
-      data-piece
-      className="absolute right-10 top-1/2 z-20 hidden w-72 -translate-y-1/2 xl:block"
-    >
-      <div className="rounded-[1.5rem] bg-background/95 p-4 text-foreground backdrop-blur-md">
+    <div className="relative">
+      {ingredients.map((ing, i) => (
+        <span
+          key={ing.name}
+          className={`absolute z-10 ${spots[i]} ${play ? "animate-pop-in" : ""}`}
+          style={{ animationDelay: `${700 + i * 150}ms` }}
+        >
+          <span className="animate-float block" style={{ animationDelay: `${-i * 2}s` }}>
+            <Img
+              media={media.ingredients[ing.image]}
+              sizes="4.5rem"
+              className="aspect-square w-[4.5rem] rounded-full border-4 border-background"
+            />
+          </span>
+        </span>
+      ))}
+      <div
+        className={`rounded-[1.5rem] bg-background/95 p-4 text-foreground backdrop-blur-md ${play ? "animate-pop-in" : ""}`}
+        style={{ animationDelay: "300ms" }}
+      >
         <Link
           to="/products/$handle"
           params={{ handle: featured.handle }}
@@ -357,7 +459,7 @@ function ProductCard({ featured }: { featured: Product }) {
           tabIndex={-1}
           aria-hidden="true"
         >
-          <Img media={media.hero.product} sizes="16rem" className="aspect-[4/3] w-full" />
+          <Img media={media.hero.product} sizes="18rem" className="aspect-[4/3] w-full" />
         </Link>
         <p className="mt-3 text-sm leading-snug">
           <Link
