@@ -39,13 +39,29 @@ import { ProductImage } from "./ProductImage";
 
 const ICON = 22;
 
+/** Wordmark with a small sliced-jujube mark (twelve petals around a stone). */
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <span
-      translate="no"
-      className={`text-[0.95rem] font-medium uppercase tracking-[0.34em] md:text-lg ${className}`}
-    >
-      SkinFusion
+    <span translate="no" className={`inline-flex items-center gap-2.5 ${className}`}>
+      <span className="text-[1.05rem] font-medium tracking-[0.06em] md:text-[1.35rem]">
+        SkinFusion
+      </span>
+      <svg viewBox="0 0 40 40" aria-hidden="true" className="h-6 w-6 md:h-7 md:w-7">
+        {Array.from({ length: 12 }, (_, i) => (
+          <ellipse
+            key={i}
+            cx="20"
+            cy="8.5"
+            rx="2.2"
+            ry="7"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.1"
+            transform={`rotate(${i * 30} 20 20)`}
+          />
+        ))}
+        <circle cx="20" cy="20" r="3.2" fill="currentColor" />
+      </svg>
     </span>
   );
 }
@@ -68,15 +84,10 @@ function NavLink({
 /** Jujube top bar. Desktop shows every message; phones show the first one. No motion. */
 function AnnouncementBar() {
   return (
-    <div className="bg-jujube text-cream">
-      <ul className="mx-auto flex min-h-9 max-w-[80rem] items-center justify-center gap-8 px-4 py-2 text-center text-[0.7rem] font-medium uppercase tracking-[0.18em]">
+    <div className="bg-wine text-cream">
+      <ul className="mx-auto flex min-h-10 max-w-[80rem] items-center justify-center gap-8 px-4 py-2 text-center text-[0.7rem] font-medium uppercase tracking-[0.18em]">
         {announcement.map((m, i) => (
           <li key={m} className={i === 0 ? "" : "hidden lg:block"}>
-            {i > 0 && (
-              <span aria-hidden="true" className="mr-8 text-gold">
-                ·
-              </span>
-            )}
             {m}
           </li>
         ))}
@@ -129,7 +140,7 @@ export function Header() {
     >
       <Handbag size={ICON} weight="light" />
       {count > 0 && (
-        <span className="absolute right-0.5 top-1 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-jujube px-1 text-[10px] text-cream">
+        <span className="absolute right-0.5 top-1 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-coral px-1 text-[10px] font-medium text-wine">
           {count}
         </span>
       )}
@@ -142,42 +153,44 @@ export function Header() {
       <div
         data-hero="header"
         onFocusCapture={() => setHidden(false)}
-        className={`sticky top-0 z-40 border-b bg-background/95 text-ink backdrop-blur-md transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${hidden && !menu ? "-translate-y-full" : ""}`}
+        className={`sticky top-0 z-40 border-b border-ink/10 bg-surface/95 text-ink backdrop-blur-md transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${hidden && !menu ? "-translate-y-full" : ""}`}
       >
-        <header className="mx-auto grid h-16 max-w-[80rem] grid-cols-[1fr_auto_1fr] items-center gap-3 px-3 md:px-6 lg:h-[4.75rem]">
-          <div className="flex items-center">
-            <button
-              type="button"
-              aria-label="Open menu"
-              aria-expanded={menu}
-              aria-controls="mobile-menu"
-              onClick={() => setMenu(true)}
-              className="grid h-11 w-11 place-items-center lg:hidden"
-            >
-              <List size={ICON} weight="light" />
-            </button>
-            <nav aria-label="Main" className="hidden items-center gap-7 lg:flex">
-              {nav.main.map((n) => (
-                <NavLink key={n.label} href={n.href} className={NAV_LINK}>
-                  {n.label}
+        <header className="mx-auto max-w-[80rem] px-3 md:px-6">
+          <div className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-3 lg:h-[4.5rem]">
+            <div className="flex items-center">
+              <button
+                type="button"
+                aria-label="Open menu"
+                aria-expanded={menu}
+                aria-controls="mobile-menu"
+                onClick={() => setMenu(true)}
+                className="grid h-11 w-11 place-items-center lg:hidden"
+              >
+                <List size={ICON} weight="light" />
+              </button>
+              <span className="hidden lg:block">
+                <NavLink href={nav.cta.href} className={NAV_LINK}>
+                  {nav.cta.label}
                 </NavLink>
-              ))}
-            </nav>
-          </div>
-          <Link to="/" aria-label="SkinFusion home" className="flex h-11 items-center">
-            <Logo />
-          </Link>
-          <div className="flex items-center justify-end gap-4">
-            <span className="hidden xl:block">
-              <NavLink href={nav.cta.href} className={NAV_LINK}>
-                {nav.cta.label}
-              </NavLink>
-            </span>
-            <div className="hidden lg:block">
-              <AccountLink />
+              </span>
             </div>
-            {cartButton}
+            <Link to="/" aria-label="SkinFusion home" className="flex h-11 items-center text-ink">
+              <Logo />
+            </Link>
+            <div className="flex items-center justify-end gap-3">
+              <div className="hidden lg:block">
+                <AccountLink />
+              </div>
+              {cartButton}
+            </div>
           </div>
+          <nav aria-label="Main" className="hidden justify-center gap-10 pb-2 lg:flex">
+            {nav.main.map((n) => (
+              <NavLink key={n.label} href={n.href} className={NAV_LINK}>
+                {n.label}
+              </NavLink>
+            ))}
+          </nav>
         </header>
       </div>
 
@@ -212,7 +225,7 @@ export function Header() {
                 href={n.href}
                 onClick={() => setMenu(false)}
                 style={{ animationDelay: `${k * 60}ms` }}
-                className="animate-fade-up border-b py-4 font-serif text-[2rem] leading-tight"
+                className="animate-fade-up border-b border-ink/10 py-5 text-lg font-medium uppercase tracking-[0.18em]"
               >
                 {n.label}
               </NavLink>
@@ -438,7 +451,7 @@ export function WhatsAppButton() {
       rel="noreferrer"
       aria-label="Chat with us on WhatsApp"
       data-float
-      className="fixed bottom-5 left-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-surface text-jujube ring-1 ring-ink/10 transition-transform hover:bg-blush active:scale-95"
+      className="fixed bottom-4 right-4 z-30 grid h-12 w-12 lg:bottom-5 lg:left-5 lg:right-auto lg:h-14 lg:w-14 place-items-center rounded-full bg-surface text-jujube ring-1 ring-ink/10 transition-transform hover:bg-blush active:scale-95"
     >
       <WhatsappLogo size={28} weight="light" />
     </a>
@@ -519,7 +532,7 @@ export function DiscountBadge() {
         data-hero="badge"
         data-float
         onClick={() => setOpen(true)}
-        className="label-caps fixed bottom-5 right-5 z-30 grid h-20 w-20 place-items-center rounded-full bg-jujube text-center text-[0.62rem] leading-tight text-cream ring-1 ring-gold/60 ring-offset-2 ring-offset-jujube transition-transform active:scale-95"
+        className="label-caps fixed bottom-5 right-5 z-30 hidden h-20 w-20 lg:grid place-items-center rounded-full bg-jujube text-center text-[0.62rem] leading-tight text-cream transition-transform active:scale-95"
       >
         10% off?
       </button>
@@ -589,9 +602,11 @@ export function Footer() {
         className="container-x grid gap-12 py-16 md:py-20 lg:grid-cols-[1.1fr_2fr] lg:gap-20"
       >
         <div>
-          <Logo className="text-lg md:text-xl" />
-          <p className="mt-5 max-w-sm font-serif text-2xl leading-snug">{footer.mission}</p>
-          <p className="label-caps mt-10">{footer.newsletter.title}</p>
+          <Logo />
+          <p className="mt-5 max-w-sm leading-relaxed text-ink/80">{footer.mission}</p>
+          <p className="mt-10 text-[0.8rem] font-medium uppercase tracking-[0.2em]">
+            {footer.newsletter.title}
+          </p>
           <div className="mt-4">
             <NewsletterForm id="nl-footer" consent={footer.newsletter.consent} />
           </div>

@@ -24,7 +24,7 @@ export const brand = {
 export const announcement = [
   "Free shipping on orders above ₹699",
   "Save up to 15% on the 2 and 4 pouch packs",
-  "Caffeine free · No added sugar · Whole ingredients",
+  "Caffeine free, no added sugar, nothing artificial",
 ];
 
 // Header. `main` is the desktop bar (left of the logo); `more` is added in the mobile menu.
@@ -45,8 +45,8 @@ export const nav = {
 export const FREE_SHIPPING_THRESHOLD = 699;
 
 export const hero = {
-  kicker: "Traditional Chinese Medicine · Caffeine free",
-  title: "Glow from within, one cup at a time.",
+  kicker: "Traditional Chinese Medicine, brewed whole",
+  title: "Glow from within, one cup at a time",
   line: "Jujube, snow fungus, goji and ginger, kept whole and brewed into a naturally sweet daily ritual.",
   shopCta: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
   quizCta: { label: "Take the skin quiz", href: "/quiz" },
@@ -60,6 +60,68 @@ export const trust = [
   { icon: "Drop", label: "No added sugar" },
   { icon: "Truck", label: "Free shipping over ₹699" },
 ] as const;
+
+// Illustrated pouch renders (src/components/product/Pouch.tsx), used until real packaging
+// photos exist. One look per product handle. `glyph` is a single Chinese character printed on
+// the pouch: 颜 complexion, 静 stillness, 和 harmony, 礼 gift.
+export type Packaging = {
+  color: string;
+  shade: string;
+  wash: string;
+  ink: string;
+  glyph: string;
+  name: string[];
+  line: string;
+  weight: string | null;
+  backdrop: string;
+};
+
+export const packaging: Record<string, Packaging | undefined> = {
+  "skin-glow-tea": {
+    color: "#f3c9c0",
+    shade: "#d99f95",
+    wash: "#c23a3a",
+    ink: "#5a1426",
+    glyph: "颜",
+    name: ["Skin Glow", "Tea"],
+    line: "Jujube, snow fungus, goji and ginger",
+    weight: "20 tea bags  100 g",
+    backdrop: "#f6e4dc",
+  },
+  "calm-night": {
+    color: "#d9d0ea",
+    shade: "#b2a5cf",
+    wash: "#5d4a92",
+    ink: "#2f2350",
+    glyph: "静",
+    name: ["Calm Night", "Blend"],
+    line: "An evening herbal infusion",
+    weight: null,
+    backdrop: "#ebe6f2",
+  },
+  "gut-balance": {
+    color: "#cfe0c8",
+    shade: "#a5c09b",
+    wash: "#3f7a4a",
+    ink: "#1f3d27",
+    glyph: "和",
+    name: ["Gut Balance", "Tea"],
+    line: "A warming after-meal infusion",
+    weight: null,
+    backdrop: "#e7efe2",
+  },
+  "glow-bundle": {
+    color: "#f2dfae",
+    shade: "#d8bd76",
+    wash: "#c0702a",
+    ink: "#4d3010",
+    glyph: "礼",
+    name: ["Glow Ritual", "Bundle"],
+    line: "The complete daily ritual",
+    weight: null,
+    backdrop: "#f4ecd9",
+  },
+};
 
 /* ---------------------------------------------------------------------------
    PRODUCTS (local stand-in for Shopify)
@@ -247,8 +309,7 @@ export const ingredients: Ingredient[] = [
 // Comparison table (homepage and product page). Claims about other products stay general
 // and factual; the client should confirm this table before launch.
 export const comparison = {
-  eyebrow: "Why SkinFusion",
-  title: "Not your usual cup",
+  title: "SkinFusion vs. the rest",
   text: "Most tea bags hold crushed leaf and flavourings. Ours hold four whole ingredients from a two-thousand-year-old tradition, and nothing else.",
   columns: ["SkinFusion", "Regular tea bags", "Beauty supplements"],
   rows: [
@@ -281,7 +342,6 @@ export type StoryQuote = {
 };
 
 export const reviews = {
-  eyebrow: "Customers say",
   title: "Loved as a daily ritual",
   quotes: [
     {
@@ -311,23 +371,24 @@ export const reviews = {
 
 export const home = {
   products: {
-    eyebrow: "The collection",
+    eyebrow: "Whole ingredients, the TCM way",
     title: "Our bestsellers",
     from: "From",
     cta: "Add to cart",
     soldOut: "Sold out",
     view: "View details",
+    all: "Shop all teas",
   },
   featured: {
     eyebrow: "Meet your new daily ritual",
-    title: "The glow ritual",
-    details: "View full details",
+    title: "A warm cup for calm and glow",
+    details: "View product details",
+    badge: ["No. 1", "best", "seller"],
   },
-  standards: { title: "Nothing artificial. Nothing hidden." },
+  standards: { title: "Nothing artificial, no tea dust, no shortcuts" },
   ingredients: {
-    eyebrow: "What's inside",
     title: "Four whole ingredients",
-    text: "No tea dust, no fillers, no flavourings. Just four ingredients from the Traditional Chinese Medicine kitchen, kept whole so you can see every piece.",
+    text: "Open a tea bag and you can see every piece: red dates, snow fungus, goji and ginger, from the Traditional Chinese Medicine kitchen.",
   },
   // Counters: only true facts. The number counts up from 0 when it scrolls into view.
   facts: [
@@ -335,15 +396,48 @@ export const home = {
     { value: "0", label: "caffeine" },
     { value: "0", label: "added sugar" },
   ],
-  ritual: {
-    eyebrow: "Easy as one, two, three",
-    title: "How to enjoy",
+  mission: {
+    title: "Our ritual",
+    text: "Busy days leave little room for slow care. We keep one warm, naturally sweet cup within reach, made the way Chinese kitchens have made it for centuries, so your daily ritual takes five minutes and a kettle.",
+    cta: { label: "Watch how it is made", href: "/#learn" },
+  },
+  learn: {
+    title: "Learn, sip and glow",
+    cards: [
+      {
+        kind: "video",
+        tag: "TCM 101",
+        title: "Ancient wisdom, modern ritual",
+        text: "For generations, TCM kitchens have simmered jujube, snow fungus and goji together. See how a cup comes together.",
+        cta: "Watch the film",
+        href: "/#learn",
+      },
+      {
+        kind: "link",
+        tag: "Ingredients",
+        title: "Why red dates are everywhere in China",
+        text: "Jujubes are the sweet heart of countless TCM soups and teas. Meet them and the three ingredients they are brewed with.",
+        cta: "Meet the ingredients",
+        href: "/#ingredients",
+      },
+      {
+        kind: "link",
+        tag: "Customers",
+        title: "How they made it a habit",
+        text: "Morning cup, desk break or after dinner: real customers share where SkinFusion fits in their day.",
+        cta: "Read their stories",
+        href: "/real-results",
+      },
+    ] as {
+      kind: "video" | "link";
+      tag: string;
+      title: string;
+      text: string;
+      cta: string;
+      href: string;
+    }[],
   },
   tcm: {
-    eyebrow: "TCM 101",
-    title: "Ancient wisdom, modern ritual",
-    text: "For generations, Traditional Chinese Medicine kitchens have simmered jujube, snow fungus and goji together. We keep the ingredients whole and the method simple, so the ritual fits a busy morning.",
-    cta: { label: "Watch the film", href: "/real-results" },
     play: "Play",
     videoTitle: "How a cup of Skin Glow Tea comes together",
   },
@@ -353,13 +447,6 @@ export const home = {
     location: "Xinjiang, China",
     title: "Where our jujubes ripen",
     text: "Long, dry summers and cool nights let the dates sweeten slowly on the tree before they are sun-dried. Our goji berries and snow fungus come from small family farms we taste from every season.",
-    cta: { label: "Read real stories", href: "/real-results" },
-  },
-  closing: {
-    eyebrow: "Sip. Glow. Repeat.",
-    title: "Start your glow ritual",
-    line: "One warm cup a day. Free shipping on orders above ₹699.",
-    cta: { label: "Shop now", href: "/products/skin-glow-tea" },
   },
 };
 
@@ -491,7 +578,10 @@ export const pdp = {
     { icon: "LockSimple", label: "Secure checkout" },
     { icon: "Leaf", label: "Whole ingredients" },
   ] as { icon: IconName; label: string }[],
-  benefits: { eyebrow: "In detail", title: "Why it belongs in your day" },
+  benefits: {
+    title: "Why it belongs in your day",
+    text: "Six reasons customers keep a pouch by the kettle. Every one comes from four whole ingredients and nothing else.",
+  },
   ingredients: { eyebrow: "What's inside", title: "Four whole ingredients" },
   ritual: { eyebrow: "Easy as one, two, three", title: "How to enjoy", taste: "Tasting notes" },
   faq: { eyebrow: "Good to know", title: "Questions, answered" },

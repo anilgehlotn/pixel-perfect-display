@@ -283,11 +283,6 @@ const site = {
 };
 
 export const media = {
-  hero: {
-    // Full-bleed hero photo. Replace with a campaign shot of the SkinFusion pouch when it
-    // arrives (keep a calm area on the left for the headline).
-    image: site.flatlay,
-  },
   // Product cards: keyed by Shopify product handle. `video` plays on hover (desktop) or in
   // view (phones); `fallback` shows when the product has no image yet.
   products: {
@@ -313,8 +308,8 @@ export const media = {
   ritual: { image: site.ritual, video: videos.teaSteam },
   tcm: { thumbnail: site.cups, video: videos.teaSteeping },
   reviews: [photos.windowTea, photos.handsGlass, site.ritual],
+  mission: site.flatlay,
   sourcing: photos.redDates,
-  closing: site.evening,
 } as const;
 
 /** Every demo item, for MEDIA_CREDITS.md and the launch checklist. */

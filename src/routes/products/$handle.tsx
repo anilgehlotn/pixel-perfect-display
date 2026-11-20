@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { CaretRight } from "@phosphor-icons/react";
-import { brand, pdp, productDetails, type ProductDetails } from "@/data/content";
+import { brand, packaging, pdp, productDetails, type ProductDetails } from "@/data/content";
 import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
@@ -23,6 +23,8 @@ import {
   Steps,
 } from "@/components/product/Blocks";
 import { Icon } from "@/components/product/icons";
+import { Pouch } from "@/components/product/Pouch";
+import { Wash } from "@/components/product/Wash";
 import type { Product } from "@/lib/shopify/types";
 
 export const Route = createFileRoute("/products/$handle")({
@@ -69,19 +71,28 @@ function ProductPage() {
   const purchase = usePurchase(product);
   useScrollAnimations(scope, [product.handle]);
 
+  const look = packaging[product.handle];
+  // Shopify packshots first; until they exist, the pouch render leads the gallery.
+  const packshots = product.images.filter((img) => img.url.startsWith("http"));
   const images = [
-    ...product.images.map((img) => fromShopify(img, product.title)),
+    ...packshots.map((img) => fromShopify(img, product.title)),
+    ...product.images
+      .filter((img) => !img.url.startsWith("http"))
+      .map((img) => fromShopify(img, product.title)),
     ...(media.gallery[product.handle] ?? []).map(fromMedia),
   ];
-  if (!images.length) {
-    const art = media.products[product.handle] ?? media.productDefault;
-    images.push(fromMedia(art.fallback));
-  }
+  const lead =
+    look && !packshots.length
+      ? {
+          background: look.backdrop,
+          node: <Pouch look={look} className="absolute inset-x-[22%] top-[9%] h-[84%] w-[56%]" />,
+        }
+      : undefined;
 
   return (
     <main ref={scope} key={product.handle}>
       <nav aria-label="Breadcrumb" className="mx-auto max-w-[80rem] px-4 pt-6 md:px-6 md:pt-8">
-        <ol className="flex flex-wrap items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+        <ol className="flex flex-wrap items-center gap-1.5 text-[0.72rem] uppercase tracking-[0.16em] text-muted-foreground">
           <li>
             <Link to="/" className="inline-flex min-h-11 items-center hover:text-ink">
               Home
@@ -106,7 +117,7 @@ function ProductPage() {
 
       <section className="mx-auto grid max-w-[80rem] gap-10 px-4 pb-16 pt-4 md:px-6 lg:grid-cols-[1.12fr_1fr] lg:gap-16 lg:pb-24 xl:gap-24">
         <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
-          <Gallery images={images} label={product.title} />
+          <Gallery images={images} label={product.title} lead={lead} />
         </div>
         <div className="min-w-0 lg:pt-2">
           <BuyBox
@@ -165,29 +176,29 @@ function ProductPage() {
       {details && (
         <>
           <Benefits benefits={details.benefits} />
+          <Steps
+            steps={details.steps}
+            title={pdp.ritual.title}
+            aside={
+              <div className="mt-10 border-t border-ink/15 pt-6">
+                <p className="text-[0.8rem] font-medium uppercase tracking-[0.18em]">
+                  {pdp.ritual.taste}
+                </p>
+                <p className="mt-2 leading-relaxed text-ink/80">{details.taste}</p>
+              </div>
+            }
+          />
           <Ingredients
             id="pdp-ingredients"
             items={details.ingredients}
-            eyebrow={pdp.ingredients.eyebrow}
             title={pdp.ingredients.title}
-          />
-          <Steps
-            steps={details.steps}
-            eyebrow={pdp.ritual.eyebrow}
-            title={pdp.ritual.title}
-            aside={
-              <div className="mt-10 bg-blush p-6 md:p-8">
-                <p className="label-caps text-jujube">{pdp.ritual.taste}</p>
-                <p className="mt-3 font-serif text-xl leading-snug md:text-2xl">{details.taste}</p>
-              </div>
-            }
           />
           <ComparisonTable />
         </>
       )}
 
       <Reviews rating={product.rating} />
-      {details && <Faq items={details.faqs} eyebrow={pdp.faq.eyebrow} title={pdp.faq.title} />}
+      {details && <Faq items={details.faqs} title={pdp.faq.title} />}
 
       {related.length > 0 && (
         <section aria-labelledby="related-title" className="section-y px-4 md:px-6">
@@ -216,34 +227,39 @@ function ProductPage() {
   );
 }
 
+// Pastel swatch per benefit, in the same family as the standards row.
+const BENEFIT_WASHES = ["#fbd3d7", "#cfe3f3", "#d6e9cf", "#e3d9f1", "#f9d6c4", "#f7e3b4"];
+
 function Benefits({ benefits }: { benefits: ProductDetails["benefits"] }) {
   return (
-    <section aria-labelledby="benefits-title" className="bg-blush section-y px-4 md:px-6">
-      <div className="mx-auto max-w-[80rem]">
+    <section aria-labelledby="benefits-title" className="px-4 py-16 md:px-6 lg:py-24">
+      <div className="mx-auto max-w-[72rem]">
         <div className="mx-auto max-w-2xl text-center">
-          <p data-anim="fade" className="label-caps text-jujube">
-            {pdp.benefits.eyebrow}
-          </p>
-          <h2 id="benefits-title" data-anim="lines" className="headline mt-4">
+          <h2 id="benefits-title" data-anim="fade" className="title">
             {pdp.benefits.title}
           </h2>
+          <p data-anim="fade" className="mt-5 leading-relaxed text-muted-foreground">
+            {pdp.benefits.text}
+          </p>
         </div>
         <ul
           data-anim="cards"
-          className="mt-12 grid gap-px overflow-hidden bg-ink/10 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3"
+          className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3"
         >
           {benefits.map((b, i) => (
-            <li key={b.title} className="flex flex-col bg-surface p-7 md:p-10">
-              <div className="flex items-start justify-between">
-                <span className="grid h-14 w-14 place-items-center rounded-full bg-blush text-jujube">
-                  <Icon name={b.icon} size={28} />
-                </span>
-                <span aria-hidden="true" className="font-serif text-2xl text-ink/25">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-              </div>
-              <h3 className="mt-7 font-serif text-2xl leading-tight md:text-[1.7rem]">{b.title}</h3>
-              <p className="mt-3 leading-relaxed text-muted-foreground">{b.text}</p>
+            <li key={b.title} className="flex flex-col items-center text-center">
+              <span className="relative grid h-24 w-24 place-items-center">
+                <Wash
+                  color={BENEFIT_WASHES[i % BENEFIT_WASHES.length]!}
+                  seed={i + 21}
+                  className="absolute inset-0 h-full w-full"
+                />
+                <Icon name={b.icon} size={38} className="relative text-ink" />
+              </span>
+              <h3 className="mt-5 text-[0.95rem] font-medium uppercase tracking-[0.16em]">
+                {b.title}
+              </h3>
+              <p className="mt-3 max-w-xs leading-relaxed text-ink/80">{b.text}</p>
             </li>
           ))}
         </ul>

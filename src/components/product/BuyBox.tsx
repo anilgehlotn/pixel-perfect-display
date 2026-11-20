@@ -1,6 +1,6 @@
 import { useId, type ReactNode, type RefObject } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Check, Minus, Plus } from "@phosphor-icons/react";
+import { Check, Minus, Plus } from "@phosphor-icons/react";
 import { home, pdp, type ProductDetails } from "@/data/content";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
@@ -40,8 +40,12 @@ export function BuyBox({
 
   return (
     <div>
-      {product.subtitle && <p className="label-caps text-muted-foreground">{product.subtitle}</p>}
-      <div className="mt-3">{heading}</div>
+      {heading}
+      {product.subtitle && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          {product.subtitle.replace(" · ", ", ")}
+        </p>
+      )}
       {product.rating && (
         <a
           href={compact ? undefined : "#reviews"}
@@ -49,14 +53,14 @@ export function BuyBox({
         >
           <Stars value={product.rating.value} size={15} />
           <span>
-            <span className="text-ink">{product.rating.value.toFixed(1)}</span> ·{" "}
+            <span className="text-ink">{product.rating.value.toFixed(1)}</span> from{" "}
             {product.rating.count.toLocaleString("en-IN")} reviews
           </span>
         </a>
       )}
 
       <p className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="text-2xl tracking-[0.02em] text-ink">{inr(price)}</span>
+        <span className="text-2xl tracking-[0.08em] text-ink">{inr(price)}</span>
         {was > price && (
           <span className="text-lg text-muted-foreground line-through">{inr(was)}</span>
         )}
@@ -68,7 +72,7 @@ export function BuyBox({
       </p>
       {perCup > 0 && (
         <p className="mt-1 text-sm text-muted-foreground">
-          {inr(perCup)} {pdp.perCup} · {pouches(variant) * (details?.cupsPerPouch ?? 0)} tea bags
+          {inr(perCup)} {pdp.perCup}, {pouches(variant) * (details?.cupsPerPouch ?? 0)} tea bags
         </p>
       )}
 
@@ -80,14 +84,16 @@ export function BuyBox({
 
       {product.variants.length > 1 && (
         <fieldset className="mt-8">
-          <legend className="label-caps text-ink">{pdp.pack}</legend>
+          <legend className="text-[0.8rem] font-medium uppercase tracking-[0.18em]">
+            {pdp.pack}
+          </legend>
           <div className="mt-3 grid grid-cols-3 gap-2.5">
             {product.variants.map((v) => {
               const on = v.id === variant.id;
               return (
                 <label
                   key={v.id}
-                  className={`relative flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center border px-2 py-3 text-center transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${on ? "border-jujube bg-jujube text-cream" : "border-input bg-surface hover:border-ink"} ${v.availableForSale ? "" : "cursor-not-allowed opacity-50"}`}
+                  className={`relative flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center border px-2 py-3 text-center transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${on ? "border-coral bg-coral text-wine" : "border-ink/30 bg-surface hover:border-ink"} ${v.availableForSale ? "" : "cursor-not-allowed opacity-50"}`}
                 >
                   <input
                     type="radio"
@@ -101,14 +107,12 @@ export function BuyBox({
                   <span className="text-[0.8rem] font-medium uppercase tracking-[0.14em]">
                     {v.title}
                   </span>
-                  <span
-                    className={`mt-1 text-sm ${on ? "text-cream/85" : "text-muted-foreground"}`}
-                  >
+                  <span className={`mt-1 text-sm ${on ? "text-wine/85" : "text-muted-foreground"}`}>
                     {inr(money(v.price))}
                   </span>
                   {v.note && (
                     <span
-                      className={`mt-1 text-[0.7rem] leading-tight ${on ? "text-cream" : "text-jujube"}`}
+                      className={`mt-1 text-[0.7rem] leading-tight ${on ? "text-wine" : "text-wine"}`}
                     >
                       {v.note}
                     </span>
@@ -121,7 +125,7 @@ export function BuyBox({
       )}
 
       <div className="mt-6 flex gap-3">
-        <div className="flex items-center border border-input bg-surface">
+        <div className="flex items-center border border-ink/30 bg-surface">
           <button
             type="button"
             aria-label="Decrease quantity"
@@ -178,23 +182,22 @@ export function BuyBox({
         <Link
           to="/products/$handle"
           params={{ handle: product.handle }}
-          className="group link-caps mt-6 text-ink"
+          className="mt-6 inline-flex min-h-11 items-center text-sm underline underline-offset-[6px]"
         >
           {home.featured.details}
           <span className="sr-only">: {product.title}</span>
-          <ArrowRight size={16} weight="light" className="arrow-nudge" aria-hidden="true" />
         </Link>
       ) : (
         <>
           {details && (
             <div className="mt-9 border-t pt-7">
-              <p className="label-caps text-ink">{pdp.loveIt}</p>
+              <p className="text-[0.8rem] font-medium uppercase tracking-[0.18em]">{pdp.loveIt}</p>
               <ul className="mt-4 space-y-3">
                 {details.loveIt.map((l) => (
                   <li key={l.title} className="flex gap-3 leading-relaxed">
                     <span
                       aria-hidden="true"
-                      className="mt-[0.6rem] h-1.5 w-1.5 shrink-0 rounded-full bg-jujube"
+                      className="mt-[0.6rem] h-1.5 w-1.5 shrink-0 rounded-full bg-coral"
                     />
                     <span>
                       <strong className="font-medium">{l.title}</strong>

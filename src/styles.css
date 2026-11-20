@@ -1,13 +1,11 @@
 @import "@fontsource-variable/jost/wght.css"; /* self-hosted Jost, weights 100-900 */
-@import "@fontsource-variable/cormorant-garamond/wght.css"; /* display serif */
-@import "@fontsource-variable/cormorant-garamond/wght-italic.css";
 @import "tailwindcss" source(none);
 @source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-serif: "Cormorant Garamond Variable", "Cormorant Garamond", Georgia, serif;
+  --font-serif: "Jost Variable", "Jost", system-ui, sans-serif;
   --font-sans: "Jost Variable", "Jost", system-ui, sans-serif;
   --radius-sm: 2px;
   --radius-md: 4px;
@@ -35,6 +33,13 @@
   --color-jujube-soft: var(--jujube-soft);
   --color-rose: var(--rose);
   --color-gold: var(--gold);
+  --color-coral: var(--coral);
+  --color-wine: var(--wine);
+  --color-sand: var(--sand);
+  --color-peach: var(--peach);
+  --color-lilac: var(--lilac);
+  --color-sage: var(--sage);
+  --color-butter: var(--butter);
   --color-cream: var(--cream);
   --color-error-on-dark: var(--error-on-dark);
   --color-on-image: var(--on-image);
@@ -58,61 +63,66 @@
 }
 
 :root {
-  /* Warm ivory page, white product surfaces, blush soft blocks. */
-  --background: #fdfaf7;
+  /* White pages like a real tea shop; sand is the seamless backdrop behind every product. */
+  --background: #ffffff;
   --surface: #ffffff;
-  --blush: #f8ebe6;
-  --blush-deep: #f1dad3;
-  --beige: #f4eee8;
-  --foreground: #1d1a19;
-  --ink: #1d1a19;
+  --sand: #f1e9df;
+  --blush: #fbe7e2;
+  --blush-deep: #f6d6cf;
+  --beige: #f1e9df;
+  --foreground: #1e1b1c;
+  --ink: #1e1b1c;
   --on-image: #ffffff;
   --card: #ffffff;
-  --card-foreground: #1d1a19;
-  --popover: #fdfaf7;
-  --popover-foreground: #1d1a19;
-  /* Deep jujube red: primary buttons, dark blocks, announcement bar, accents.
-     White on jujube is 11.4:1. */
-  --jujube: #6b1e2e;
-  --jujube-soft: #82303f;
-  --primary: #6b1e2e;
-  --primary-hover: #521522;
-  --primary-foreground: #ffffff;
-  /* Rose: stars, badges and small highlights only. Ink on rose is 6.6:1; never white text. */
-  --rose: #e48a82;
-  /* Antique gold: hairline details on dark blocks only (decorative, never body text). */
-  --gold: #c9a46a;
-  --cream: #fdfaf7;
-  /* Error text on the jujube blocks (7.9:1). */
+  --card-foreground: #1e1b1c;
+  --popover: #ffffff;
+  --popover-foreground: #1e1b1c;
+  /* Coral: every buying button. Wine text on coral is 5.7:1 (white would fail at 2.6:1). */
+  --coral: #f47f78;
+  --primary: #f47f78;
+  --primary-hover: #ec6a63;
+  --primary-foreground: #3d0c18;
+  /* Wine: announcement bar, hero, dark blocks. Cream on wine is 12:1. */
+  --wine: #5a1426;
+  --jujube: #5a1426;
+  --jujube-soft: #74233a;
+  /* Product colour worlds (backdrops and soft accents). */
+  --peach: #f6e4dc;
+  --lilac: #ebe6f2;
+  --sage: #e7efe2;
+  --butter: #f4ecd9;
+  --rose: #f6c3bd;
+  --gold: #d9b779;
+  --cream: #fff8f4;
   --error-on-dark: #ffd2cc;
-  --brand: #6b1e2e;
+  --brand: #5a1426;
   --brand-foreground: #ffffff;
-  --teal: #6b5f5b;
-  --pastel-peach: #f8dccb;
-  --pastel-pink: #f6d6da;
-  --pastel-blue: #dbe6ee;
-  --pastel-green: #dde8d8;
-  --pastel-orange: #f7e0c4;
-  --pastel-yellow: #f6ecc6;
-  --secondary: #f8ebe6;
-  --secondary-foreground: #1d1a19;
-  --muted: #f4eee8;
-  /* 5.9:1 on the ivory background, 5.1:1 on blush. */
-  --muted-foreground: #6b5f5b;
-  --accent: #f8ebe6;
-  --accent-foreground: #1d1a19;
+  --teal: #6a6063;
+  --pastel-peach: #fbe0d2;
+  --pastel-pink: #fadbe0;
+  --pastel-blue: #d8e7f3;
+  --pastel-green: #dcecd5;
+  --pastel-orange: #fbe1c4;
+  --pastel-yellow: #f8eec3;
+  --secondary: #fbe7e2;
+  --secondary-foreground: #1e1b1c;
+  --muted: #f1e9df;
+  /* 5.8:1 on white. */
+  --muted-foreground: #6a6063;
+  --accent: #fbe7e2;
+  --accent-foreground: #1e1b1c;
   --destructive: #b3372f;
   --destructive-foreground: #ffffff;
-  --border: rgba(29, 26, 25, 0.1);
-  --input: rgba(29, 26, 25, 0.22);
-  --ring: #6b1e2e;
+  --border: rgba(30, 27, 28, 0.1);
+  --input: rgba(30, 27, 28, 0.22);
+  --ring: #5a1426;
   --hero-scrim: linear-gradient(
     20deg,
-    rgba(29, 26, 25, 0.55) 0%,
-    rgba(29, 26, 25, 0.25) 40%,
-    rgba(29, 26, 25, 0) 70%
+    rgba(30, 27, 28, 0.55) 0%,
+    rgba(30, 27, 28, 0.25) 40%,
+    rgba(30, 27, 28, 0) 70%
   );
-  --header-scrim: linear-gradient(180deg, rgba(29, 26, 25, 0.35), rgba(29, 26, 25, 0));
+  --header-scrim: linear-gradient(180deg, rgba(30, 27, 28, 0.35), rgba(30, 27, 28, 0));
   --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -127,8 +137,8 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-size: 17px;
-    line-height: 1.6;
+    font-size: 16px;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
   }
   /* Headings default to Jost in ink. Use `display` / `headline` (serif) for big sentence-case
@@ -189,36 +199,32 @@
 @utility rounded-stadium {
   border-radius: 9999px;
 }
-/* Big serif headline (hero, feature blocks). Sentence case. */
+/* Hero and closing headline: large, uppercase, wide-spaced Jost (the Qi signature). */
 @utility display {
-  font-family: var(--font-serif);
-  font-size: clamp(2.6rem, 1.7rem + 4vw, 5.25rem);
-  line-height: 1.02;
-  letter-spacing: -0.015em;
-  font-weight: 450;
-}
-/* Serif section headline, one step below display. */
-@utility headline {
-  font-family: var(--font-serif);
-  font-size: clamp(2.1rem, 1.5rem + 2.4vw, 3.6rem);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  font-weight: 450;
-}
-/* Section title: uppercase, wide-spaced Jost. Keep it short (two to six words). */
-@utility title {
   font-family: var(--font-sans);
-  font-size: clamp(1.15rem, 0.95rem + 0.9vw, 1.65rem);
-  line-height: 1.35;
-  letter-spacing: 0.16em;
+  font-size: clamp(2rem, 1.35rem + 2.9vw, 3.75rem);
+  line-height: 1.12;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 500;
 }
-/* Cormorant's default numerals are old-style ("0" reads as "o"); use lining figures. */
-.font-serif,
-.display,
-.headline {
-  font-variant-numeric: lining-nums;
+/* Product title and feature headings. */
+@utility headline {
+  font-family: var(--font-sans);
+  font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.25rem);
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+/* Section titles. Keep them short (two to six words). */
+@utility title {
+  font-family: var(--font-sans);
+  font-size: clamp(1.2rem, 1rem + 0.9vw, 1.75rem);
+  line-height: 1.35;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 500;
 }
 @utility shadow-soft {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
@@ -230,9 +236,9 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  min-height: 52px;
+  min-height: 50px;
   padding: 0.875rem 2rem;
-  border-radius: 2px;
+  border-radius: 0;
   font-size: 0.8125rem;
   line-height: 1.2;
   font-weight: 500;
@@ -272,7 +278,15 @@
   color: var(--cream);
   &:hover {
     background: var(--cream);
-    color: var(--jujube);
+    color: var(--wine);
+  }
+}
+/* Solid cream button for the wine blocks. */
+@utility btn-light {
+  background: var(--cream);
+  color: var(--wine);
+  &:hover {
+    background: var(--blush);
   }
 }
 /* Text link: uppercase, underlined, for "Read more" style links. */
