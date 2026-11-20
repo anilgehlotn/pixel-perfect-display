@@ -138,16 +138,18 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): a full-width banner slider in a rounded frame. Three slides
-   (`heroSlides` in content.ts, media in `media.hero.slides`): "Glow from within" (skincare
-   video, to the product page), "Save up to 15%" (adds the 4-pouch pack) and "Four whole
-   ingredients" (red dates photo, to `#ingredients`). Slides crossfade, the active picture zooms
-   in slowly (`animate-kenburns`), its text rises in, and a progress bar fills and moves on
-   after 6.5s (`animate-slide-progress`, `onAnimationEnd`). Hover, keyboard focus, the pause
-   button, an off-screen hero (`usePauseWhenHidden`) or a hidden tab pause it. Arrows, the
-   bars, arrow keys and a swipe change slides. Desktop (xl) shows a floating card with the
-   featured product, rating, price and "Add to cart". Reduced motion: no autoplay, zoom or
-   text motion. The first slide's heading is the page `h1`.
+1. **Hero** (`Hero.tsx`): a full-width banner slider that explains SkinFusion's idea in plain
+   words: skin care you eat and drink, made from whole food, instead of more products on the
+   face. Three slides (`heroSlides` in content.ts, media in `media.hero.slides`): "Skin care
+   you drink, not apply." (skincare video), "Fewer bottles. One cup a day." (bathroom shelf
+   photo) and "Four whole foods. Nothing added." (red dates photo). Each slide has an animated
+   visual on the right on wide screens (`visual`): the product card with floating
+   ingredients, a "Your shelf" list that crosses out serum, toner, night cream and face mask
+   for one cup of tea, and the four ingredients popping in. Headlines rise word by word on each
+   slide change; slides crossfade, the picture zooms slowly, a progress bar fills and moves on
+   after 6.5s. Hover, focus, the pause button, an off-screen hero or a hidden tab pause it;
+   arrows, bars, arrow keys and swipe change slides. Reduced motion: no autoplay or motion.
+   Keep the copy simple: no buzzwords, no result promises.
 2. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
    video on hover (desktop) or while in view (phones) over the product photo; products without a
    photo show the fallback image from media.ts. Swipe with snap points on phones. Photo and
@@ -716,8 +718,8 @@ Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
 - [ ] `window-tea.webp` (Calm Night card fallback, stories)
 - [ ] `red-dates.webp` (sourcing, hero slide 3)
 - [ ] `ginger-lemon.webp` (Gut Balance card fallback)
-- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage; glass-teapot
-      is also hero slide 2)
+- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage;
+      bathroom-shelf is also hero slide 2)
 - [ ] `teacup-mint.webp`, `hands-glass.webp` (stories)
 - [ ] `herbal-flatlay.webp` (Glow Ritual Bundle card fallback)
 - [ ] `bathroom-sink.webp` (closing CTA)
