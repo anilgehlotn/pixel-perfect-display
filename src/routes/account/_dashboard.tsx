@@ -34,7 +34,7 @@ export const Route = createFileRoute("/account/_dashboard")({
 });
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return <main className="pt-32 pb-16 md:pt-40 lg:pt-48 lg:pb-24">{children}</main>;
+  return <main className="pt-12 pb-16 md:pt-16 lg:pt-20 lg:pb-24">{children}</main>;
 }
 
 function AccountLayout() {

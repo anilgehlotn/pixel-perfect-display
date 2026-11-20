@@ -53,7 +53,7 @@ function Quiz() {
   };
 
   return (
-    <main ref={scope} className="section-y pt-48">
+    <main ref={scope} className="section-y pt-16 lg:pt-20">
       <div className="container-x max-w-2xl">
         {!done ? (
           <div key={step}>

@@ -1,8 +1,20 @@
 import { Star } from "@phosphor-icons/react";
 
-export function Stars({ value, size = 14 }: { value: number; size?: number }) {
+export function Stars({
+  value,
+  size = 14,
+  className = "text-jujube",
+}: {
+  value: number;
+  size?: number;
+  className?: string;
+}) {
   return (
-    <span role="img" className="inline-flex text-primary" aria-label={`${value} out of 5 stars`}>
+    <span
+      role="img"
+      className={`inline-flex gap-0.5 ${className}`}
+      aria-label={`${value} out of 5 stars`}
+    >
       {[1, 2, 3, 4, 5].map((s) => (
         <Star key={s} size={size} weight={s <= Math.round(value) ? "fill" : "light"} />
       ))}

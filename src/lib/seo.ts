@@ -10,7 +10,7 @@ export const site = {
   title: "SkinFusion | TCM Skin Glow Tea",
   description:
     "Caffeine-free TCM Skin Glow Tea with whole jujube, snow fungus and goji berries. A warm daily tea ritual from SkinFusion, Mumbai.",
-  themeColor: "#fbf7f2",
+  themeColor: "#fdfaf7",
   // 1200 x 630 JPG in public/. Replace public/og-image.jpg to change the share image.
   ogImage: { path: "/og-image.jpg", width: 1200, height: 630, alt: "SkinFusion Skin Glow Tea" },
 };
