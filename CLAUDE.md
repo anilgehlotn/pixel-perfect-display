@@ -24,6 +24,7 @@ This project is built and maintained with Claude Code only.
 | Tailwind CSS              | 4.x      | Styling. Configured in CSS (`src/styles.css`), there is no `tailwind.config.js`      |
 | TypeScript                | 5.8      | Strict mode on                                                                       |
 | Phosphor Icons            | 2.x      | All site icons, always `weight="light"`                                              |
+| Cormorant Garamond        | 5.x      | Self-hosted display serif (`@fontsource-variable/cormorant-garamond`)                |
 | GSAP + @gsap/react        | 3.15     | Scroll animations: ScrollTrigger, SplitText (free since 3.13), useGSAP               |
 | Lenis                     | 1.3      | Smooth scrolling, desktop with a mouse only                                          |
 | @fontsource-variable/jost | 5.x      | Self-hosted Jost (no Google Fonts request)                                           |
@@ -44,12 +45,19 @@ each route's `head()` (per page).
 ├── src/
 │   ├── assets/                Site images (JPG originals); web/ holds 400/800px WebP copies
 │   ├── components/home/       Homepage sections (see "Homepage" below)
-│   │   ├── Hero.tsx           Headline, pills, floating product composition
-│   │   ├── Sections.tsx       Product row, bundle, how it works, TCM 101, sourcing, closing CTA
-│   │   ├── Stories.tsx        Stories scroller (drag, drift, video cards)
+│   │   ├── Hero.tsx           Full-bleed photo hero with headline, two buttons and rating
+│   │   ├── Sections.tsx       Trust strip, bestsellers, featured ritual, TCM 101, sourcing, closing
 │   │   └── media.tsx          Img, LoopVideo, PlayPill, VideoDialog (all media goes through these)
+│   ├── components/product/    Shared by the homepage and the product page
+│   │   ├── ProductCard.tsx    Product tile (photo/video, badge, rating, price, Add to cart)
+│   │   ├── BuyBox.tsx         Price, pack choice, quantity, Add to cart, highlights
+│   │   ├── purchase.ts        usePurchase() (selected pack + quantity), pouches(), savePercent()
+│   │   ├── Gallery.tsx        Product photo gallery (+ gallery-image.ts converters)
+│   │   ├── Blocks.tsx         SectionIntro, ComparisonTable, Standards, Ingredients, Steps,
+│   │   │                      Reviews, Disclosure (accordion), Faq
+│   │   └── icons.tsx          Icon: Phosphor icon by the name used in content.ts
 │   ├── components/site/
-│   │   ├── Chrome.tsx         Floating pill nav, mobile menu, footer, cart drawer, toasts,
+│   │   ├── Chrome.tsx         Announcement bar, header, mobile menu, footer, cart drawer, toasts,
 │   │   │                      WhatsApp button, 10%-off popup, newsletter form
 │   │   ├── ProductImage.tsx   Product photo: WebP source + JPG fallback, fixed width/height
 │   │   ├── Stars.tsx          Star rating (real-results page)
@@ -93,19 +101,19 @@ each route's `head()` (per page).
 
 ## Pages and routes
 
-| URL             | File                           | What it shows                                                                                        |
-| --------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `/`             | `src/routes/index.tsx`         | Homepage (see "Homepage"). Loader: all products + featured product                                   |
-| `/real-results` | `src/routes/real-results.tsx`  | Before/after sliders, video stories, serum comparison, ingredient spotlight, story form, product CTA |
-| `/quiz`         | `src/routes/quiz.tsx`          | 4-question skin quiz with a product recommendation. Linked from the hero and the Explore menu        |
-| anything else   | `__root.tsx` NotFoundComponent | 404 page (inside the normal header/footer)                                                           |
+| URL                 | File                              | What it shows                                                                                        |
+| ------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `/`                 | `src/routes/index.tsx`            | Homepage (see "Homepage"). Loader: all products + featured product                                   |
+| `/real-results`     | `src/routes/real-results.tsx`     | Before/after sliders, video stories, serum comparison, ingredient spotlight, story form, product CTA |
+| `/quiz`             | `src/routes/quiz.tsx`             | 4-question skin quiz with a product recommendation. Linked from the hero and the Explore menu        |
+| `/products/:handle` | `src/routes/products/$handle.tsx` | Product page (see "Product page"). Loader: `getProduct(handle)` + related products                   |
+| anything else       | `__root.tsx` NotFoundComponent    | 404 page (inside the normal header/footer)                                                           |
 
-**There is no product page yet** (no `/product/...` or `/products/...` route). Building it is a
-separate task. When it is built, it should be `src/routes/products/$handle.tsx` with a loader
-calling `getProduct(params.handle)`.
+Product cards, the featured block, the nav ("Skin Glow Tea") and the footer link to
+`/products/<handle>`. Unknown handles show the 404 page.
 
 Homepage sections are reached with anchors: `/#shop`, `/#bundle`, `/#ingredients`, `/#learn`,
-`/#stories`, `/#sourcing`.
+`/#reviews`, `/#sourcing`.
 
 To add a page: create `src/routes/<name>.tsx` with `createFileRoute("/<name>")`. The dev server
 regenerates `routeTree.gen.ts` automatically.
@@ -116,49 +124,76 @@ regenerates `routeTree.gen.ts` automatically.
   `lib/seo.ts` (plus `noindex` on Vercel preview builds), and wraps every page in
   `CartProvider` + `Header` + `Footer`, with the cart drawer, toasts, WhatsApp button and
   10%-off badge floating on top. Also holds the 404 and error screens.
-- `Header` (Chrome.tsx): two floating translucent cream pills, 24px from the top (16px on
-  phones). Left: logo + `nav.main` (Shop, Ingredients, Learn). Right: "Sign in" (or the
-  account initial), cart, coral "Get started" pill to /quiz. Phones: one pill with logo, cart and
-  menu button; the menu is full-screen with staggered links. The nav hides while scrolling
-  down and comes back on scroll up or keyboard focus. Page routes use the router `Link`,
-  `/#section` anchors stay plain links. There is no announcement bar any more.
-- `Footer`: deep green, cream text: logo, mission line, newsletter with consent text, five link
+- `Header` (Chrome.tsx): a jujube announcement bar (`announcement` in content.ts; desktop shows
+  every message, phones the first, no motion), then a sticky ivory header: `nav.main` links on
+  the left (uppercase, wide-spaced), centred SKINFUSION logo, "Take the quiz" (xl only),
+  "Sign in" (or the account initial) and cart on the right. Phones: menu button, logo, cart;
+  the menu is full-screen with large serif links. The header hides while scrolling down and
+  comes back on scroll up or keyboard focus. Page routes use the router `Link`, `/#section`
+  anchors stay plain links. The header is in the page flow (sticky), so pages need no extra top
+  padding for it.
+- `Footer`: blush, ink text: logo, serif mission line, newsletter with consent text, five link
   columns (`footer.columns` in content.ts), legal line and wellness disclaimer.
 - `CartDrawer`: slides in from the right, free-shipping progress bar, quantity controls, subtotal,
   Checkout button.
+- WhatsApp button and the 10%-off badge carry `data-float`; they move up while the product
+  page's sticky "Add to cart" bar is visible on phones (`html[data-sticky-cta]`).
 - Scroll animations: add a `data-anim` attribute in the markup (see "Animations").
 - Any overlay (drawer, menu, modal) calls `useScrollLock(open)`. Never set `body.style.overflow`
   directly.
 
 ## Homepage
 
-Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
-order (`src/routes/index.tsx`):
+Qi-inspired, conversion-first layout (the-qi.com is a reference for structure only: never copy
+its text, images, icons or logos). Sections, in order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): sentence-case headline, one line, "Take the quiz" (coral) and "Shop
-   now" (outline). Product composition: the centre image in a stadium crop, four ingredient
-   circles and a small looping video. Desktop: pieces float gently (CSS) and drift at different
-   speeds with scroll (`data-depth`).
-2. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
-   video on hover (desktop) or while in view (phones) over the product photo; products without a
-   photo show the fallback image from media.ts. Swipe with snap points on phones. Cards add the
-   first variant to the cart (there is no product page yet).
-3. **Bundle** (`#bundle`): blush card, copy, "Add 4 pouches" (adds the 4-pouch variant of the
-   featured product) and a 2x2 collage of rounded shapes.
-4. **How it works** (`#ingredients`): deep green block, counters for true facts only (4 whole
-   ingredients, 0 preservatives, 0 caffeine), looping video, two text columns.
-5. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
-   that opens the full-screen `VideoDialog`.
-6. **Stories** (`#stories`, `Stories.tsx`): full-bleed strip of mixed shapes (half-visible circles
-   at both edges, tall portraits, stadium above a quote, video cards with a "Play" pill, a green
-   quote card). Desktop: drag to scroll with momentum, slow scroll-linked drift of the strip,
-   slight parallax between cards. Phones: native swipe with snap points, no drift.
-7. **Sourcing** (`#sourcing`): location label, heading, large rounded image, "Read more". The
-   origin copy is DEMO until the client confirms it (`home.sourcing.isDemo`).
-8. **Closing CTA**: blush bookend, "Start your glow ritual", "Shop now".
-9. **Footer** (site-wide, see above).
+1. **Hero** (`Hero.tsx`): full-bleed blush photo (`media.hero.image`). Desktop: copy over the
+   calm left side with a blush wash; phones: photo on top, copy below. Kicker, serif `display`
+   headline, line, "Shop Skin Glow Tea" (primary, to the product page) and "Take the skin quiz"
+   (outline), star rating of the featured product.
+2. **Trust strip**: four true facts with icons (`trust` in content.ts).
+3. **Bestsellers** (`#shop`): `getProducts()` as `ProductCard`s: 4:5 photo (a muted video plays
+   on hover on desktop, in view on phones), round "Best seller" badge, uppercase name, rating,
+   price with compare-at price, full-width "Add to cart" (first variant). Photo and name open
+   the product page. Swipe with snap points on phones.
+4. **Featured ritual** (`#bundle`): the featured product's `BuyBox` (pack choice 1/2/4,
+   quantity, Add to cart) next to a photo, with "View full details".
+5. **Comparison** (`ComparisonTable`, blush): SkinFusion vs regular tea bags vs beauty
+   supplements (`comparison` in content.ts; phones hide the third column).
+6. **Ingredients** (`#ingredients`, jujube block): four ingredient circles with Chinese names
+   and pinyin, plus true-fact counters (4 whole ingredients, 0 caffeine, 0 added sugar).
+7. **Standards**: six soft circles with line icons (`standards`).
+8. **TCM 101** (`#learn`): video thumbnail with a "Play" button that opens `VideoDialog`.
+9. **Reviews** (`#reviews`): rating summary and three quote cards (`reviews`, demo quotes).
+10. **Sourcing** (`#sourcing`): photo and origin copy (DEMO until confirmed).
+11. **Closing CTA**: jujube block with "Start your glow ritual" and a full-bleed photo.
 
-Copy for all of it is in `home`, `hero` and `nav` in content.ts. Media is in `src/data/media.ts`.
+Copy is in `hero`, `trust`, `home`, `comparison`, `standards`, `ingredients` and `reviews` in
+content.ts. Media is in `src/data/media.ts`.
+
+## Product page
+
+`src/routes/products/$handle.tsx`. Loader: `getProduct(handle)` (404 if missing) and up to four
+related products. `head()` sets the title, description, share image and price tags.
+
+1. Breadcrumb (Home / Shop / product).
+2. `Gallery` (sticky on desktop): the product's Shopify images, then the extra photos in
+   `media.gallery[handle]`; thumbnails swap the large photo.
+3. `BuyBox`: subtitle, serif title, rating (links to `#reviews`), price, compare-at price and
+   "Save x%", price per cup, tagline, pack choice (radio inputs), quantity, "Add to cart · price"
+   (opens the cart drawer), highlights, "Why you'll love it", assurance icons. Then accordions
+   (native `<details>`, content in the server HTML): Description, Ingredients, How to brew,
+   Shipping.
+4. Products with an entry in `productDetails` (content.ts) also get: "Why it belongs in your
+   day" (six benefit cards), the ingredients block, "How to enjoy" with tasting notes, the
+   comparison table and an FAQ. Today only `skin-glow-tea` has details; the others show the buy
+   box, a "coming soon" description, reviews and related products, and no ingredient claims.
+5. Reviews, related products ("You may also like"), wellness disclaimer.
+6. Phones and tablets: a sticky bar with price and "Add to cart" slides up once the main button
+   scrolls out of view.
+
+Benefit copy must follow the claims rules: "traditionally used", "customers say", "a daily
+ritual"; never treats, cures, heals, reduces or prevents, and no promised results.
 
 ### Media rules (src/data/media.ts)
 
@@ -407,49 +442,57 @@ use absolute URLs. The favicon is `public/favicon.svg` (placeholder "S"; replace
 
 ## Design system
 
-Seed-inspired, client-approved (replaces the earlier square "Qi" style). Read from
-`src/styles.css`. Use the tokens, never raw hex values in components.
+Premium, Qi-inspired direction (replaces the Seed-inspired cream/green/coral style, which
+replaced the earlier square "Qi" style). Read from `src/styles.css`. Use the tokens, never raw
+hex values in components.
 
 Colors (Tailwind class names in brackets):
 
-- Background cream `#fbf7f2` (`bg-background`, `text-cream` on dark blocks)
-- Deep brand green `#1e4d3a` (`text-green`, `bg-green`): all headlines, dark blocks, footer,
-  nav text. Cream on green is 9:1
-- Coral `#e8807a`, hover `#d96e68` (`bg-primary`): the ONLY accent: primary buttons and small
-  highlights. Text on coral is ink (`text-primary-foreground`, 6.1:1); never white (2.69:1)
-- Blush `#f3e4e0` (`bg-blush`): soft cards (bundle, closing CTA, quotes)
-- Beige `#efe9e1` (`bg-beige`): image placeholders
-- Ink `#1f1f1f` (`text-foreground`): body text. Muted text `#6b635c` (`text-muted-foreground`)
-- Error text on green: `text-error-on-dark`
-- Borders are very light: `rgba(0,0,0,0.06)`
+- Background ivory `#fdfaf7` (`bg-background`, `text-cream` on dark blocks); white product
+  surfaces `#ffffff` (`bg-surface`)
+- Deep jujube red `#6b1e2e` (`bg-jujube`, `text-jujube`, also `bg-primary`): primary buttons,
+  announcement bar, dark blocks, eyebrow labels, stars, small accents. White/cream on jujube is
+  11:1
+- Blush `#f8ebe6` (`bg-blush`): soft blocks (comparison, benefits, FAQ, footer, hero);
+  `bg-blush-deep` `#f1dad3`
+- Beige `#f4eee8` (`bg-beige`): image placeholders, sourcing block
+- Rose `#e48a82` (`bg-rose`): "Best seller" badge and "Save x%" tag only, always with ink text
+  (6.6:1), never white
+- Antique gold `#c9a46a` (`text-gold`, `ring-gold`): hairlines and Chinese characters on jujube
+  blocks only, never body text
+- Ink `#1d1a19` (`text-foreground`, `text-ink`): headings and body text. Muted text `#6b5f5b`
+  (`text-muted-foreground`, 5.9:1 on ivory)
+- Error text on jujube: `text-error-on-dark`
+- Borders: `rgba(29,26,25,0.1)`
 
 Typography:
 
-- One font: Jost, self-hosted (latin subset preloaded in `__root.tsx`). Weights 400 and 500
-- Headlines: sentence case, weight 400, deep green, line-height 1.05-1.15, slight negative
-  letter-spacing, `text-wrap: balance` (global for h1-h4). Sizes: `display` (hero and closing,
-  36-72px fluid) and `title` (section headings, 30-52px fluid)
+- Jost (self-hosted, interface and body) and Cormorant Garamond (self-hosted variable serif,
+  display only). Jost latin is preloaded in `__root.tsx`
+- `display` (hero, closing): serif, 42-84px fluid, sentence case. `headline` (feature
+  headings, product title): serif, 34-58px. Both use lining numerals
+- `title` (section headings): Jost 500, uppercase, letter-spacing 0.16em, 18-26px. Keep it to
+  two to six words
+- `label-caps`: tiny uppercase eyebrow labels (jujube) and footer column titles
+- Product names on cards and small headings: Jost 500 uppercase, letter-spacing ~0.14em
 - Body 17px, line-height 1.6, max width around `max-w-md` / 65ch
-- Small uppercase wide-spaced text (`label-caps`) ONLY for tiny eyebrow labels (one per few
-  sections, e.g. the sourcing location) and footer column titles. The logo stays uppercase
 
 Shapes and spacing:
 
-- Pill buttons (`rounded-full`), rounded cards `rounded-card` (28px), smaller tiles 24px
-  (`rounded-[1.5rem]`), circles (`rounded-full` on square images) and stadium crops
-  (`rounded-stadium` on tall or wide images)
-- Lots of whitespace: `section-y` (4rem / 7rem from 1024px), `container-x` (80rem, 1.5rem
-  padding). Coloured blocks sit inside a 1rem / 1.5rem page gutter (`px-4 md:px-6`)
-- Tap targets at least 44px (`h-11 w-11` icon buttons, 48px buttons)
-- No heavy shadows; separation comes from cream / blush / green blocks
+- Square corners: buttons 2px radius, cards and photos 0-2px (`rounded-card` is 2px). Circles
+  (`rounded-full`) for ingredient photos, badges and icon discs
+- Lots of whitespace: `section-y` (4rem / 7rem from 1024px), content max width 80rem with
+  `px-4 md:px-6`. Coloured blocks run full width
+- Tap targets at least 44px (buttons 52px)
+- No heavy shadows; separation comes from ivory / white / blush / jujube blocks and hairlines
 
-Buttons:
+Buttons and links:
 
-- `btn btn-primary`: coral pill, ink text, sentence case, min height 48px, shrinks to 98% on press
-- `btn btn-outline`: green 1px pill, fills green on hover
-- `btn btn-cream`: cream outline pill for green blocks
-- Text links: `underline underline-offset-4` with an `ArrowRight` that nudges on hover
-- Cards lift 6px on hover (`lift`, desktop with a mouse only)
+- `btn btn-primary`: jujube, white uppercase wide-spaced text, 52px high
+- `btn btn-outline`: 1px ink border, fills ink on hover
+- `btn btn-cream`: cream outline for jujube blocks
+- `link-caps`: uppercase underlined text link with an `ArrowRight` that nudges on hover
+- Photos inside `.zoom` scale to 1.04 on hover (desktop with a mouse only)
 
 ## Animations
 
@@ -493,20 +536,18 @@ and `<main ref={scope}>`. Never put `data-depth` and another transform animation
 
 ### What plays where
 
-| Animation                             | Desktop (>=1024px, mouse)                                                  | Mobile and tablet                                 |
-| ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
-| Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
-| Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero composition                      | Pieces float (8s CSS loop) and drift at different speeds with scroll       | Static                                            |
-| Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
-| Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
-| Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
-| Product videos                        | Play on hover / keyboard focus                                             | Play while in view (max 2 videos at once)         |
-| Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards | Native swipe with snap points                     |
-| Counters                              | Count up once                                                              | Same                                              |
-| Nav                                   | Hides on scroll down, shows on scroll up                                   | Same                                              |
-| Footer                                | Slides up, columns fade in one by one                                      | Same, smaller distances                           |
-| Smooth scroll                         | Lenis                                                                      | Native                                            |
+| Animation                             | Desktop (>=1024px, mouse)                                                  | Mobile and tablet                         |
+| ------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
+| Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                              |
+| Hero entrance                         | Nav fades down, headline lines rise from a mask, kicker and rating fade in | Text fades up, buttons last               |
+| Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                              |
+| Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                |
+| Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group       |
+| Product videos                        | Play on hover / keyboard focus                                             | Play while in view (max 2 videos at once) |
+| Counters                              | Count up once                                                              | Same                                      |
+| Nav                                   | Hides on scroll down, shows on scroll up                                   | Same                                      |
+| Footer                                | Slides up, columns fade in one by one                                      | Same, smaller distances                   |
+| Smooth scroll                         | Lenis                                                                      | Native                                    |
 
 Reduced motion: no loader, no movement, no float, no video autoplay (posters only; videos play
 only when opened in the dialog), no smooth scroll, everything visible immediately. Without
@@ -551,17 +592,17 @@ When rules conflict, this order wins:
 2. Accessibility, performance and mobile rules.
 3. Skill defaults.
 
-Approved style (client-approved Seed-inspired direction; ignore any skill rule that bans it):
+Approved style (Qi-inspired premium direction; ignore any skill rule that bans it):
 
-- Rounded and pill-shaped buttons, rounded cards (24-32px radius), circle and stadium image
-  crops.
-- Jost only. Big sentence-case headlines (weight 400-500, line-height 1.05-1.15, slight
-  negative letter-spacing). Small uppercase wide-spaced text only for tiny eyebrow labels.
-- Cream background, deep brand green for headlines and dark blocks, coral as the single accent
-  for primary buttons and highlights, blush for soft cards.
-- Lots of whitespace, calm and premium; Seed-like slow, soft motion.
-- Seed.com is a reference for layout and motion ONLY: never copy its media, logos, icons,
-  fonts, text, product names or press quotes.
+- Square-cornered uppercase buttons, square photo cards, circle crops for ingredients.
+- Jost for interface text and uppercase wide-spaced section titles; Cormorant Garamond only
+  for big sentence-case display headlines.
+- Ivory background, white product surfaces, deep jujube red for primary buttons and dark
+  blocks, blush for soft blocks, rose and gold only as tiny accents.
+- Conversion-first structure: announcement bar, trust strip, product grid with Add to cart,
+  comparison table, standards icons, reviews, detailed product page.
+- the-qi.com is a reference for structure ONLY: never copy its media, logos, icons, text,
+  product names or press logos.
 
 Ignore every "variance" or "randomize the layout" rule: SkinFusion pages must stay
 consistent with each other.
@@ -571,19 +612,19 @@ purple or blue gradients, no heavy shadows, 44px touch targets, 4.5:1 text contr
 focus states, zero layout shift, transform/opacity-only animation, reduced-motion support,
 complete code with no placeholders.
 
-Coral contrast: white text on coral (`#e8807a`) is 2.69:1 and fails WCAG AA, so coral buttons use
-ink text (6.12:1, `--primary-foreground`). If the client prefers white text, the coral must
-darken (`#bf5049` gives 4.71:1).
+Rose contrast: white text on rose (`#e48a82`) fails WCAG AA, so rose badges use ink text.
+Primary buttons are jujube with white text (11:1).
 
 ## Rules for all future work
 
 - No emojis anywhere (UI, copy, code comments, commits).
 - No AI clichés in copy: "elevate", "seamless", "unlock", "transform your", "journey",
   "game-changer", "delve", "curated", "empower", "revolutionize" and similar.
-- Never use Inter, Roboto or Arial. Jost is the only font.
-- Headings: sentence-case Jost in deep green (already global for h1-h4); `display` / `title`
-  for big ones. Uppercase only for tiny eyebrow labels.
-- Buttons: pills (`btn btn-primary` coral with ink text, `btn btn-outline`). One label per
+- Never use Inter, Roboto or Arial. Jost and Cormorant Garamond (display only) are the only
+  fonts.
+- Headings: `display` / `headline` (serif, sentence case) for big ones, `title` (uppercase
+  Jost) for section headings. h1-h4 default to Jost in ink.
+- Buttons: square (`btn btn-primary` jujube with white text, `btn btn-outline`). One label per
   intent on a page.
 - Homepage photos and videos come only from `src/data/media.ts`; videos only through
   `LoopVideo` / `VideoDialog`.
@@ -636,49 +677,52 @@ nofollow">` and an `X-Robots-Tag` header (vite.config.ts `__NOINDEX__`), so demo
 The homepage was built with demo content for the client preview. Replace every item below with
 the client's own, permitted content (or confirm it) before going live:
 
-Demo quotes (`home.stories.quotes` in content.ts, `isDemo: true`): invented sample quotes, must
-become real customer quotes shared with permission:
+Demo quotes (`reviews.quotes` in content.ts, `isDemo: true`): invented sample quotes, must
+become real customer quotes shared with permission (the cards show no "verified" label until
+then):
 
 - [ ] "It tastes like the jujube tea my grandmother made. My evening cup is the calmest part of
       my day." (Ananya, Bengaluru)
 - [ ] "I swapped my second chai for it. Light, warm and easy to make at work." (Priya, Mumbai)
 - [ ] "You can see every whole piece in the bag. Naturally sweet, no sugar needed." (Meera, Pune)
-- [ ] Story video captions: "My morning routine", "Ten quiet minutes", "Windows open, kettle on"
 
 Demo copy to confirm:
 
 - [ ] Sourcing section (`home.sourcing`, `isDemo: true`): "Xinjiang, China", "Where our jujubes
       ripen" and the farm description. Replace with the real origins
 - [ ] "How it fits your day": steeping time (about five minutes)
-- [ ] Bundle copy: "Save up to 15%, with free shipping on the four-pack" must match live
-      Shopify prices and shipping rules
+- [ ] Announcement bar and pack notes: "Save up to 15%", "15% off + free shipping" must match
+      live Shopify prices and shipping rules
+- [ ] Comparison table (`comparison`): client confirms every row
+- [ ] Product page copy for Skin Glow Tea (`productDetails`): benefits, FAQ, tasting notes
+- [ ] Ingredient lists and details for Calm Night, Gut Balance and Glow Ritual Bundle (add
+      them to `productDetails`)
+- [ ] Ratings and review counts (local stand-ins until Shopify review metafields are set)
 
 Demo videos (`public/media/demo/videos/`, Mixkit Free License, all `isDemo: true` in media.ts):
 
-- [ ] `tea-steeping.mp4` (TCM 101 modal, Glow Ritual Bundle card, stories)
-- [ ] `tea-steam.mp4` (How it works)
-- [ ] `morning-window.mp4` (hero)
+- [ ] `tea-steeping.mp4` (TCM 101 modal, Glow Ritual Bundle card)
 - [ ] `window-calm.mp4` (Calm Night Blend card)
-- [ ] `skincare-routine.mp4` (stories)
 - [ ] `skincare-closeup.mp4` (Skin Glow Tea card)
 - [ ] `leaves-sunlight.mp4` (Gut Balance Tea card)
-- [ ] `flowers-breeze.mp4` (stories)
+- [ ] Not used by any page any more, delete with the demo folder: `tea-steam.mp4`,
+      `morning-window.mp4`, `skincare-routine.mp4`, `flowers-breeze.mp4`
 
 Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
 
-- [ ] `window-tea.webp` (Calm Night card fallback, stories)
+- [ ] `window-tea.webp` (Calm Night card fallback and gallery, review avatar)
 - [ ] `red-dates.webp` (sourcing)
-- [ ] `ginger-lemon.webp` (Gut Balance card fallback)
-- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage)
-- [ ] `teacup-mint.webp`, `hands-glass.webp` (stories)
-- [ ] `herbal-flatlay.webp` (Glow Ritual Bundle card fallback)
-- [ ] `bathroom-sink.webp` (closing CTA)
+- [ ] `ginger-lemon.webp`, `teacup-mint.webp` (Gut Balance card fallback and gallery)
+- [ ] `herbal-flatlay.webp`, `glass-teapot.webp`, `bathroom-shelf.webp` (Glow Ritual Bundle
+      card fallback and gallery)
+- [ ] `hands-cup.webp` (Calm Night gallery), `hands-glass.webp` (review avatar)
+- [ ] Not used by any page any more: `bathroom-sink.webp`
 
 Other:
 
-- [ ] SkinFusion pouch photo (`src/assets/skinfusion-pouch.jpg` is missing; the hero centre and
-      the Skin Glow Tea product use the brewed-cup photo instead)
-- [ ] Client confirms ownership of the existing site images in `src/assets/` (brew, hero-2,
+- [ ] SkinFusion pouch photo (`src/assets/skinfusion-pouch.jpg` is missing; the hero photo and
+      the Skin Glow Tea product use the blush flat-lay and brewed-cup photos instead)
+- [ ] Client confirms ownership of the existing site images in `src/assets/` (brew, hero-1, hero-2,
       ritual, journal-3, four ingredient photos)
 - [ ] Real product photos for Calm Night, Gut Balance and Glow Ritual Bundle (from Shopify)
 - [ ] Pages for FAQs, Shipping & returns, Privacy policy, Terms of service (footer shows them as
