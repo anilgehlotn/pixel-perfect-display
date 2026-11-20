@@ -308,7 +308,16 @@ export const media = {
   ritual: { image: site.ritual, video: videos.teaSteam },
   tcm: { thumbnail: site.cups, video: videos.teaSteeping },
   reviews: [photos.windowTea, photos.handsGlass, site.ritual],
-  mission: site.flatlay,
+  hero: site.flatlay,
+  // "Shop by ritual" arches, keyed by product handle.
+  rituals: {
+    "skin-glow-tea": site.brew,
+    "calm-night": photos.windowTea,
+    "gut-balance": photos.gingerLemon,
+    "glow-bundle": photos.herbalFlatlay,
+  } as Record<string, MediaImage | undefined>,
+  campaign: site.cups,
+  mission: site.cups,
   sourcing: photos.redDates,
 } as const;
 

@@ -46,81 +46,40 @@ export const FREE_SHIPPING_THRESHOLD = 699;
 
 export const hero = {
   kicker: "Traditional Chinese Medicine, brewed whole",
-  title: "Glow from within, one cup at a time",
+  title: "Your daily glow ritual starts within",
   line: "Jujube, snow fungus, goji and ginger, kept whole and brewed into a naturally sweet daily ritual.",
   shopCta: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
   quizCta: { label: "Take the skin quiz", href: "/quiz" },
   ratingLabel: "reviews",
 };
 
-// Thin strip under the hero. Only true, checkable facts.
+// Gold strip under the hero. Only true, checkable facts.
 export const trust = [
-  { icon: "Leaf", label: "4 whole ingredients" },
+  { icon: "Leaf", label: "4 whole TCM ingredients" },
   { icon: "Moon", label: "Caffeine free" },
   { icon: "Drop", label: "No added sugar" },
+  { icon: "ShieldCheck", label: "No preservatives" },
   { icon: "Truck", label: "Free shipping over ₹699" },
 ] as const;
 
-// Illustrated pouch renders (src/components/product/Pouch.tsx), used until real packaging
-// photos exist. One look per product handle. `glyph` is a single Chinese character printed on
-// the pouch: 颜 complexion, 静 stillness, 和 harmony, 礼 gift.
-export type Packaging = {
-  color: string;
-  shade: string;
-  wash: string;
-  ink: string;
-  glyph: string;
-  name: string[];
-  line: string;
-  weight: string | null;
-  backdrop: string;
+// "Shop by ritual": arch-framed photos, one per product. Images: media.rituals[handle].
+export const rituals = {
+  eyebrow: "A cup for every moment",
+  title: "Shop by ritual",
+  items: [
+    { handle: "skin-glow-tea", label: "Morning glow" },
+    { handle: "calm-night", label: "Calm evenings" },
+    { handle: "gut-balance", label: "After meals" },
+    { handle: "glow-bundle", label: "Gift sets" },
+  ],
 };
 
-export const packaging: Record<string, Packaging | undefined> = {
-  "skin-glow-tea": {
-    color: "#f3c9c0",
-    shade: "#d99f95",
-    wash: "#c23a3a",
-    ink: "#5a1426",
-    glyph: "颜",
-    name: ["Skin Glow", "Tea"],
-    line: "Jujube, snow fungus, goji and ginger",
-    weight: "20 tea bags  100 g",
-    backdrop: "#f6e4dc",
-  },
-  "calm-night": {
-    color: "#d9d0ea",
-    shade: "#b2a5cf",
-    wash: "#5d4a92",
-    ink: "#2f2350",
-    glyph: "静",
-    name: ["Calm Night", "Blend"],
-    line: "An evening herbal infusion",
-    weight: null,
-    backdrop: "#ebe6f2",
-  },
-  "gut-balance": {
-    color: "#cfe0c8",
-    shade: "#a5c09b",
-    wash: "#3f7a4a",
-    ink: "#1f3d27",
-    glyph: "和",
-    name: ["Gut Balance", "Tea"],
-    line: "A warming after-meal infusion",
-    weight: null,
-    backdrop: "#e7efe2",
-  },
-  "glow-bundle": {
-    color: "#f2dfae",
-    shade: "#d8bd76",
-    wash: "#c0702a",
-    ink: "#4d3010",
-    glyph: "礼",
-    name: ["Glow Ritual", "Bundle"],
-    line: "The complete daily ritual",
-    weight: null,
-    backdrop: "#f4ecd9",
-  },
+// Wide campaign banner between sections.
+export const campaign = {
+  eyebrow: "The red date ritual",
+  title: "Brewed whole, the way Chinese kitchens have for centuries",
+  text: "Jujube, snow fungus, goji and ginger in every bag. Naturally sweet, caffeine free, ready in five minutes.",
+  cta: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
 };
 
 /* ---------------------------------------------------------------------------
@@ -309,6 +268,7 @@ export const ingredients: Ingredient[] = [
 // Comparison table (homepage and product page). Claims about other products stay general
 // and factual; the client should confirm this table before launch.
 export const comparison = {
+  eyebrow: "Why SkinFusion",
   title: "SkinFusion vs. the rest",
   text: "Most tea bags hold crushed leaf and flavourings. Ours hold four whole ingredients from a two-thousand-year-old tradition, and nothing else.",
   columns: ["SkinFusion", "Regular tea bags", "Beauty supplements"],
@@ -342,6 +302,7 @@ export type StoryQuote = {
 };
 
 export const reviews = {
+  eyebrow: "Customers say",
   title: "Loved as a daily ritual",
   quotes: [
     {
@@ -371,8 +332,8 @@ export const reviews = {
 
 export const home = {
   products: {
-    eyebrow: "Whole ingredients, the TCM way",
-    title: "Our bestsellers",
+    eyebrow: "Discover your favourite",
+    title: "Shop our bestsellers",
     from: "From",
     cta: "Add to cart",
     soldOut: "Sold out",
@@ -380,13 +341,14 @@ export const home = {
     all: "Shop all teas",
   },
   featured: {
-    eyebrow: "Meet your new daily ritual",
-    title: "A warm cup for calm and glow",
+    eyebrow: "Our signature blend",
+    title: "Meet Skin Glow Tea",
     details: "View product details",
-    badge: ["No. 1", "best", "seller"],
+    badge: "Best seller",
   },
-  standards: { title: "Nothing artificial, no tea dust, no shortcuts" },
+  standards: { eyebrow: "Our promise", title: "Nothing artificial, nothing hidden" },
   ingredients: {
+    eyebrow: "What's inside",
     title: "Four whole ingredients",
     text: "Open a tea bag and you can see every piece: red dates, snow fungus, goji and ginger, from the Traditional Chinese Medicine kitchen.",
   },
@@ -397,7 +359,7 @@ export const home = {
     { value: "0", label: "added sugar" },
   ],
   mission: {
-    title: "Our ritual",
+    title: "Our story",
     text: "Busy days leave little room for slow care. We keep one warm, naturally sweet cup within reach, made the way Chinese kitchens have made it for centuries, so your daily ritual takes five minutes and a kettle.",
     cta: { label: "Watch how it is made", href: "/#learn" },
   },
@@ -579,6 +541,7 @@ export const pdp = {
     { icon: "Leaf", label: "Whole ingredients" },
   ] as { icon: IconName; label: string }[],
   benefits: {
+    eyebrow: "In detail",
     title: "Why it belongs in your day",
     text: "Six reasons customers keep a pouch by the kettle. Every one comes from four whole ingredients and nothing else.",
   },

@@ -71,7 +71,7 @@ export function Gallery({
                 }}
                 aria-label={`Show picture ${i + 1} of ${slides.length}`}
                 aria-current={i === index ? "true" : undefined}
-                className={`relative block h-[4.5rem] w-[4.5rem] overflow-hidden border-2 transition-opacity md:h-20 md:w-20 ${i === index ? "border-coral" : "border-transparent opacity-80 hover:opacity-100"}`}
+                className={`relative block h-[4.5rem] w-[4.5rem] overflow-hidden border-2 transition-opacity md:h-20 md:w-20 ${i === index ? "border-green" : "border-transparent opacity-80 hover:opacity-100"}`}
               >
                 {s.kind === "node" ? (
                   <span className="absolute inset-0" style={{ background: s.background }}>

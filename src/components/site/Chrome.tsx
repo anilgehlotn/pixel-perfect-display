@@ -43,7 +43,7 @@ const ICON = 22;
 export function Logo({ className = "" }: { className?: string }) {
   return (
     <span translate="no" className={`inline-flex items-center gap-2.5 ${className}`}>
-      <span className="text-[1.05rem] font-medium tracking-[0.06em] md:text-[1.35rem]">
+      <span className="font-serif text-[1.35rem] tracking-[0.04em] md:text-[1.7rem]">
         SkinFusion
       </span>
       <svg viewBox="0 0 40 40" aria-hidden="true" className="h-6 w-6 md:h-7 md:w-7">
@@ -97,7 +97,7 @@ function AnnouncementBar() {
 }
 
 const NAV_LINK =
-  "inline-flex h-11 items-center text-[0.75rem] font-medium uppercase tracking-[0.18em] underline-offset-[6px] hover:underline";
+  "inline-flex h-11 items-center text-[0.8rem] font-medium uppercase tracking-[0.12em] text-green underline-offset-[6px] hover:underline";
 
 /**
  * Announcement bar, then a sticky header: links on the left, centred logo, account and cart
@@ -140,7 +140,7 @@ export function Header() {
     >
       <Handbag size={ICON} weight="light" />
       {count > 0 && (
-        <span className="absolute right-0.5 top-1 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-coral px-1 text-[10px] font-medium text-wine">
+        <span className="absolute right-0.5 top-1 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-green px-1 text-[10px] font-medium text-cream">
           {count}
         </span>
       )}
@@ -174,7 +174,7 @@ export function Header() {
                 </NavLink>
               </span>
             </div>
-            <Link to="/" aria-label="SkinFusion home" className="flex h-11 items-center text-ink">
+            <Link to="/" aria-label="SkinFusion home" className="flex h-11 items-center text-green">
               <Logo />
             </Link>
             <div className="flex items-center justify-end gap-3">
@@ -225,7 +225,7 @@ export function Header() {
                 href={n.href}
                 onClick={() => setMenu(false)}
                 style={{ animationDelay: `${k * 60}ms` }}
-                className="animate-fade-up border-b border-ink/10 py-5 text-lg font-medium uppercase tracking-[0.18em]"
+                className="animate-fade-up border-b border-ink/10 py-4 font-serif text-[1.75rem] text-green"
               >
                 {n.label}
               </NavLink>
@@ -501,7 +501,7 @@ export function NewsletterForm({
           aria-describedby={describedBy || undefined}
           className={`min-h-[52px] border px-5 outline-none ${dark ? "border-cream/40 bg-cream/10 text-cream placeholder:text-cream/75 focus:border-cream" : "border-input bg-surface focus:border-ink"}`}
         />
-        <button className="btn btn-primary">Subscribe</button>
+        <button className={`btn ${dark ? "btn-light" : "btn-primary"}`}>Subscribe</button>
       </div>
       {error && (
         <p
@@ -596,19 +596,17 @@ export function Footer() {
     { scope: ref },
   );
   return (
-    <footer ref={ref} className="overflow-clip bg-blush text-ink">
+    <footer ref={ref} className="overflow-clip bg-green text-cream">
       <div
         data-footer-columns
         className="container-x grid gap-12 py-16 md:py-20 lg:grid-cols-[1.1fr_2fr] lg:gap-20"
       >
         <div>
           <Logo />
-          <p className="mt-5 max-w-sm leading-relaxed text-ink/80">{footer.mission}</p>
-          <p className="mt-10 text-[0.8rem] font-medium uppercase tracking-[0.2em]">
-            {footer.newsletter.title}
-          </p>
+          <p className="mt-5 max-w-sm leading-relaxed text-cream/80">{footer.mission}</p>
+          <p className="mt-10 font-serif text-xl text-rose">{footer.newsletter.title}</p>
           <div className="mt-4">
-            <NewsletterForm id="nl-footer" consent={footer.newsletter.consent} />
+            <NewsletterForm id="nl-footer" tone="dark" consent={footer.newsletter.consent} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
@@ -617,8 +615,8 @@ export function Footer() {
           ))}
         </div>
       </div>
-      <div className="border-t border-ink/10">
-        <div className="container-x grid gap-2 py-6 text-xs text-muted-foreground md:grid-cols-[auto_1fr] md:gap-8">
+      <div className="border-t border-cream/15">
+        <div className="container-x grid gap-2 py-6 text-xs text-cream/70 md:grid-cols-[auto_1fr] md:gap-8">
           <p className="uppercase tracking-[0.16em]">{footer.legal}</p>
           <p className="md:text-right">{footer.disclaimer}</p>
         </div>
@@ -630,7 +628,7 @@ export function Footer() {
 function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <div>
-      <p className="label-caps">{title}</p>
+      <p className="font-serif text-lg text-rose">{title}</p>
       <ul className="mt-5 space-y-3">
         {links.map((l) => (
           <li key={l.label}>
@@ -638,12 +636,12 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
               <a
                 href={l.href}
                 {...(l.href.startsWith("http") && { target: "_blank", rel: "noreferrer" })}
-                className="inline-flex min-h-6 text-ink/85 underline-offset-4 hover:text-ink hover:underline"
+                className="inline-flex min-h-6 text-cream/85 underline-offset-4 hover:text-cream hover:underline"
               >
                 {l.label}
               </a>
             ) : (
-              <span className="text-muted-foreground">{l.label}</span>
+              <span className="text-cream/60">{l.label}</span>
             )}
           </li>
         ))}

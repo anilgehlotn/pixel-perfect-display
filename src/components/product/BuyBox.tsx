@@ -60,14 +60,12 @@ export function BuyBox({
       )}
 
       <p className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="text-2xl tracking-[0.08em] text-ink">{inr(price)}</span>
+        <span className="text-2xl text-ink">{inr(price)}</span>
         {was > price && (
           <span className="text-lg text-muted-foreground line-through">{inr(was)}</span>
         )}
         {save > 0 && (
-          <span className="bg-rose px-2.5 py-1 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-ink">
-            {pdp.save} {save}%
-          </span>
+          <span className="bg-rose px-2 py-0.5 text-xs font-medium text-green">{save}% OFF</span>
         )}
       </p>
       {perCup > 0 && (
@@ -84,16 +82,14 @@ export function BuyBox({
 
       {product.variants.length > 1 && (
         <fieldset className="mt-8">
-          <legend className="text-[0.8rem] font-medium uppercase tracking-[0.18em]">
-            {pdp.pack}
-          </legend>
+          <legend className="font-medium text-ink">{pdp.pack}</legend>
           <div className="mt-3 grid grid-cols-3 gap-2.5">
             {product.variants.map((v) => {
               const on = v.id === variant.id;
               return (
                 <label
                   key={v.id}
-                  className={`relative flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center border px-2 py-3 text-center transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${on ? "border-coral bg-coral text-wine" : "border-ink/30 bg-surface hover:border-ink"} ${v.availableForSale ? "" : "cursor-not-allowed opacity-50"}`}
+                  className={`relative flex min-h-[5.5rem] cursor-pointer flex-col items-center justify-center border px-2 py-3 text-center transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring ${on ? "border-green bg-green text-cream" : "border-ink/25 bg-surface hover:border-green"} ${v.availableForSale ? "" : "cursor-not-allowed opacity-50"}`}
                 >
                   <input
                     type="radio"
@@ -104,15 +100,15 @@ export function BuyBox({
                     onChange={() => setVariantId(v.id)}
                     className="sr-only"
                   />
-                  <span className="text-[0.8rem] font-medium uppercase tracking-[0.14em]">
-                    {v.title}
-                  </span>
-                  <span className={`mt-1 text-sm ${on ? "text-wine/85" : "text-muted-foreground"}`}>
+                  <span className="text-sm font-medium">{v.title}</span>
+                  <span
+                    className={`mt-1 text-sm ${on ? "text-cream/85" : "text-muted-foreground"}`}
+                  >
                     {inr(money(v.price))}
                   </span>
                   {v.note && (
                     <span
-                      className={`mt-1 text-[0.7rem] leading-tight ${on ? "text-wine" : "text-wine"}`}
+                      className={`mt-1 text-[0.7rem] leading-tight ${on ? "text-cream" : "text-gold-deep"}`}
                     >
                       {v.note}
                     </span>
@@ -182,7 +178,7 @@ export function BuyBox({
         <Link
           to="/products/$handle"
           params={{ handle: product.handle }}
-          className="mt-6 inline-flex min-h-11 items-center text-sm underline underline-offset-[6px]"
+          className="mt-6 inline-flex min-h-11 items-center text-sm font-medium text-green underline underline-offset-[6px]"
         >
           {home.featured.details}
           <span className="sr-only">: {product.title}</span>
@@ -191,13 +187,13 @@ export function BuyBox({
         <>
           {details && (
             <div className="mt-9 border-t pt-7">
-              <p className="text-[0.8rem] font-medium uppercase tracking-[0.18em]">{pdp.loveIt}</p>
+              <p className="font-serif text-xl text-green">{pdp.loveIt}</p>
               <ul className="mt-4 space-y-3">
                 {details.loveIt.map((l) => (
                   <li key={l.title} className="flex gap-3 leading-relaxed">
                     <span
                       aria-hidden="true"
-                      className="mt-[0.6rem] h-1.5 w-1.5 shrink-0 rounded-full bg-coral"
+                      className="mt-[0.6rem] h-1.5 w-1.5 shrink-0 rounded-full bg-gold"
                     />
                     <span>
                       <strong className="font-medium">{l.title}</strong>

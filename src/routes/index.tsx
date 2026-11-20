@@ -4,7 +4,14 @@ import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { FEATURED_PRODUCT_HANDLE, home, ingredients } from "@/data/content";
 import { getProduct, getProducts } from "@/lib/shopify/products";
 import { Hero } from "@/components/home/Hero";
-import { TrustBar, Bestsellers, FeaturedRitual, Mission, Learn } from "@/components/home/Sections";
+import {
+  TrustBar,
+  ShopByRitual,
+  Bestsellers,
+  FeaturedRitual,
+  CampaignBanner,
+  Learn,
+} from "@/components/home/Sections";
 import { ComparisonTable, Ingredients, Reviews, Standards } from "@/components/product/Blocks";
 
 export const Route = createFileRoute("/")({
@@ -29,16 +36,18 @@ function Index() {
       <Hero featured={featured} />
       <TrustBar />
       <Bestsellers products={products} />
-      <FeaturedRitual product={featured} />
-      <ComparisonTable />
-      <Standards title={home.standards.title} />
-      <Mission />
+      <ShopByRitual products={products} />
       <Ingredients
         items={ingredients}
+        eyebrow={home.ingredients.eyebrow}
         title={home.ingredients.title}
         text={home.ingredients.text}
         facts={home.facts}
       />
+      <FeaturedRitual product={featured} />
+      <CampaignBanner />
+      <ComparisonTable />
+      <Standards eyebrow={home.standards.eyebrow} title={home.standards.title} />
       <Reviews rating={featured.rating} />
       <Learn />
     </main>

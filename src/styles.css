@@ -1,11 +1,12 @@
 @import "@fontsource-variable/jost/wght.css"; /* self-hosted Jost, weights 100-900 */
+@import "@fontsource/marcellus/400.css"; /* display serif for headings */
 @import "tailwindcss" source(none);
 @source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-serif: "Jost Variable", "Jost", system-ui, sans-serif;
+  --font-serif: "Marcellus", Georgia, serif;
   --font-sans: "Jost Variable", "Jost", system-ui, sans-serif;
   --radius-sm: 2px;
   --radius-md: 4px;
@@ -34,6 +35,8 @@
   --color-rose: var(--rose);
   --color-gold: var(--gold);
   --color-coral: var(--coral);
+  --color-green: var(--green);
+  --color-gold-deep: var(--gold-deep);
   --color-wine: var(--wine);
   --color-sand: var(--sand);
   --color-peach: var(--peach);
@@ -63,66 +66,70 @@
 }
 
 :root {
-  /* White pages like a real tea shop; sand is the seamless backdrop behind every product. */
+  /* White pages with warm cream sections, like a premium Indian tea house. */
   --background: #ffffff;
   --surface: #ffffff;
-  --sand: #f1e9df;
-  --blush: #fbe7e2;
-  --blush-deep: #f6d6cf;
-  --beige: #f1e9df;
-  --foreground: #1e1b1c;
-  --ink: #1e1b1c;
+  --sand: #f6efe3;
+  --blush: #f9f4ec;
+  --blush-deep: #efe4d0;
+  --beige: #f3ebdc;
+  --foreground: #23201c;
+  --ink: #23201c;
   --on-image: #ffffff;
   --card: #ffffff;
-  --card-foreground: #1e1b1c;
+  --card-foreground: #23201c;
   --popover: #ffffff;
-  --popover-foreground: #1e1b1c;
-  /* Coral: every buying button. Wine text on coral is 5.7:1 (white would fail at 2.6:1). */
-  --coral: #f47f78;
-  --primary: #f47f78;
-  --primary-hover: #ec6a63;
-  --primary-foreground: #3d0c18;
-  /* Wine: announcement bar, hero, dark blocks. Cream on wine is 12:1. */
-  --wine: #5a1426;
-  --jujube: #5a1426;
-  --jujube-soft: #74233a;
-  /* Product colour worlds (backdrops and soft accents). */
-  --peach: #f6e4dc;
-  --lilac: #ebe6f2;
-  --sage: #e7efe2;
-  --butter: #f4ecd9;
-  --rose: #f6c3bd;
-  --gold: #d9b779;
-  --cream: #fff8f4;
+  --popover-foreground: #23201c;
+  /* Deep tea green: brand colour, buttons, header and footer. White on green is 10.6:1. */
+  --green: #1d4a39;
+  --primary: #1d4a39;
+  --primary-hover: #143628;
+  --primary-foreground: #ffffff;
+  /* Older token names point at the green so every component stays on palette. */
+  --coral: #1d4a39;
+  --wine: #1d4a39;
+  --jujube: #1d4a39;
+  --jujube-soft: #2b5e4b;
+  /* Antique gold: large serif headings and stars (3.3:1, large text only); gold-deep for
+     small gold text (5.2:1 on white). */
+  --gold: #a8803f;
+  --gold-deep: #84612b;
+  /* Soft gold-beige for badges and highlights, with green text. */
+  --rose: #efe2c6;
+  --peach: #f6efe3;
+  --lilac: #f6efe3;
+  --sage: #e9efe6;
+  --butter: #f6efe3;
+  --cream: #fffaf2;
   --error-on-dark: #ffd2cc;
-  --brand: #5a1426;
+  --brand: #1d4a39;
   --brand-foreground: #ffffff;
-  --teal: #6a6063;
-  --pastel-peach: #fbe0d2;
-  --pastel-pink: #fadbe0;
-  --pastel-blue: #d8e7f3;
-  --pastel-green: #dcecd5;
-  --pastel-orange: #fbe1c4;
-  --pastel-yellow: #f8eec3;
-  --secondary: #fbe7e2;
-  --secondary-foreground: #1e1b1c;
-  --muted: #f1e9df;
-  /* 5.8:1 on white. */
-  --muted-foreground: #6a6063;
-  --accent: #fbe7e2;
-  --accent-foreground: #1e1b1c;
+  --teal: #5f5a52;
+  --pastel-peach: #f6e6d6;
+  --pastel-pink: #f6e2e0;
+  --pastel-blue: #e3ecef;
+  --pastel-green: #e3ece0;
+  --pastel-orange: #f6e6cf;
+  --pastel-yellow: #f5edcf;
+  --secondary: #f6efe3;
+  --secondary-foreground: #23201c;
+  --muted: #f6efe3;
+  /* 6.4:1 on white, 5.8:1 on sand. */
+  --muted-foreground: #5f5a52;
+  --accent: #f6efe3;
+  --accent-foreground: #23201c;
   --destructive: #b3372f;
   --destructive-foreground: #ffffff;
-  --border: rgba(30, 27, 28, 0.1);
-  --input: rgba(30, 27, 28, 0.22);
-  --ring: #5a1426;
+  --border: rgba(35, 32, 28, 0.1);
+  --input: rgba(35, 32, 28, 0.25);
+  --ring: #1d4a39;
   --hero-scrim: linear-gradient(
     20deg,
-    rgba(30, 27, 28, 0.55) 0%,
-    rgba(30, 27, 28, 0.25) 40%,
-    rgba(30, 27, 28, 0) 70%
+    rgba(35, 32, 28, 0.55) 0%,
+    rgba(35, 32, 28, 0.25) 40%,
+    rgba(35, 32, 28, 0) 70%
   );
-  --header-scrim: linear-gradient(180deg, rgba(30, 27, 28, 0.35), rgba(30, 27, 28, 0));
+  --header-scrim: linear-gradient(180deg, rgba(35, 32, 28, 0.35), rgba(35, 32, 28, 0));
   --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -148,7 +155,7 @@
   h3,
   h4 {
     font-family: var(--font-sans);
-    color: var(--ink);
+    color: var(--green);
     letter-spacing: 0;
     line-height: 1.2;
     font-weight: 400;
@@ -199,32 +206,28 @@
 @utility rounded-stadium {
   border-radius: 9999px;
 }
-/* Hero and closing headline: large, uppercase, wide-spaced Jost (the Qi signature). */
+/* Serif headlines (Marcellus), sentence case. */
 @utility display {
-  font-family: var(--font-sans);
-  font-size: clamp(2rem, 1.35rem + 2.9vw, 3.75rem);
-  line-height: 1.12;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: clamp(2.3rem, 1.5rem + 3.4vw, 4.4rem);
+  line-height: 1.08;
+  letter-spacing: 0;
+  font-weight: 400;
 }
-/* Product title and feature headings. */
 @utility headline {
-  font-family: var(--font-sans);
-  font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.25rem);
-  line-height: 1.2;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 1.35rem + 1.6vw, 2.6rem);
+  line-height: 1.15;
+  letter-spacing: 0;
+  font-weight: 400;
 }
-/* Section titles. Keep them short (two to six words). */
+/* Section titles: serif in antique gold (set the colour per section). */
 @utility title {
-  font-family: var(--font-sans);
-  font-size: clamp(1.2rem, 1rem + 0.9vw, 1.75rem);
-  line-height: 1.35;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: clamp(1.9rem, 1.45rem + 1.8vw, 2.85rem);
+  line-height: 1.15;
+  letter-spacing: 0;
+  font-weight: 400;
 }
 @utility shadow-soft {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
@@ -236,13 +239,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  min-height: 50px;
-  padding: 0.875rem 2rem;
-  border-radius: 0;
-  font-size: 0.8125rem;
+  min-height: 48px;
+  padding: 0.8rem 1.9rem;
+  border-radius: 2px;
+  font-size: 0.875rem;
   line-height: 1.2;
   font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
   transition:
@@ -265,10 +268,10 @@
   }
 }
 @utility btn-outline {
-  border: 1px solid var(--ink);
-  color: var(--ink);
+  border: 1px solid var(--green);
+  color: var(--green);
   &:hover {
-    background: var(--ink);
+    background: var(--green);
     color: var(--surface);
   }
 }
