@@ -536,7 +536,7 @@ the same element: nest wrappers (see `Layer` in Hero.tsx).
 | ------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                             | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in           | Text fades up, composition fades in, buttons last |
-| Hero composition                      | Ingredients orbit (80s), ring turns (60s), steam rises; layers follow the pointer | Static                                            |
+| Hero composition                      | Ingredients orbit (45s), ring turns (35s), steam rises; layers follow the pointer | Static                                            |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                       | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                                   | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                              | y 20, stagger 0.05, max 6 per group               |

@@ -339,13 +339,13 @@
 }
 @media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .animate-orbit {
-    animation: spin 80s linear infinite;
+    animation: spin 45s linear infinite;
   }
   .animate-orbit-counter {
-    animation: spin 80s linear infinite reverse;
+    animation: spin 45s linear infinite reverse;
   }
   .animate-ring {
-    animation: spin 60s linear infinite reverse;
+    animation: spin 35s linear infinite reverse;
   }
   .animate-steam {
     transform-box: fill-box;
