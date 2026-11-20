@@ -47,6 +47,7 @@ each route's `head()` (per page).
 │   │   ├── Hero.tsx           Headline, pills, floating product composition
 │   │   ├── Sections.tsx       Product row, bundle, how it works, TCM 101, sourcing, closing CTA
 │   │   ├── Stories.tsx        Stories scroller (drag, drift, video cards)
+│   │   ├── SkinLayers.tsx     Animated drawing: cream stays on top, food rises from inside
 │   │   └── media.tsx          Img, LoopVideo, PlayPill, VideoDialog (all media goes through these)
 │   ├── components/product/    Product page parts: BuyBox, purchase.ts, Gallery (+ gallery-image.ts),
 │   │                          Blocks (SectionIntro, ComparisonTable, Standards, Ingredients, Steps,
@@ -107,7 +108,7 @@ each route's `head()` (per page).
 Product cards (photo and name), the hero's "Shop Skin Glow Tea", the closing CTA and the
 footer link open `/products/<handle>` (see "Product page"). Unknown handles show the 404 page.
 
-Homepage sections are reached with anchors: `/#shop`, `/#bundle`, `/#ingredients`, `/#learn`,
+Homepage sections are reached with anchors: `/#how-it-works`, `/#shop`, `/#bundle`, `/#ingredients`, `/#learn`,
 `/#stories`, `/#sourcing`.
 
 To add a page: create `src/routes/<name>.tsx` with `createFileRoute("/<name>")`. The dev server
@@ -139,39 +140,45 @@ Seed-inspired layout (layout and motion only; no Seed content, media or fonts). 
 order (`src/routes/index.tsx`):
 
 1. **Hero** (`Hero.tsx`): a full-width banner slider that explains SkinFusion's idea in plain
-   words: skin care you eat and drink, made from whole food, instead of more products on the
-   face. Three slides (`heroSlides` in content.ts, media in `media.hero.slides`): "Skin care
-   you drink, not apply." (skincare video), "Fewer bottles. One cup a day." (bathroom shelf
-   photo) and "Four whole foods. Nothing added." (red dates photo). Each slide has an animated
-   visual on the right on wide screens (`visual`): the product card with floating
-   ingredients, a "Your shelf" list that crosses out serum, toner, night cream and face mask
-   for one cup of tea, and the four ingredients popping in. Headlines rise word by word on each
-   slide change; slides crossfade, the picture zooms slowly, a progress bar fills and moves on
-   after 6.5s. Hover, focus, the pause button, an off-screen hero or a hidden tab pause it;
-   arrows, bars, arrow keys and swipe change slides. Reduced motion: no autoplay or motion.
-   Keep the copy simple: no buzzwords, no result promises.
-2. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
+   words: edible skin care. Creams and serums sit on the outer layer of the skin; what you eat
+   and drink is carried by the blood to the deeper layers, so SkinFusion makes skin care you
+   eat and drink. Three slides (`heroSlides` in content.ts, media in `media.hero.slides`):
+   "Skin care you eat, not apply." (skincare video; product card with floating ingredients),
+   "Cream stays on top. Food goes deeper." (bathroom shelf photo; the skin-layers drawing) and
+   "Four whole foods. Nothing added." (red dates photo; the four ingredients popping in). The
+   visuals show on wide screens (xl). Headlines rise word by word on each slide change; slides
+   crossfade, the picture zooms slowly, a progress bar fills and moves on after 6.5s. Hover,
+   focus or the pause button hold only the looping motion (`data-hold`), never text still
+   animating in; an off-screen hero or a hidden tab pause it; arrows, bars, arrow keys and
+   swipe change slides. Reduced motion: no autoplay or motion. Keep the copy simple: no
+   buzzwords, no result promises.
+2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): "Why we make skin care you
+   eat", a short paragraph, three points (creams and serums, food, SkinFusion) and the
+   skin-layers drawing (`SkinLayers.tsx`): a cream drop lands and stays on the outer layer,
+   food dots rise from a cup through a blood vessel into the deeper layers. It plays when it
+   scrolls into view; the rising loop runs on desktop only. Copy: `howItWorks`, `skinLayers`.
+3. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
    video on hover (desktop) or while in view (phones) over the product photo; products without a
    photo show the fallback image from media.ts. Swipe with snap points on phones. Photo and
    name open the product page; cards show rating and review count, price with the MRP crossed
    out and "Save x%", and "Add to cart" adds the first variant. `ProductCard` is exported and
    reused for "You may also like" on the product page.
-3. **Bundle** (`#bundle`): blush card, copy, "Add 4 pouches" (adds the 4-pouch variant of the
+4. **Bundle** (`#bundle`): blush card, copy, "Add 4 pouches" (adds the 4-pouch variant of the
    featured product) and a 2x2 collage of rounded shapes.
-4. **How it works** (`#ingredients`): deep green block, counters for true facts only (4 whole
+5. **How it works** (`#ingredients`): deep green block, counters for true facts only (4 whole
    ingredients, 0 preservatives, 0 caffeine), looping video, two text columns.
-5. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx): "SkinFusion vs. the
+6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx): "SkinFusion vs. the
    rest", our column in green (`comparison` in content.ts).
-6. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
+7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
    that opens the full-screen `VideoDialog`.
-7. **Stories** (`#stories`, `Stories.tsx`): full-bleed strip of mixed shapes (half-visible circles
+8. **Stories** (`#stories`, `Stories.tsx`): full-bleed strip of mixed shapes (half-visible circles
    at both edges, tall portraits, stadium above a quote, video cards with a "Play" pill, a green
    quote card). Desktop: drag to scroll with momentum, slow scroll-linked drift of the strip,
    slight parallax between cards. Phones: native swipe with snap points, no drift.
-8. **Sourcing** (`#sourcing`): location label, heading, large rounded image, "Read more". The
+9. **Sourcing** (`#sourcing`): location label, heading, large rounded image, "Read more". The
    origin copy is DEMO until the client confirms it (`home.sourcing.isDemo`).
-9. **Closing CTA**: blush bookend, "Start your glow ritual", "Shop now".
-10. **Footer** (site-wide, see above).
+10. **Closing CTA**: blush bookend, "Start your glow ritual", "Shop now".
+11. **Footer** (site-wide, see above).
 
 Copy for all of it is in `home`, `hero` and `nav` in content.ts. Media is in `src/data/media.ts`.
 
@@ -690,6 +697,9 @@ become real customer quotes shared with permission:
 
 Demo copy to confirm:
 
+- [ ] The edible skin care wording (`heroSlides`, `howItWorks`, `skinLayers`): "creams and
+      serums sit on the outer layer", "what you eat is carried by your blood to the deeper
+      layers". Client confirms it is how they want to state their belief (no result promises)
 - [ ] Comparison table (`comparison`): client confirms every row
 - [ ] Product page copy for Skin Glow Tea (`productDetails`): benefits, FAQ, tasting notes
 - [ ] Ingredient lists and details for Calm Night, Gut Balance and Glow Ritual Bundle
