@@ -150,9 +150,12 @@ deep green, gold serif headings, arch-framed photos), Ritual (calm, roomy sectio
 (shop-first product cards). They are references for style only: never copy their text, images,
 logos or press. Sections, in order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): full-bleed photo (`media.hero`). Desktop: copy over the calm left
-   side with a cream wash; phones: photo on top. Gold kicker, green serif headline, line,
-   green "Shop Skin Glow Tea", outline "Take the skin quiz", gold star rating.
+1. **Hero** (`Hero.tsx`): names the product and shows the real thing (guidance from the
+   component-builder skill). Left on cream: gold kicker, "TCM Skin Glow Tea" headline, line,
+   "From" price with MRP and rating, "Shop now" and "Take the skin quiz", and the four
+   ingredients as small round photos. Right: a real herbal-tea photograph
+   (`media.hero.main`) with an arch-framed porcelain pour (`media.hero.inset`, xl only)
+   overlapping it. Phones: photo first.
 2. **Benefit strip**: gold band with five true facts (`trust`).
 3. **Bestsellers** (`#shop`): `ProductCard`s: square real photo, "Best seller" tag, rating
    and count, name, price with MRP crossed out and "% OFF", pack dropdown (products with several
@@ -553,8 +556,8 @@ JavaScript: everything visible, posters instead of videos, no loader.
 
 ## Design skills and priority rules
 
-Design skills are installed in `.claude/skills/` (18 skills: frontend-design (Anthropic,
-Apache 2.0), design-taste-frontend,
+Design skills are installed in `.claude/skills/` (19 skills: frontend-design (Anthropic,
+Apache 2.0), component-builder (kostja94/bricks, MIT), design-taste-frontend,
 high-end-visual-design, minimalist-ui, redesign-existing-projects, ui-ux-pro-max, ui-styling,
 design-system, brand, web-design-guidelines, writing-guidelines, full-output-enforcement,
 vercel-react-best-practices, vercel-composition-patterns, gsap-core, gsap-react,
@@ -685,6 +688,8 @@ Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
 - [ ] `herbal-flatlay.webp`, `glass-teapot.webp`, `bathroom-shelf.webp` (Glow Ritual Bundle
       card fallback and gallery)
 - [ ] `hands-cup.webp` (Calm Night gallery), `hands-glass.webp` (review avatar)
+- [ ] `herbal-apothecary.webp`, `porcelain-pour.webp` (hero). Confirm the photographers' names
+      on their Pexels pages (MEDIA_CREDITS.md); replace with a SkinFusion campaign photo later
 - [ ] Not used by any page any more: `bathroom-sink.webp`, `red-dates.webp`
 
 Other:
