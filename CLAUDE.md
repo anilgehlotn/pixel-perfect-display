@@ -140,22 +140,20 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): "the cup is the skin care". A large editorial headline ("Skin care"
-   / "you drink.", `hero.titleLines`) split around a tall arch holding the steaming cup
-   (`media.hero.image`), the four ingredients in circles around the arch, the line and coral
-   "Shop our teas" bottom left, rating and "From" price bottom right. Entrance (CSS, every
-   visit, after the intro loader via `html[data-intro]`): the photo rises and settles, words
-   are revealed from a mask, the ingredients pop in, the copy eases in. Desktop with a mouse:
-   steam rises from the cup, the ingredients float, and the hero is pinned for 140% of the
-   viewport while you scroll (GSAP ScrollTrigger, scrub): the arch grows (scale 4.8) until the
-   cup fills the screen, the headline halves slide apart, the ingredients fly outward, and
-   "Cream stays on top. Food goes deeper." (`hero.dive`, decorative, aria-hidden) is revealed
-   word by word. A pause button stops every endless loop on the page
-   (`html[data-motion-paused]`). Phones: stacked composition (headline, arch with ingredients,
-   copy, proof) with the same entrance; no pinning or loops. Reduced motion or no JavaScript:
-   the finished composition, still.
+1. **Hero** (`Hero.tsx`): SkinFusion's idea as something you can touch. The frame is split
+   between skincare bottles (`media.hero.serum`, left, "On your face: serums stay on the outer
+   layer") and the cup of tea (`media.hero.image`, right, "In your cup: food reaches the deeper
+   layers"). A round handle drags the split (pointer, touch, or arrow keys through a real
+   range input, `hero.compare.label`). On load the split sweeps once from the serum side to
+   the tea side (2.2s, after the intro loader). Over the middle: "Edible skin care" label,
+   "Don't apply your skin care. / Drink it." revealed word by word, one line, coral "Shop
+   edible skin care" and (from sm) rating and price. Motion is transform-only (the serum
+   layer's wrapper and photo shift by opposite amounts). Phones: the side labels and rating
+   hide, the handle sits near the bottom. Reduced motion: no sweep or entrance, handle works.
+   No JavaScript: still 50/50 split.
    **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
-   under the hero; moves slowly on desktop (paused off-screen), still on phones.
+   under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
+   still on phones.
 2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): "Why we make skin care you
    eat", a short paragraph, three points (creams and serums, food, SkinFusion) and the
    skin-layers drawing (`SkinLayers.tsx`): a cream drop lands and stays on the outer layer,
@@ -551,7 +549,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Entrance, steam, floating ingredients, pinned scroll dive into the cup     | Entrance only, no pin or loops                    |
+| Hero                                  | Split sweeps from serum to tea once, words revealed; drag to compare       | Same                                              |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
@@ -735,7 +733,8 @@ Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
 - [ ] `red-dates.webp` (sourcing)
 - [ ] `jasmine-cup.webp` (hero; confirm the photographer on its Pexels page)
 - [ ] `ginger-lemon.webp` (Gut Balance card fallback)
-- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage)
+- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage;
+      bathroom-shelf is also the serum side of the hero)
 - [ ] `teacup-mint.webp`, `hands-glass.webp` (stories)
 - [ ] `herbal-flatlay.webp` (Glow Ritual Bundle card fallback)
 - [ ] `bathroom-sink.webp` (closing CTA)
