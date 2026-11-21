@@ -42,18 +42,27 @@ export const FREE_SHIPPING_THRESHOLD = 699;
 // Plain words, no result promises.
 export const hero = {
   kicker: "Edible skin care",
-  titleLines: ["Don't apply your skin care.", "Drink it."],
-  title: "Don't apply your skin care. Drink it.",
+  title: "Skin care you drink.",
   line: "Serums stay on the surface. SkinFusion teas are made from four whole foods, for your skin from the inside.",
   shopCta: { label: "Shop edible skin care", href: "/#shop" },
   quizCta: { label: "Take the quiz", href: "/quiz" },
   ratingLabel: "reviews",
   from: "From",
-  // The drag comparison: left side (serums) and right side (tea).
+  // The two worlds. The big word swaps where the divider cuts through it.
   compare: {
-    label: "Drag to compare serums and SkinFusion tea",
-    left: { tag: "On your face", text: "Serums stay on the outer layer" },
-    right: { tag: "In your cup", text: "Food reaches the deeper layers" },
+    label: "Move to compare serums and SkinFusion tea",
+    prefix: "Skin care you",
+    left: {
+      word: "apply.",
+      tag: "On your face",
+      text: "Serums stay on the outer layer of your skin.",
+    },
+    right: {
+      word: "drink.",
+      tag: "In your cup",
+      text: "Food is carried by your blood to the deeper layers.",
+    },
+    hint: "Move across",
   },
 };
 

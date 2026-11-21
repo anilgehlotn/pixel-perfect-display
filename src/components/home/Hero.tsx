@@ -1,64 +1,94 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { hero } from "@/data/content";
-import { media } from "@/data/media";
+import { media, type MediaImage } from "@/data/media";
 import { inr } from "@/lib/format";
 import { money, type Product } from "@/lib/shopify/types";
 import { Stars } from "@/components/site/Stars";
 import { Img } from "./media";
 
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
+const clamp = (v: number) => Math.min(97, Math.max(3, v));
 
 /**
- * 1. HERO: SkinFusion's idea as something you can touch. The frame is split between a photo
- * of serum bottles (left, "On your face") and the cup of tea (right, "In your cup"); a
- * handle in the middle drags the split (pointer, touch, or arrow keys through a real range
- * input). On load the split sweeps from the serum side to the tea side once, so visitors see
- * it move. The headline "Don't apply your skin care. Drink it." sits over the middle.
+ * 1. HERO: two worlds, one word. Full screen, split between the serum world (left: cool,
+ * grey) and the tea world (right: warm). Each world carries its own copy of the giant word in
+ * the same place, "apply." and "drink.", so where the divider cuts through, one word turns
+ * into the other.
  *
- * Motion is transform-only: the serum layer is a wrapper shifted left and its photo shifted
- * back by the same amount. Reduced motion: no sweep (the handle still works). Without
- * JavaScript: a still 50/50 split.
+ * - On load (after the intro loader): the divider sweeps from the serum side into the tea
+ *   side once, so "apply." becomes "drink." in front of the visitor.
+ * - Desktop with a mouse: the divider then follows the pointer, eased.
+ * - Touch: drag anywhere on the hero. Keyboard: a real range input (arrow keys).
+ * - Transform-only: the serum layer's wrapper and content shift by opposite amounts.
+ * - Reduced motion: no sweep or follow; drag and keys still work. No JavaScript: 50/50.
  */
 export function Hero({ featured }: { featured: Product }) {
   const [split, setSplit] = useState(50);
-  const frame = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
+  const frame = useRef<HTMLElement>(null);
+  const target = useRef(50);
+  const current = useRef(50);
+  const mode = useRef<"intro" | "follow" | "drag" | "still">("intro");
+  const raf = useRef(0);
 
-  // One sweep on load: 82% serum to 38% serum, after the intro loader when it shows.
+  // Eased follow loop: moves `current` toward `target` and renders.
+  const run = () => {
+    cancelAnimationFrame(raf.current);
+    const tick = () => {
+      const diff = target.current - current.current;
+      if (Math.abs(diff) < 0.05) {
+        current.current = target.current;
+        setSplit(current.current);
+        return;
+      }
+      current.current += diff * 0.12;
+      setSplit(current.current);
+      raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+  };
+
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      mode.current = "still";
+      return;
+    }
     const intro = document.documentElement.dataset["intro"];
-    const wait = intro === "desktop" ? 1500 : intro === "mobile" ? 950 : 350;
-    let raf = 0;
-    let stopped = false;
-    const from = 82;
-    const to = 38;
-    const ms = 2200;
+    const wait = intro === "desktop" ? 1300 : intro === "mobile" ? 800 : 250;
+    let cancelled = false;
     const timer = window.setTimeout(() => {
+      // Show the serum world, then sweep into the tea world.
       const start = performance.now();
+      const a = current.current;
       const step = (now: number) => {
-        if (stopped || dragging.current) return;
-        const t = Math.min(1, (now - start) / ms);
-        const eased = 1 - Math.pow(1 - t, 4);
-        setSplit(from + (to - from) * eased);
-        if (t < 1) raf = requestAnimationFrame(step);
+        if (cancelled || mode.current !== "intro") return;
+        const t = Math.min(1, (now - start) / 2800);
+        // 0 to 0.3: slide to the serum side; 0.3 to 1: long sweep to the tea side.
+        const v =
+          t < 0.3
+            ? a + (96 - a) * (1 - Math.pow(1 - t / 0.3, 3))
+            : 96 + (22 - 96) * (1 - Math.pow(1 - (t - 0.3) / 0.7, 4));
+        current.current = v;
+        target.current = v;
+        setSplit(v);
+        if (t < 1) raf.current = requestAnimationFrame(step);
+        else mode.current = "follow";
       };
-      setSplit(from);
-      raf = requestAnimationFrame(step);
+      raf.current = requestAnimationFrame(step);
     }, wait);
     return () => {
-      stopped = true;
+      cancelled = true;
       window.clearTimeout(timer);
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(raf.current);
     };
   }, []);
 
-  const moveTo = (clientX: number) => {
+  const xToSplit = (clientX: number) => {
     const r = frame.current?.getBoundingClientRect();
-    if (!r) return;
-    setSplit(Math.min(96, Math.max(4, ((clientX - r.left) / r.width) * 100)));
+    return r ? clamp(((clientX - r.left) / r.width) * 100) : 50;
   };
+  const finePointer = () => window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   const price = money(featured.priceRange.minVariantPrice);
   const mrp = featured.compareAtPriceRange
@@ -67,145 +97,190 @@ export function Hero({ featured }: { featured: Product }) {
   const c = hero.compare;
 
   return (
-    <section aria-labelledby="hero-title" className="px-4 pt-24 md:px-6 md:pt-28">
+    <section
+      ref={frame}
+      aria-labelledby="hero-title"
+      onPointerMove={(e) => {
+        if (mode.current === "drag" || (mode.current === "follow" && e.pointerType === "mouse")) {
+          target.current = xToSplit(e.clientX);
+          if (mode.current === "drag") {
+            current.current = target.current;
+            setSplit(target.current);
+          } else run();
+        }
+      }}
+      onPointerDown={(e) => {
+        if ((e.target as HTMLElement).closest("a,button,input")) return;
+        if (e.pointerType === "mouse" && finePointer()) return;
+        cancelAnimationFrame(raf.current);
+        mode.current = "drag";
+        current.current = target.current = xToSplit(e.clientX);
+        setSplit(current.current);
+      }}
+      onPointerUp={() => mode.current === "drag" && (mode.current = "follow")}
+      onPointerCancel={() => mode.current === "drag" && (mode.current = "follow")}
+      className="relative h-[100dvh] min-h-[38rem] touch-pan-y select-none overflow-hidden bg-ink text-cream"
+    >
+      {/* Tea world (full frame, underneath). */}
+      <World side="right" media={media.hero.image} featured={featured} />
+
+      {/* Serum world (on top, cut at the divider): wrapper shifts left, content shifts back. */}
       <div
-        ref={frame}
-        onPointerDown={(e) => {
-          if ((e.target as HTMLElement).closest("a,button,input")) return;
-          dragging.current = true;
-          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-          moveTo(e.clientX);
-        }}
-        onPointerMove={(e) => dragging.current && moveTo(e.clientX)}
-        onPointerUp={() => (dragging.current = false)}
-        onPointerCancel={() => (dragging.current = false)}
-        className="relative mx-auto h-[min(calc(100dvh-7rem),46rem)] min-h-[34rem] max-w-[84rem] touch-pan-y select-none overflow-hidden rounded-card bg-ink text-cream"
+        className="absolute inset-0 z-[1] overflow-hidden"
+        style={{ transform: `translateX(${split - 100}%)` }}
       >
-        {/* Tea (full frame, underneath). */}
-        <div className="absolute inset-0" aria-hidden="true">
-          <div className="hero-settle h-full w-full" style={d(0)}>
-            <Img
-              media={media.hero.image}
-              priority
-              sizes="(min-width: 1344px) 84rem, 100vw"
-              className="h-full w-full object-[60%_60%]"
-            />
-          </div>
-        </div>
-
-        {/* Serums (on top, cut at the split). Wrapper moves left, photo moves back. */}
-        <div
-          className="absolute inset-0 overflow-hidden"
-          aria-hidden="true"
-          style={{ transform: `translateX(${split - 100}%)` }}
-        >
-          <div className="h-full w-full" style={{ transform: `translateX(${100 - split}%)` }}>
-            <Img
-              media={media.hero.serum}
-              sizes="(min-width: 1344px) 84rem, 100vw"
-              className="h-full w-full object-[35%_60%] grayscale-[35%]"
-            />
-          </div>
-        </div>
-
-        {/* Shade for the copy. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/55 via-ink/25 to-ink/60"
-        />
-
-        {/* Side labels. */}
-        <p
-          className="hero-ease pointer-events-none absolute bottom-8 left-8 hidden max-w-[15rem] text-left sm:block"
-          style={d(1500)}
-        >
-          <span className="label-caps block text-cream/80">{c.left.tag}</span>
-          <span className="mt-1 block text-sm leading-snug sm:text-base">{c.left.text}</span>
-        </p>
-        <p
-          className="hero-ease pointer-events-none absolute bottom-8 right-8 hidden max-w-[15rem] text-right sm:block lg:right-32"
-          style={d(1650)}
-        >
-          <span className="label-caps block text-cream/80">{c.right.tag}</span>
-          <span className="mt-1 block text-sm leading-snug sm:text-base">{c.right.text}</span>
-        </p>
-
-        {/* The handle: a line and a round grip, driven by a real range input. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10"
-          style={{ transform: `translateX(${split}%)` }}
-        >
-          <span className="absolute inset-y-0 left-0 w-px bg-cream/80" />
-          <span className="absolute left-0 top-[93%] grid h-12 w-12 sm:top-[80%] sm:h-14 sm:w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-cream text-green shadow-[0_6px_24px_rgba(0,0,0,0.25)]">
-            <span className="flex">
-              <CaretLeft size={16} weight="bold" />
-              <CaretRight size={16} weight="bold" />
-            </span>
-          </span>
-        </div>
-        <label className="sr-only" htmlFor="hero-compare">
-          {c.label}
-        </label>
-        <input
-          id="hero-compare"
-          type="range"
-          min={4}
-          max={96}
-          step={1}
-          value={Math.round(split)}
-          onChange={(e) => setSplit(Number(e.target.value))}
-          className="peer absolute inset-x-0 top-[93%] z-20 h-14 -translate-y-1/2 cursor-ew-resize opacity-0 sm:top-[80%]"
-        />
-
-        {/* Headline and button, centred over the split. */}
-        <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-4xl flex-col items-center px-6 pt-12 text-center sm:pt-16 lg:pt-20">
-          <p className="hero-ease label-caps text-cream/85" style={d(250)}>
-            {hero.kicker}
-          </p>
-          <h1
-            id="hero-title"
-            aria-label={hero.title}
-            className="display mt-5 text-cream max-sm:text-[2.6rem] lg:text-[4.75rem]"
-          >
-            {hero.titleLines.map((lineText, li) => (
-              <span key={lineText} aria-hidden="true" className="block">
-                {lineText.split(" ").map((w, wi, arr) => (
-                  <span key={wi} className="inline-block overflow-hidden pb-[0.1em] align-top">
-                    <span className="hero-word inline-block" style={d(450 + li * 420 + wi * 90)}>
-                      {w}
-                      {wi < arr.length - 1 ? " " : ""}
-                    </span>
-                  </span>
-                ))}
-              </span>
-            ))}
-          </h1>
-          <p
-            className="hero-ease mt-4 max-w-md leading-relaxed text-cream/90 sm:text-lg"
-            style={d(1100)}
-          >
-            {hero.line}
-          </p>
-          <div
-            className="hero-ease pointer-events-auto mt-7 flex flex-col items-center gap-3"
-            style={d(1250)}
-          >
-            <a href={hero.shopCta.href} className="btn btn-primary">
-              {hero.shopCta.label}
-            </a>
-            {featured.rating && (
-              <span className="hidden items-center gap-2 text-sm text-cream/85 sm:flex">
-                <Stars value={featured.rating.value} size={13} />
-                {featured.rating.value.toFixed(1)} from{" "}
-                {featured.rating.count.toLocaleString("en-IN")} {hero.ratingLabel},{" "}
-                {hero.from.toLowerCase()} {inr(price)}
-                {mrp > price && <span className="line-through">{inr(mrp)}</span>}
-              </span>
-            )}
-          </div>
+        <div className="absolute inset-0" style={{ transform: `translateX(${100 - split}%)` }}>
+          <World side="left" media={media.hero.serum} featured={featured} />
         </div>
       </div>
+
+      {/* Divider and grip. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[2]"
+        style={{ transform: `translateX(${split}%)` }}
+      >
+        <span className="absolute inset-y-0 left-0 w-px bg-cream/70 shadow-[0_0_24px_rgba(255,255,255,0.6)]" />
+        <span className="absolute left-0 top-[38%] grid h-14 w-14 -translate-x-1/2 place-items-center sm:bottom-[9%] sm:top-auto rounded-full border border-cream/60 bg-cream/15 text-cream backdrop-blur-md">
+          <span className="flex">
+            <CaretLeft size={16} weight="bold" />
+            <CaretRight size={16} weight="bold" />
+          </span>
+        </span>
+      </div>
+      <label className="sr-only" htmlFor="hero-compare">
+        {c.label}
+      </label>
+      <input
+        id="hero-compare"
+        type="range"
+        min={3}
+        max={97}
+        step={1}
+        value={Math.round(split)}
+        onChange={(e) => {
+          cancelAnimationFrame(raf.current);
+          mode.current = "follow";
+          current.current = target.current = Number(e.target.value);
+          setSplit(current.current);
+        }}
+        className="absolute inset-x-0 top-[38%] z-[3] h-14 cursor-ew-resize opacity-0 sm:bottom-[9%] sm:top-auto"
+      />
+
+      {/* Shared copy over both worlds (the big word itself lives in each world). */}
+      <Column layer="shared" featured={featured} />
     </section>
+  );
+}
+
+/**
+ * The centred column: kicker, "Skin care you", the big word, button and proof. Rendered three
+ * times with the same layout so the word lines up exactly: once on top with the real copy and
+ * an invisible word (keeps the space), and once inside each world with only the word visible.
+ */
+function Column({
+  layer,
+  word,
+  featured,
+}: {
+  layer: "shared" | "world";
+  word?: string;
+  featured: Product;
+}) {
+  const c = hero.compare;
+  const shared = layer === "shared";
+  const ghost = shared ? "" : "invisible";
+  const price = money(featured.priceRange.minVariantPrice);
+  const mrp = featured.compareAtPriceRange
+    ? money(featured.compareAtPriceRange.minVariantPrice)
+    : 0;
+  const Title = shared ? "h1" : "div";
+  return (
+    <div
+      aria-hidden={shared ? undefined : true}
+      className={`pointer-events-none absolute inset-0 flex flex-col items-center px-6 pb-[18%] pt-28 text-center sm:pb-[12%] lg:pt-32 ${shared ? "z-[2]" : ""}`}
+    >
+      <p className={`hero-ease label-caps text-cream/80 ${ghost}`} style={d(200)}>
+        {hero.kicker}
+      </p>
+      <Title
+        {...(shared ? { id: "hero-title", "aria-label": hero.title } : {})}
+        className="mt-auto flex flex-col items-center"
+      >
+        <span
+          aria-hidden="true"
+          className={`hero-ease block text-[clamp(1.5rem,1rem+2.2vw,2.75rem)] font-normal tracking-[-0.02em] text-cream ${ghost}`}
+          style={d(400)}
+        >
+          {c.prefix}
+        </span>
+        <span aria-hidden="true" className="block overflow-hidden pb-[0.06em]">
+          <span
+            className={`hero-word block text-[clamp(5rem,2.5rem+15vw,15rem)] font-normal leading-[0.95] tracking-[-0.05em] text-cream ${shared ? "invisible" : ""}`}
+            style={d(550)}
+          >
+            {word ?? c.right.word}
+          </span>
+        </span>
+      </Title>
+      <div
+        className={`hero-ease mt-6 flex flex-col items-center gap-3 ${shared ? "pointer-events-auto" : "invisible"}`}
+        style={d(900)}
+      >
+        <a href={hero.shopCta.href} className="btn btn-primary" tabIndex={shared ? undefined : -1}>
+          {hero.shopCta.label}
+        </a>
+        {featured.rating && (
+          <span className="hidden items-center gap-2 text-sm text-cream/80 sm:flex">
+            <Stars value={featured.rating.value} size={13} />
+            {featured.rating.value.toFixed(1)} from {featured.rating.count.toLocaleString("en-IN")}{" "}
+            {hero.ratingLabel}, {hero.from.toLowerCase()} {inr(price)}
+            {mrp > price && <span className="line-through">{inr(mrp)}</span>}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * One world: graded photo, the giant word (in the same place in both worlds), and a caption
+ * in its own corner. The serum world is cool and grey; the tea world is warm.
+ */
+function World({
+  side,
+  media: m,
+  featured,
+}: {
+  side: "left" | "right";
+  media: MediaImage;
+  featured: Product;
+}) {
+  const c = hero.compare[side];
+  const left = side === "left";
+  return (
+    <div className="absolute inset-0">
+      <div className="hero-settle absolute inset-0" style={d(0)}>
+        <Img
+          media={m}
+          priority={!left}
+          sizes="100vw"
+          className={`h-full w-full ${left ? "object-[35%_60%] grayscale-[85%] brightness-[0.8] contrast-[1.05]" : "object-[60%_60%] saturate-[1.15]"}`}
+        />
+      </div>
+      <div
+        aria-hidden="true"
+        className={`absolute inset-0 ${left ? "bg-gradient-to-b from-ink/60 via-ink/35 to-ink/70" : "bg-gradient-to-b from-ink/45 via-ink/15 to-ink/65"}`}
+      />
+      <Column layer="world" word={c.word} featured={featured} />
+      <p
+        aria-hidden="true"
+        className={`hero-ease absolute top-[30%] hidden max-w-[15rem] sm:block ${left ? "left-8 text-left lg:left-12" : "right-8 text-right lg:right-12"}`}
+        style={d(1200)}
+      >
+        <span className="label-caps block text-cream/75">{c.tag}</span>
+        <span className="mt-2 block text-[1.05rem] leading-snug text-cream/95">{c.text}</span>
+      </p>
+    </div>
   );
 }
