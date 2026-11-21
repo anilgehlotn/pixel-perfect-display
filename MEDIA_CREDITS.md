@@ -39,18 +39,21 @@ Each video has a matching poster: `posters/<same name>.webp`.
 
 ## Photos (Pexels)
 
-| File                         | Used in              | Photographer        | Source                                                                                                      |
-| ---------------------------- | -------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `photos/window-tea.webp`     | Product row, Stories | Вальдемар           | https://www.pexels.com/photo/cross-legged-sitting-woman-holding-cup-of-tea-looking-through-window-11012771/ |
-| `photos/red-dates.webp`      | Sourcing             | Towfiqu barbhuiya   | https://www.pexels.com/photo/full-frame-of-drying-red-dates-12625117/                                       |
-| `photos/ginger-lemon.webp`   | Product row          | Angele J            | https://www.pexels.com/photo/ginger-and-2-lemon-fruit-128403/                                               |
-| `photos/glass-teapot.webp`   | Bundle collage       | Teejay              | https://www.pexels.com/photo/clear-glass-teapot-set-1362537/                                                |
-| `photos/teacup-mint.webp`    | Stories              | Mareefe             | https://www.pexels.com/photo/peppermint-tea-on-teacup-1417945/                                              |
-| `photos/herbal-flatlay.webp` | Product row          | Olena Bohovyk       | https://www.pexels.com/photo/clear-glass-bowl-with-herbs-and-tea-3604314/                                   |
-| `photos/bathroom-shelf.webp` | Bundle collage       | Karola G            | https://www.pexels.com/photo/set-of-skin-care-products-in-contemporary-bathroom-4239013/                    |
-| `photos/bathroom-sink.webp`  | Closing CTA          | Monstera Production | https://www.pexels.com/photo/sink-with-skincare-products-in-bathroom-6781117/                               |
-| `photos/hands-glass.webp`    | Stories              | Vlada Karpovich     | https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/                                         |
-| `photos/hands-cup.webp`      | Bundle collage       | Teona Swift         | https://www.pexels.com/photo/anonymous-woman-drinking-cup-of-hot-tea-at-home-6874185/                       |
+| File                         | Used in                 | Photographer           | Source                                                                                                      |
+| ---------------------------- | ----------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `photos/window-tea.webp`     | Product row, Stories    | Вальдемар              | https://www.pexels.com/photo/cross-legged-sitting-woman-holding-cup-of-tea-looking-through-window-11012771/ |
+| `photos/red-dates.webp`      | Sourcing                | Towfiqu barbhuiya      | https://www.pexels.com/photo/full-frame-of-drying-red-dates-12625117/                                       |
+| `photos/ginger-lemon.webp`   | Product row             | Angele J               | https://www.pexels.com/photo/ginger-and-2-lemon-fruit-128403/                                               |
+| `photos/glass-teapot.webp`   | Bundle collage          | Teejay                 | https://www.pexels.com/photo/clear-glass-teapot-set-1362537/                                                |
+| `photos/teacup-mint.webp`    | Stories                 | Mareefe                | https://www.pexels.com/photo/peppermint-tea-on-teacup-1417945/                                              |
+| `photos/herbal-flatlay.webp` | Product row             | Olena Bohovyk          | https://www.pexels.com/photo/clear-glass-bowl-with-herbs-and-tea-3604314/                                   |
+| `photos/bathroom-shelf.webp` | Bundle collage          | Karola G               | https://www.pexels.com/photo/set-of-skin-care-products-in-contemporary-bathroom-4239013/                    |
+| `photos/bathroom-sink.webp`  | Closing CTA             | Monstera Production    | https://www.pexels.com/photo/sink-with-skincare-products-in-bathroom-6781117/                               |
+| `photos/hands-glass.webp`    | Stories                 | Vlada Karpovich        | https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/                                         |
+| `photos/hands-cup.webp`      | Bundle collage          | Teona Swift            | https://www.pexels.com/photo/anonymous-woman-drinking-cup-of-hot-tea-at-home-6874185/                       |
+| `photos/tea-sunlight.webp`   | Hero slide 1 (mirrored) | To confirm on the page | https://www.pexels.com/photo/woman-holding-cup-321599/                                                      |
+| `photos/jasmine-cup.webp`    | Hero slide 2 (mirrored) | To confirm on the page | https://www.pexels.com/photo/cup-of-aromatic-jasmine-tea-served-on-table-in-garden-7138780/                 |
+| `photos/glass-pour.webp`     | Hero slide 3 (cropped)  | Anna Pou               | https://www.pexels.com/photo/a-person-pouring-tea-in-a-glass-8329310/                                       |
 
 ## Still missing (download by hand if wanted)
 

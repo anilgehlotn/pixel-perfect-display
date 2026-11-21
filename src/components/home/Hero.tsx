@@ -248,7 +248,7 @@ function Slide({
             media={m}
             priority={index === 0}
             sizes="(min-width: 1344px) 84rem, 100vw"
-            className="h-full w-full"
+            className={`h-full w-full ${media.hero.focus[index] ?? ""}`}
           />
         ) : null}
       </div>
