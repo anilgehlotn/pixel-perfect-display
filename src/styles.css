@@ -369,6 +369,16 @@
     transform: none;
   }
 }
+@keyframes hero-pop {
+  from {
+    opacity: 0.01;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 @keyframes hero-line {
   from {
     transform: scaleX(0);
@@ -379,9 +389,9 @@
 }
 /* Steam over the cup: desktop with a mouse only, where the wide crop puts the cup centre. */
 .hero-steam {
-  left: 53%;
-  top: 0;
-  width: 20%;
+  left: 28%;
+  top: -2%;
+  width: 44%;
   color: rgb(255 255 255 / 0.9);
 }
 @media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
@@ -407,13 +417,16 @@
   .hero-ease {
     animation: hero-ease 1.2s cubic-bezier(0.19, 1, 0.22, 1) var(--d, 0ms) both;
   }
+  .hero-pop {
+    animation: hero-pop 1s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0ms) both;
+  }
   .hero-line {
     animation: hero-line 1.2s cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms) both;
   }
-  html[data-intro="desktop"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line) {
+  html[data-intro="desktop"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line, .hero-pop) {
     animation-delay: calc(var(--d, 0ms) + 1150ms);
   }
-  html[data-intro="mobile"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line) {
+  html[data-intro="mobile"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line, .hero-pop) {
     animation-delay: calc(var(--d, 0ms) + 680ms);
   }
 }
@@ -482,6 +495,12 @@
     transform: translateX(-50%);
   }
 }
+/* Ingredient strip under the hero: desktop with a mouse only, paused off-screen. */
+@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .strip-move {
+    animation: marquee 40s linear infinite;
+  }
+}
 .animate-marquee {
   animation: marquee 30s linear infinite;
 }
@@ -495,6 +514,10 @@
 }
 .animate-rotate-slow {
   animation: rotate-slow 20s linear infinite;
+}
+/* The hero's pause button pauses every endless loop on the page. */
+html[data-motion-paused] :is(.strip-move, .hero-wisp, .animate-float) {
+  animation-play-state: paused !important;
 }
 /* Set by usePauseWhenHidden while off-screen or the tab is hidden, or by a pause button */
 [data-paused] *,

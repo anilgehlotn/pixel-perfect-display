@@ -5,6 +5,7 @@ import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
 import { getProduct, getProducts } from "@/lib/shopify/products";
 import { Hero } from "@/components/home/Hero";
 import {
+  IngredientStrip,
   WhyEdible,
   ProductRow,
   Bundle,
@@ -35,7 +36,8 @@ function Index() {
   useScrollAnimations(scope);
   return (
     <main ref={scope}>
-      <Hero />
+      <Hero featured={featured} />
+      <IngredientStrip />
       <WhyEdible />
       <ProductRow products={products} />
       <Bundle product={featured} />

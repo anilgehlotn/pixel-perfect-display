@@ -42,13 +42,27 @@ export const FREE_SHIPPING_THRESHOLD = 699;
 // Plain words, no result promises.
 export const hero = {
   kicker: "Edible skin care",
+  titleLines: ["Skin care", "you drink."],
   title: "Skin care you drink.",
   line: "Creams stay on the surface. Our teas are made from four whole foods, for your skin from the inside.",
   shopCta: { label: "Shop our teas", href: "/#shop" },
   quizCta: { label: "Take the quiz", href: "/quiz" },
   ratingLabel: "reviews",
   from: "From",
+  // Desktop scroll moment: the cup fills the screen and this appears over it.
+  dive: { title: "Cream stays on top. Food goes deeper." },
 };
+
+// Moving strip under the hero (desktop moves, phones show it still).
+export const ingredientStrip = [
+  "Jujube 红枣",
+  "Snow fungus 银耳",
+  "Goji berry 枸杞",
+  "Ginger 生姜",
+  "No added sugar",
+  "Caffeine free",
+  "Nothing artificial",
+];
 
 // The skin-layers drawing (hero slide 2 and the "How it works" section). The idea is the
 // brand's belief, written without result promises; the client should confirm this wording.

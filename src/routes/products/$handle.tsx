@@ -106,9 +106,11 @@ function ProductPage() {
 
       <section className="mx-auto grid max-w-[80rem] gap-10 px-4 pb-16 pt-4 md:px-6 lg:grid-cols-[1.12fr_1fr] lg:gap-16 lg:pb-24 xl:gap-24">
         <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
-          <Gallery images={images} label={product.title} />
+          <div data-anim="media">
+            <Gallery images={images} label={product.title} />
+          </div>
         </div>
-        <div className="min-w-0 lg:pt-2">
+        <div data-anim="fade" className="min-w-0 lg:pt-2">
           <BuyBox
             product={product}
             details={details}

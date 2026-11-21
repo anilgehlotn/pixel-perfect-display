@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "@phosphor-icons/react";
-import { home, howItWorks } from "@/data/content";
+import { home, howItWorks, ingredientStrip } from "@/data/content";
 import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
@@ -10,6 +11,36 @@ import { ProductImage } from "@/components/site/ProductImage";
 import { Stars } from "@/components/site/Stars";
 import { Img, LoopVideo, PlayPill, VideoDialog } from "./media";
 import { SkinLayers } from "./SkinLayers";
+
+/* INGREDIENT STRIP: a slow moving line of the ingredients and promises under the hero.
+   Desktop with a mouse: it moves (paused off-screen and in hidden tabs). Phones and reduced
+   motion: still. The second copy is decorative. */
+export function IngredientStrip() {
+  const ref = useRef<HTMLElement>(null);
+  usePauseWhenHidden(ref);
+  const row = (hidden: boolean) => (
+    <ul aria-hidden={hidden || undefined} className="flex shrink-0 items-center gap-10 pr-10">
+      {ingredientStrip.map((item) => (
+        <li key={item} className="flex items-center gap-10 whitespace-nowrap">
+          <span>{item}</span>
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-primary" />
+        </li>
+      ))}
+    </ul>
+  );
+  return (
+    <section
+      ref={ref}
+      aria-label="What is in every cup"
+      className="overflow-hidden bg-green py-5 text-cream"
+    >
+      <div className="strip-move flex w-max text-lg tracking-[-0.01em] md:text-xl">
+        {row(false)}
+        {row(true)}
+      </div>
+    </section>
+  );
+}
 
 /* 2. WHY EDIBLE (#how-it-works): SkinFusion's idea in one picture. The skin-layers drawing
    plays when it scrolls into view; three short points say the same thing in words. */
