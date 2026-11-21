@@ -2,11 +2,12 @@ import { useRef, useState } from "react";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Pause, Play } from "@phosphor-icons/react";
-import { home, howItWorks, ingredientStrip } from "@/data/content";
+import { home, howItWorks, ingredientStrip, ingredients } from "@/data/content";
 import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
-import { cornerLabel, hasTag, money, type Product } from "@/lib/shopify/types";
+import { cornerLabel, hasTag, money, type Product, type ProductVariant } from "@/lib/shopify/types";
+import { pouches, savePercent } from "@/components/product/purchase";
 import { ProductImage } from "@/components/site/ProductImage";
 import { Stars } from "@/components/site/Stars";
 import { Img, LoopVideo, PlayPill, VideoDialog } from "./media";
@@ -231,71 +232,87 @@ export function ProductCard({ p, sizes }: { p: Product; sizes?: string }) {
   );
 }
 
-/* 4. BUNDLE: copy and a 2x2 collage. The button adds the 4-pouch pack. */
+/* 4. BUNDLE: a pack picker. One card per pack with price, saving, price per cup and its own
+   "Add to cart"; the biggest pack is highlighted. Stacked on phones, three columns from md. */
 export function Bundle({ product }: { product: Product }) {
   const { add } = useCart();
-  const pack = product.variants.find((v) => v.title === home.bundle.variantTitle);
-  const [a, b, c, d] = media.bundle;
+  const copy = home.bundle;
+  const bags = Number(/(\d+)\s*tea bags/.exec(product.subtitle ?? "")?.[1] ?? 0);
+  const best = product.variants.reduce<ProductVariant | undefined>(
+    (top, v) => (!top || pouches(v) > pouches(top) ? v : top),
+    undefined,
+  );
   return (
     <section id="bundle" aria-labelledby="bundle-title" className="scroll-mt-20 px-4 md:px-6">
-      <div className="mx-auto grid max-w-[84rem] items-center gap-10 rounded-card bg-blush p-6 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:p-16">
-        <div className="max-w-md">
+      <div className="mx-auto max-w-[84rem] rounded-card bg-blush p-5 sm:p-10 lg:p-14">
+        <div className="max-w-2xl">
           <h2 id="bundle-title" data-anim="lines" className="title">
-            {home.bundle.title}
+            {copy.title}
           </h2>
-          <p data-anim="fade" className="mt-5 text-lg leading-relaxed text-muted-foreground">
-            {home.bundle.text}
+          <p data-anim="fade" className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            {copy.text}
           </p>
-          {pack && (
-            <div data-anim="fade" className="mt-8 flex flex-wrap items-center gap-4">
-              <button
-                type="button"
-                onClick={() => add(product, pack)}
-                disabled={!pack.availableForSale}
-                className="btn btn-primary"
+        </div>
+        <ul data-anim="cards" className="mt-8 grid gap-3 sm:gap-4 md:mt-10 md:grid-cols-3">
+          {product.variants.map((v) => {
+            const n = pouches(v);
+            const price = money(v.price);
+            const off = savePercent(v);
+            const top = v.id === best?.id && product.variants.length > 1;
+            return (
+              <li
+                key={v.id}
+                className={`relative flex flex-col rounded-[1.5rem] bg-surface p-4 sm:p-6 ${top ? "ring-2 ring-green" : ""}`}
               >
-                {home.bundle.cta}
-              </button>
-              <p className="text-muted-foreground">
-                {inr(money(pack.price))}
-                {pack.compareAtPrice && (
-                  <span className="ml-2 line-through">{inr(money(pack.compareAtPrice))}</span>
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-xl text-green sm:text-2xl">{v.title}</h3>
+                  {top && (
+                    <span className="rounded-full bg-green px-3 py-1 text-xs font-medium text-cream">
+                      {copy.best}
+                    </span>
+                  )}
+                </div>
+                {v.note && <p className="mt-1 text-sm text-muted-foreground">{v.note}</p>}
+                <p className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 sm:mt-5">
+                  <span className="text-2xl text-foreground tabular-nums sm:text-3xl">
+                    {inr(price)}
+                  </span>
+                  {v.compareAtPrice && money(v.compareAtPrice) > price && (
+                    <span className="text-muted-foreground line-through tabular-nums">
+                      {inr(money(v.compareAtPrice))}
+                    </span>
+                  )}
+                  {off > 0 && (
+                    <span className="rounded-full bg-blush px-2 py-0.5 text-xs font-medium text-green">
+                      {copy.save} {off}%
+                    </span>
+                  )}
+                </p>
+                {bags > 0 && (
+                  <p className="mt-1 text-sm text-muted-foreground tabular-nums">
+                    {inr(price / (bags * n))} {copy.perCup}
+                  </p>
                 )}
-              </p>
-            </div>
-          )}
-        </div>
-        <div
-          data-anim="cards"
-          className="mx-auto grid w-full max-w-lg grid-cols-2 gap-3 sm:gap-4 lg:max-w-none"
-        >
-          {a && (
-            <div className="aspect-square overflow-hidden rounded-[1.5rem]">
-              <Img media={a} sizes="(min-width: 1024px) 18rem, 45vw" className="h-full w-full" />
-            </div>
-          )}
-          {b && (
-            <div className="aspect-square overflow-hidden rounded-full">
-              <Img media={b} sizes="(min-width: 1024px) 18rem, 45vw" className="h-full w-full" />
-            </div>
-          )}
-          {c && (
-            <div className="aspect-square overflow-hidden rounded-[1.5rem] rounded-tl-full">
-              <Img media={c} sizes="(min-width: 1024px) 18rem, 45vw" className="h-full w-full" />
-            </div>
-          )}
-          {d && (
-            <div className="aspect-square overflow-hidden rounded-[1.5rem]">
-              <Img media={d} sizes="(min-width: 1024px) 18rem, 45vw" className="h-full w-full" />
-            </div>
-          )}
-        </div>
+                <button
+                  type="button"
+                  onClick={() => add(product, v)}
+                  disabled={!v.availableForSale}
+                  aria-label={`${copy.cta}: ${product.title}, ${v.title}`}
+                  className={`btn mt-4 w-full sm:mt-6 ${top ? "btn-primary" : "btn-outline"}`}
+                >
+                  {copy.cta}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );
 }
 
-/* 5. HOW IT WORKS: deep green block, true-fact counters, steeping video, two columns. */
+/* 5. INGREDIENTS: deep green block. The four ingredients as round photos, the true facts,
+   and how to make a cup in three short steps. */
 export function HowItWorks() {
   const copy = home.howItWorks;
   return (
@@ -304,36 +321,74 @@ export function HowItWorks() {
       aria-labelledby="ingredients-title"
       className="section-y scroll-mt-20 px-4 md:px-6"
     >
-      <div className="mx-auto grid max-w-[84rem] gap-12 rounded-card bg-green p-6 text-cream sm:p-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:p-16">
+      <div className="mx-auto grid max-w-[84rem] gap-10 rounded-card bg-green p-6 text-cream sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16 lg:p-16">
         <div className="flex flex-col">
           <h2 id="ingredients-title" data-anim="lines" className="title max-w-xl text-cream">
             {copy.title}
           </h2>
-          <dl className="mt-10 grid grid-cols-3 gap-4 border-y border-cream/20 py-8">
+          <p data-anim="fade" className="mt-5 max-w-lg text-lg leading-relaxed text-cream/85">
+            {copy.text}
+          </p>
+          <dl className="mt-8 grid grid-cols-3 gap-4 border-y border-cream/20 py-6">
             {copy.facts.map((f) => (
               <div key={f.label} className="flex flex-col">
-                <dt className="order-2 mt-2 text-sm leading-snug text-cream/85">{f.label}</dt>
-                <dd data-count className="display order-1 text-cream tabular-nums">
+                <dt className="order-2 mt-1 text-sm leading-snug text-cream/85">{f.label}</dt>
+                <dd
+                  data-count
+                  className="order-1 text-[clamp(2.25rem,1.6rem+2vw,3.5rem)] leading-none text-cream tabular-nums"
+                >
                   {f.value}
                 </dd>
               </div>
             ))}
           </dl>
-          <div data-anim="cards" className="mt-10 grid gap-8 sm:grid-cols-2">
-            {copy.columns.map((col) => (
-              <div key={col.title}>
-                <h3 className="text-xl text-cream">{col.title}</h3>
-                <p className="mt-3 leading-relaxed text-cream/85">{col.text}</p>
-              </div>
-            ))}
+          <div data-anim="fade" className="mt-8">
+            <h3 className="text-xl text-cream">{copy.steps.title}</h3>
+            <ol className="mt-4 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+              {copy.steps.items.map((s, i) => (
+                <li key={s} className="flex items-center gap-2">
+                  <span className="flex items-center gap-2 rounded-full border border-cream/30 py-2 pl-2 pr-4 text-sm">
+                    <span
+                      aria-hidden="true"
+                      className="flex h-6 w-6 items-center justify-center rounded-full bg-cream text-xs font-medium text-green"
+                    >
+                      {i + 1}
+                    </span>
+                    {s}
+                  </span>
+                  {i < copy.steps.items.length - 1 && (
+                    <ArrowRight
+                      aria-hidden="true"
+                      weight="light"
+                      className="hidden h-4 w-4 text-cream/60 sm:block"
+                    />
+                  )}
+                </li>
+              ))}
+            </ol>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-cream/75">{copy.steps.note}</p>
           </div>
         </div>
-        <div data-anim="media" className="overflow-hidden rounded-card">
-          <LoopVideo
-            video={media.howItWorks.video}
-            className="aspect-[4/5] h-full w-full rounded-card bg-green-soft lg:aspect-auto lg:min-h-[32rem]"
-          />
-        </div>
+        <ul
+          data-anim="cards"
+          className="grid grid-cols-2 content-center gap-x-4 gap-y-8 sm:gap-x-8"
+        >
+          {ingredients.map((ing) => (
+            <li key={ing.name} className="flex flex-col items-center text-center">
+              <div className="aspect-square w-full max-w-[9.5rem] overflow-hidden rounded-full bg-green-soft sm:max-w-[13rem]">
+                <Img
+                  media={media.ingredients[ing.image]}
+                  sizes="(min-width: 1024px) 13rem, 40vw"
+                  className="h-full w-full"
+                />
+              </div>
+              <p className="mt-4 text-lg text-cream">{ing.name}</p>
+              <p className="text-sm text-cream/70">
+                <span lang="zh">{ing.hanzi}</span> {ing.pinyin}
+              </p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

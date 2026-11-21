@@ -245,28 +245,26 @@ export const home = {
   bundle: {
     title: "Buy more, pay less",
     text: "Get two or four pouches of Skin Glow Tea. Two pouches cost 10% less. Four pouches cost 15% less and ship free.",
-    cta: "Add 4 pouches",
+    cta: "Add to cart",
+    best: "Best value",
+    save: "Save",
+    perCup: "per cup",
     handle: "skin-glow-tea",
-    variantTitle: "4 Pouches",
   },
   howItWorks: {
     title: "Four whole ingredients. Nothing added.",
-    // Counters: only true facts. The number counts up from 0 when it scrolls into view.
+    text: "Jujube, snow fungus and goji berries, with a little ginger for warmth. Every piece stays whole, so you can see what you are drinking: no tea dust, no flavourings, no added colour.",
+    // Facts: only true ones. The number counts up from 0 when it scrolls into view.
     facts: [
       { value: "4", label: "whole ingredients" },
       { value: "0", label: "preservatives" },
       { value: "0", label: "caffeine" },
     ],
-    columns: [
-      {
-        title: "What goes in",
-        text: "Jujube, snow fungus and goji berries, with a little ginger for warmth. Every piece stays whole, so you can see what you are drinking: no tea dust, no flavourings, no added colour.",
-      },
-      {
-        title: "How to make it",
-        text: "Put one tea bag in hot water and wait about five minutes. In Traditional Chinese Medicine, these ingredients are traditionally used to support the skin and digestion.",
-      },
-    ],
+    steps: {
+      title: "How to make it",
+      items: ["One tea bag", "Hot water", "About five minutes"],
+      note: "In Traditional Chinese Medicine, these ingredients are traditionally used to support the skin and digestion.",
+    },
   },
   tcm: {
     title: "Why food, not serums",

@@ -169,10 +169,16 @@ order (`src/routes/index.tsx`):
    rises from the cup through the blood into the deeper layers, the cup comes forward, with a
    camera inside the drawing (`data-sl="camera"`) zooming and panning along. No pinning and
    the text is never held back: this is a shop. Copy: `howItWorks`, `skinLayers`.
-4. **Bundle** (`#bundle`): blush card, copy, "Add 4 pouches" (adds the 4-pouch variant of the
-   featured product) and a 2x2 collage of rounded shapes.
-5. **How it works** (`#ingredients`): deep green block, counters for true facts only (4 whole
-   ingredients, 0 preservatives, 0 caffeine), looping video, two text columns.
+4. **Bundle** (`#bundle`, "Buy more, pay less"): blush block with a pack picker. One white
+   card per variant of the featured product (1, 2, 4 pouches): price, MRP crossed out,
+   "Save x%", the variant `note`, price per cup (from the "20 tea bags" subtitle) and its own
+   "Add to cart". The biggest pack has a green ring, a "Best value" chip and the coral button;
+   the others use outline buttons. Stacked on phones, three columns from `md`.
+5. **Ingredients** (`#ingredients`, `HowItWorks` in Sections.tsx): deep green block. Title,
+   what goes in, true-fact counters (4 whole ingredients, 0 preservatives, 0 caffeine),
+   "How to make it" as three numbered pills (one tea bag, hot water, about five minutes) with
+   the TCM line, and the four ingredients as round photos (`media.ingredients`) with name,
+   hanzi and pinyin. Copy: `home.bundle`, `home.howItWorks`, `ingredients`.
 6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx): "SkinFusion vs. the
    rest", our column in green (`comparison` in content.ts).
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
@@ -725,7 +731,7 @@ Demo copy to confirm:
 Demo videos (`public/media/demo/videos/`, Mixkit Free License, all `isDemo: true` in media.ts):
 
 - [ ] `tea-steeping.mp4` (TCM 101 modal, Glow Ritual Bundle card, stories)
-- [ ] `tea-steam.mp4` (How it works)
+- [ ] `tea-steam.mp4` (ritual video)
 - [ ] `morning-window.mp4` (hero)
 - [ ] `window-calm.mp4` (Calm Night Blend card)
 - [ ] `skincare-routine.mp4` (stories)
@@ -739,8 +745,8 @@ Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
 - [ ] `red-dates.webp` (sourcing)
 - [ ] `jasmine-cup.webp` (hero; confirm the photographer on its Pexels page)
 - [ ] `ginger-lemon.webp` (Gut Balance card fallback)
-- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage;
-      bathroom-shelf is also the serum side of the hero)
+- [ ] `glass-teapot.webp`, `hands-cup.webp` (product galleries), `bathroom-shelf.webp`
+      (serum side of the hero)
 - [ ] `teacup-mint.webp`, `hands-glass.webp` (stories)
 - [ ] `herbal-flatlay.webp` (Glow Ritual Bundle card fallback)
 - [ ] `bathroom-sink.webp` (closing CTA)

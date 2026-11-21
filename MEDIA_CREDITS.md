@@ -27,7 +27,7 @@ Nothing was hotlinked: every file was downloaded once and re-encoded locally.
 | File                          | Used in                                         | Author         | Source                                                                                            |
 | ----------------------------- | ----------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- |
 | `videos/tea-steeping.mp4`     | TCM 101 modal, Glow Ritual Bundle card, Stories | jibaroartz     | https://mixkit.co/free-stock-video/woman-preparing-a-cup-of-warm-tea-with-tea-bag-1511/           |
-| `videos/tea-steam.mp4`        | How it works                                    | franklandgrave | https://mixkit.co/free-stock-video/steaming-mug-808/                                              |
+| `videos/tea-steam.mp4`        | Ritual video (product page)                     | franklandgrave | https://mixkit.co/free-stock-video/steaming-mug-808/                                              |
 | `videos/morning-window.mp4`   | Hero                                            | edgarfernandez | https://mixkit.co/free-stock-video/young-sleepy-woman-in-the-morning-opens-her-window-31401/      |
 | `videos/window-calm.mp4`      | Product row                                     | Mixkit         | https://mixkit.co/free-stock-video/woman-looking-at-nature-through-the-window-42728/              |
 | `videos/skincare-routine.mp4` | Stories                                         | Mixkit         | https://mixkit.co/free-stock-video/a-young-woman-gently-rubs-cream-on-her-face-in-51177/          |
@@ -44,13 +44,13 @@ Each video has a matching poster: `posters/<same name>.webp`.
 | `photos/window-tea.webp`     | Product row, Stories | Вальдемар              | https://www.pexels.com/photo/cross-legged-sitting-woman-holding-cup-of-tea-looking-through-window-11012771/ |
 | `photos/red-dates.webp`      | Sourcing             | Towfiqu barbhuiya      | https://www.pexels.com/photo/full-frame-of-drying-red-dates-12625117/                                       |
 | `photos/ginger-lemon.webp`   | Product row          | Angele J               | https://www.pexels.com/photo/ginger-and-2-lemon-fruit-128403/                                               |
-| `photos/glass-teapot.webp`   | Bundle collage       | Teejay                 | https://www.pexels.com/photo/clear-glass-teapot-set-1362537/                                                |
+| `photos/glass-teapot.webp`   | Product gallery      | Teejay                 | https://www.pexels.com/photo/clear-glass-teapot-set-1362537/                                                |
 | `photos/teacup-mint.webp`    | Stories              | Mareefe                | https://www.pexels.com/photo/peppermint-tea-on-teacup-1417945/                                              |
 | `photos/herbal-flatlay.webp` | Product row          | Olena Bohovyk          | https://www.pexels.com/photo/clear-glass-bowl-with-herbs-and-tea-3604314/                                   |
-| `photos/bathroom-shelf.webp` | Bundle collage       | Karola G               | https://www.pexels.com/photo/set-of-skin-care-products-in-contemporary-bathroom-4239013/                    |
+| `photos/bathroom-shelf.webp` | Hero (serum side)    | Karola G               | https://www.pexels.com/photo/set-of-skin-care-products-in-contemporary-bathroom-4239013/                    |
 | `photos/bathroom-sink.webp`  | Closing CTA          | Monstera Production    | https://www.pexels.com/photo/sink-with-skincare-products-in-bathroom-6781117/                               |
 | `photos/hands-glass.webp`    | Stories              | Vlada Karpovich        | https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/                                         |
-| `photos/hands-cup.webp`      | Bundle collage       | Teona Swift            | https://www.pexels.com/photo/anonymous-woman-drinking-cup-of-hot-tea-at-home-6874185/                       |
+| `photos/hands-cup.webp`      | Product gallery      | Teona Swift            | https://www.pexels.com/photo/anonymous-woman-drinking-cup-of-hot-tea-at-home-6874185/                       |
 | `photos/jasmine-cup.webp`    | Hero (mirrored)      | To confirm on the page | https://www.pexels.com/photo/cup-of-aromatic-jasmine-tea-served-on-table-in-garden-7138780/                 |
 
 ## Still missing (download by hand if wanted)

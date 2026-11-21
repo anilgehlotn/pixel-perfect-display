@@ -304,8 +304,6 @@ export const media = {
     "glow-bundle": { video: videos.teaSteeping, fallback: photos.herbalFlatlay },
   } as Record<string, { video: MediaVideo; fallback: MediaImage } | undefined>,
   productDefault: { video: videos.teaSteeping, fallback: site.brew },
-  bundle: [photos.glassTeapot, site.jujube, photos.handsCup, photos.bathroomShelf],
-  howItWorks: { video: videos.teaSteam },
   tcm: { thumbnail: site.cups, video: videos.teaSteeping },
   stories: {
     edgeStart: site.goji,
