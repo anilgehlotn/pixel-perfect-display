@@ -65,9 +65,7 @@ export const hero = {
       facts: ["4 whole foods", "0 sugar", "0 caffeine"],
       name: "SkinFusion",
     },
-    hover: "Move your cursor. Click to drink.",
-    tap: "Tap to drink",
-    back: "Back to serum",
+    hint: "Scroll to drink",
   },
 };
 

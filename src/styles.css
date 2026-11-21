@@ -370,21 +370,18 @@
     animation: hero-wisp 6s ease-in-out infinite;
   }
 }
-/* The hero's "Tap to drink" hint pulses softly three times after it appears. */
-@keyframes hero-hint {
-  0%,
-  100% {
-    transform: scale(1);
+/* Hero "Scroll to drink" cue: a short line travelling down. Desktop with a mouse only. */
+@keyframes hero-scroll-cue {
+  from {
+    transform: translateY(-100%);
   }
-  50% {
-    transform: scale(1.06);
+  to {
+    transform: translateY(200%);
   }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .hero-hint {
-    animation:
-      hero-ease 1.2s cubic-bezier(0.19, 1, 0.22, 1) var(--d, 0ms) both,
-      hero-hint 1.6s ease-in-out calc(var(--d, 0ms) + 1.2s) 3;
+@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .hero-scroll-cue {
+    animation: hero-scroll-cue 1.8s ease-in-out infinite;
   }
 }
 @keyframes hero-word {
@@ -431,11 +428,6 @@
   }
   html[data-intro="mobile"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line) {
     animation-delay: calc(var(--d, 0ms) + 680ms);
-  }
-  /* Revealed tea world: replays its word and facts right away, without the intro delay. */
-  html[data-intro] .hero-replay :is(.hero-word, .hero-ease, .hero-line),
-  .hero-replay :is(.hero-word, .hero-ease, .hero-line) {
-    animation-delay: calc(var(--d, 0ms) * 0.4);
   }
 }
 /* Skin-layers drawing (SkinLayers.tsx): the cream drop lands and spreads; food particles rise

@@ -1,115 +1,151 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { ArrowCounterClockwise, HandTap } from "@phosphor-icons/react";
+import { useRef, type CSSProperties } from "react";
 import { hero } from "@/data/content";
 import { media, type MediaImage } from "@/data/media";
 import { inr } from "@/lib/format";
 import { money, type Product } from "@/lib/shopify/types";
 import { Stars } from "@/components/site/Stars";
+import { gsap, useGSAP } from "@/lib/animations/gsap";
+import { MOTION_CONDITIONS } from "@/lib/animations/media";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
-import { attachLens } from "./hero-lens";
 import { Img } from "./media";
 
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
 /**
- * 1. HERO: starts in black and white. The serum world fills the screen ("Skin care you
- * apply.", greyed). Colour is the reward:
+ * 1. HERO: black and white to colour, like tea filling a cup.
  *
- * - Desktop with a mouse: a lens of colour follows the cursor; inside it the tea world shows
- *   through, with the letters of "drink.". Clicking spreads the colour out from that point
- *   like a ripple until the whole hero is the tea world.
- * - Touch: tapping spreads the ripple from the tap.
- * - Keyboard and everyone: the "Tap to drink" / "Click to drink" button reveals from the
- *   centre; "Back to serum" returns to black and white.
- * - On reveal the word rises again, the fact chips ease in and steam starts (desktop).
+ * The serum world fills the screen in greyscale ("Skin care you apply.", "apply." as an
+ * outline). The tea world sits on top inside a "fill" that rises from the bottom: its wrapper
+ * moves up while its content moves down by the same amount, so the colour climbs the screen
+ * with a soft glowing edge, and "apply." turns into "drink." as the edge passes the word.
  *
- * The lens is transform-only (see hero-lens.ts). Reduced motion: no lens; the button swaps
- * instantly. No JavaScript: the black and white serum world.
+ * - Phones (the priority): the fill plays once, 1.8s, as soon as the visitor starts
+ *   scrolling, or by itself after 3s. No pinning or scrubbing on phones.
+ * - Desktop with a mouse: the hero is pinned and the fill follows the scroll (scrub).
+ * - Reduced motion: shown straight away in colour. No JavaScript: black and white.
+ * Transform-only.
  */
 export function Hero({ featured }: { featured: Product }) {
-  const frame = useRef<HTMLElement>(null);
-  const [revealed, setRevealed] = useState(false);
-  const [round, setRound] = useState(0);
-  const lens = useRef<ReturnType<typeof attachLens> | null>(null);
-  usePauseWhenHidden(frame);
+  const section = useRef<HTMLElement>(null);
+  usePauseWhenHidden(section);
 
-  useEffect(() => {
-    const root = frame.current;
-    if (!root) return;
-    lens.current = attachLens(root, () => {
-      setRevealed(true);
-      setRound((r) => r + 1);
-    });
-    return () => lens.current?.destroy();
-  }, []);
+  useGSAP(
+    () => {
+      const root = section.current;
+      if (!root) return;
+      const outer = root.querySelector<HTMLElement>("[data-fill-outer]");
+      const inner = root.querySelector<HTMLElement>("[data-fill-inner]");
+      const hint = root.querySelector<HTMLElement>("[data-fill-hint]");
+      if (!outer || !inner) return;
+      const fill = { p: 0 };
+      const paint = () => {
+        const off = (1 - fill.p) * 100;
+        outer.style.transform = `translateY(${off}%)`;
+        inner.style.transform = `translateY(${-off}%)`;
+        if (hint) hint.style.opacity = String(Math.max(0, 1 - fill.p * 3));
+      };
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_CONDITIONS, (ctx) => {
+        const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
+        if (isReduced) {
+          fill.p = 1;
+          paint();
+          return;
+        }
+        fill.p = 0;
+        paint();
+        if (isDesktop) {
+          const tween = gsap.to(fill, {
+            p: 1,
+            ease: "none",
+            onUpdate: paint,
+            scrollTrigger: {
+              trigger: root,
+              start: "top top",
+              end: "+=110%",
+              scrub: 0.6,
+              pin: true,
+              anticipatePin: 1,
+            },
+          });
+          return () => {
+            tween.scrollTrigger?.kill();
+            tween.kill();
+          };
+        }
+        // Phones and tablets: play once on the first scroll, or after 3s.
+        let played = false;
+        const play = () => {
+          if (played) return;
+          played = true;
+          window.removeEventListener("scroll", play);
+          window.removeEventListener("touchmove", play);
+          gsap.to(fill, { p: 1, duration: 1.8, ease: "power2.inOut", onUpdate: paint });
+        };
+        const intro = document.documentElement.dataset["intro"] === "mobile" ? 800 : 0;
+        const timer = window.setTimeout(play, 3000 + intro);
+        window.addEventListener("scroll", play, { passive: true });
+        window.addEventListener("touchmove", play, { passive: true });
+        return () => {
+          window.clearTimeout(timer);
+          window.removeEventListener("scroll", play);
+          window.removeEventListener("touchmove", play);
+        };
+      });
+      return () => mm.revert();
+    },
+    { scope: section },
+  );
 
-  const c = hero.compare;
   return (
     <section
-      data-hero-lens
-      ref={frame}
+      data-hero-fill
+      ref={section}
       aria-labelledby="hero-title"
-      data-revealed={revealed || undefined}
-      className="group/hero relative h-[100dvh] min-h-[38rem] select-none overflow-hidden bg-ink text-cream"
+      className="relative h-[100dvh] min-h-[36rem] overflow-hidden bg-ink text-cream"
     >
-      {/* 1. Serum world, black and white (base). */}
+      {/* Serum world: black and white, underneath. */}
       <World side="left" media={media.hero.serum} featured={featured} />
 
-      {/* 2. Lens of colour that follows the cursor (transform-only, see hero-lens.ts). */}
+      {/* Tea world: rises from the bottom. Wrapper moves up, content moves down. */}
       <div
-        data-lens
-        aria-hidden="true"
-        className="pointer-events-none invisible absolute left-0 top-0 z-[1] h-[20rem] w-[20rem] overflow-hidden rounded-full"
+        data-fill-outer
+        className="absolute inset-0 z-[1] overflow-hidden"
+        style={{ transform: "translateY(100%)" }}
       >
-        <div data-lens-inner className="absolute left-0 top-0 h-[var(--fh)] w-[var(--fw)]">
-          <World side="right" media={media.hero.image} featured={featured} still />
+        <div
+          data-fill-inner
+          className="absolute inset-0"
+          style={{ transform: "translateY(-100%)" }}
+        >
+          <World side="right" media={media.hero.image} featured={featured} />
         </div>
+        {/* The rising edge: a thin bright line with a soft glow below it. */}
+        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-cream/80" />
+        <span
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cream/30 to-transparent"
+        />
       </div>
 
-      {/* 3. The full tea world once revealed (remounts so its entrance plays again). */}
-      <div
-        data-tea-full
-        className={`absolute inset-0 z-[1] transition-opacity duration-700 ${revealed ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        aria-hidden={!revealed}
-      >
-        {round > 0 && (
-          <div key={round} className="hero-replay absolute inset-0">
-            <World side="right" media={media.hero.image} featured={featured} settle={false} />
-          </div>
-        )}
-      </div>
-
-      {/* 4. Shared copy on top. */}
+      {/* Shared copy on top. */}
       <Column layer="shared" featured={featured} />
 
-      {/* 5. Hint / reveal button and the way back. */}
-      <div className="absolute inset-x-0 bottom-6 z-[3] flex justify-center px-4 sm:bottom-8">
-        {revealed ? (
-          <button
-            type="button"
-            onClick={() => {
-              setRevealed(false);
-              lens.current?.reset();
-            }}
-            className="hero-ease inline-flex min-h-11 items-center gap-2 rounded-full border border-cream/40 bg-ink/30 px-5 text-sm text-cream backdrop-blur-md hover:bg-ink/50"
-            style={d(400)}
-          >
-            <ArrowCounterClockwise size={16} weight="light" aria-hidden="true" />
-            {c.back}
-          </button>
-        ) : (
-          <button
-            type="button"
-            data-reveal
-            onClick={() => lens.current?.reveal()}
-            className="hero-hint inline-flex min-h-11 items-center gap-2 rounded-full border border-cream/40 bg-ink/30 px-5 text-sm text-cream backdrop-blur-md hover:bg-ink/50"
-            style={d(1400)}
-          >
-            <HandTap size={18} weight="light" aria-hidden="true" />
-            <span className="sm:hidden">{c.tap}</span>
-            <span className="hidden sm:inline">{c.hover}</span>
-          </button>
-        )}
+      {/* Hint (desktop: the fill follows the scroll there), fades as the colour rises. */}
+      <div
+        data-fill-hint
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-5 z-[3] hidden lg:block"
+      >
+        <p
+          className="hero-ease flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-cream/80"
+          style={d(1400)}
+        >
+          {hero.compare.hint}
+          <span className="relative block h-8 w-px overflow-hidden bg-cream/25">
+            <span className="hero-scroll-cue absolute inset-x-0 top-0 h-1/2 bg-cream" />
+          </span>
+        </p>
       </div>
     </section>
   );
@@ -195,22 +231,16 @@ function World({
   side,
   media: m,
   featured,
-  still = false,
-  settle = true,
 }: {
   side: "left" | "right";
   media: MediaImage;
   featured: Product;
-  /** Inside the lens: no entrance animation and no steam (it follows the cursor). */
-  still?: boolean;
-  /** Photo rises and settles on first load (off when revealed: the lens already shows it). */
-  settle?: boolean;
 }) {
   const c = hero.compare[side];
   const left = side === "left";
   return (
     <div className="absolute inset-0">
-      <div className={`absolute inset-0 ${still || !settle ? "" : "hero-settle"}`} style={d(0)}>
+      <div className="hero-settle absolute inset-0" style={d(0)}>
         <Img
           media={m}
           priority={!left}
@@ -242,7 +272,28 @@ function World({
           ))}
         </span>
       </p>
-      {!left && !still && <Steam />}
+      {/* Phones: a short caption between the label and the headline. */}
+      <p
+        aria-hidden="true"
+        className="hero-ease absolute inset-x-6 top-[30%] text-center sm:hidden"
+        style={d(1000)}
+      >
+        <span className="label-caps block text-cream/75">{c.tag}</span>
+        <span className="mx-auto mt-2 block max-w-[17rem] text-[1.05rem] leading-snug text-cream/95">
+          {c.text}
+        </span>
+        <span className="mt-3 flex flex-wrap justify-center gap-2">
+          {c.facts.map((f) => (
+            <span
+              key={f}
+              className={`rounded-full px-3 py-1 text-xs ${left ? "border border-cream/40 text-cream/80" : "bg-cream text-green"}`}
+            >
+              {f}
+            </span>
+          ))}
+        </span>
+      </p>
+      {!left && <Steam />}
     </div>
   );
 }

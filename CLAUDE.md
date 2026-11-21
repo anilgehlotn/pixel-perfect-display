@@ -140,22 +140,19 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`, `hero-lens.ts`): starts in black and white. The serum world fills
-   the screen (`media.hero.serum`, greyscale, "Skin care you apply." with "apply." as a thin
-   outline, caption "On your face" with fact chips). Colour is the reward:
-   - Desktop with a mouse: a 20rem lens of colour follows the cursor (eased); inside it the
-     tea world shows through with the solid letters of "drink.". Clicking spreads it out from
-     that point like a ripple until the whole hero is the tea world.
-   - Touch: tapping spreads the ripple from the tap.
-   - Everyone, keyboard included: the hint button ("Move your cursor. Click to drink." /
-     "Tap to drink", pulses three times) reveals from the centre; "Back to serum" resets.
-   - On reveal the full tea world (`media.hero.image`) mounts again: "drink." rises, the
-     "In your cup" caption and fact chips ease in, steam rises over the cup (desktop).
-     The lens is transform-only: the circle is translated and scaled, its inner copy of the tea
-     world gets the inverse transform (sized by `--fw`/`--fh`). `hero-lens.ts` has no React so
-     the static client preview can run it too. `Column` keeps the shared copy and each world's
-     word aligned. Fine film grain over both photos. Reduced motion: no lens, the button swaps
-     at once. No JavaScript: the black and white serum world.
+1. **Hero** (`Hero.tsx`): starts in black and white. The serum world fills the screen
+   (`media.hero.serum`, greyscale, "Skin care you apply." with "apply." as a thin outline,
+   caption "On your face" with fact chips). Colour then rises from the bottom like tea filling
+   a cup, with a thin glowing edge: the tea world (`media.hero.image`, "drink." in solid
+   letters, "In your cup" caption, steam on desktop) replaces it as the edge passes.
+   - Phones and tablets (the priority): the fill plays once (1.8s) on the first scroll or touch,
+     or by itself after 3s. No pinning or scrub. Captions sit centred above the headline.
+   - Desktop with a mouse: the hero is pinned for 110% of the screen height and the fill
+     follows the scroll (scrub 0.6). A "Scroll to drink" cue fades out as the colour rises.
+   - Transform-only: the fill wrapper moves up while its content moves down by the same
+     amount. `Column` keeps the shared copy (real h1 and button) and each world's word aligned.
+     Fine film grain over both photos. Reduced motion: shown in colour at once. No JavaScript:
+     the black and white serum world.
      **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
      under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
      still on phones.
@@ -554,7 +551,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Black and white; colour lens follows the cursor; click ripples into colour | Tap ripples into colour                           |
+| Hero                                  | Black and white; pinned, colour fill rises with the scroll (scrub)         | Colour fill plays once on first scroll (or 3s)    |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
