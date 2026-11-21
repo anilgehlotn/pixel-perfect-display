@@ -201,12 +201,15 @@ order (`src/routes/index.tsx`):
    at both edges, tall portraits, stadium above a quote, video cards with a "Play" pill, a green
    quote card). Desktop: drag to scroll with momentum, slow scroll-linked drift of the strip,
    slight parallax between cards. Phones: native swipe with snap points, no drift.
-9. **Sourcing** (`#sourcing`): deep green block. The jujube photo (`media.sourcing`) fills the
-   right half on desktop and sits on top on phones, with a frosted location tag (MapPin
-   icon). Heading, text, the jujube's journey in three numbered steps (on the tree, sun-dried,
-   in your cup; compact rows on phones) and a cream "See all four ingredients" button to
-   `/#ingredients`. The origin copy is DEMO until the client confirms it
-   (`home.sourcing.isDemo`).
+9. **Sourcing** (`#sourcing`): deep green block. The jujube photo (`media.sourcing`, right
+   half on desktop, on top on phones) drifts with the scroll (`data-depth="-0.5"`), a round
+   inset photo of the dates (`media.ingredients.jujube`) pops in and drifts at another speed
+   (`data-depth="0.35"`, desktop only), and a frosted origin card shows "Origin", the place
+   and its coordinates. Beside it: eyebrow "From the orchard", heading, text, the jujube's
+   journey as a timeline (Tree, Sun, Coffee icons; across on desktop, down the side on
+   phones) joined by a line that draws itself (`data-anim="draw"`), and a cream "See all four
+   ingredients" button to `/#ingredients`. The origin copy and coordinates are DEMO until the
+   client confirms them (`home.sourcing.isDemo`).
 10. **Closing CTA** (`ClosingCta`, gets the featured product): blush block. "Try it for
     yourself", a short line and three trust points with icons (free shipping above ₹699,
     secure UPI / card / net banking payment, caffeine free with no added sugar). Beside it a
@@ -644,8 +647,9 @@ Demo copy to confirm:
 - [ ] Ratings and review counts (local stand-ins until real reviews exist)
 - [ ] Product page reviews (`reviews.quotes`, `isDemo: true`): same demo quotes as the stories
 
-- [ ] Sourcing section (`home.sourcing`, `isDemo: true`): "Xinjiang, China", "Where our jujubes
-      grow", the farm description and the three journey steps. Replace with the real origins
+- [ ] Sourcing section (`home.sourcing`, `isDemo: true`): "Xinjiang, China", its coordinates,
+      "Where our jujubes grow", the farm description and the three journey steps. Replace with
+      the real origins
 - [ ] "How it fits your day": steeping time (about five minutes)
 - [ ] Bundle copy: "Save up to 15%, with free shipping on the four-pack" must match
       the real prices and shipping rules

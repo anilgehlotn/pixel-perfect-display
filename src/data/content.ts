@@ -346,7 +346,10 @@ export const home = {
   // Origin details are DEMO copy until the client confirms where each ingredient comes from.
   sourcing: {
     isDemo: true,
+    eyebrow: "From the orchard",
+    originLabel: "Origin",
     location: "Xinjiang, China",
+    coordinates: "41° N, 85° E",
     title: "Where our jujubes grow",
     text: "Long, dry summers and cool nights let the dates sweeten slowly on the tree before they are sun-dried. Our goji berries and snow fungus come from small family farms we taste from every season.",
     journey: [

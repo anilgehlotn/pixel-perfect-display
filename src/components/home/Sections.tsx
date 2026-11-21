@@ -4,13 +4,16 @@ import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   Check,
+  Coffee,
   Leaf,
   LockSimple,
   MapPin,
   Pause,
   Play,
+  Sun,
   ThermometerHot,
   Timer,
+  Tree,
   Truck,
 } from "@phosphor-icons/react";
 import { home, howItWorks, ingredientStrip, ingredients } from "@/data/content";
@@ -518,9 +521,13 @@ export function Tcm101() {
   );
 }
 
-/* 8. SOURCING: deep green block. Photo of the jujubes (right half on desktop, on top on phones)
-   with a frosted location tag; heading, text, the jujube's journey in three numbered steps and
-   a link to the ingredients. Origin copy is demo until the client confirms it. */
+/* 8. SOURCING: deep green block. The jujube photo (right half on desktop, on top on phones)
+   drifts slowly with the scroll, a round inset photo of the dates drifts at another speed, and
+   a frosted origin card names the place. Beside it the heading, text and the jujube's journey
+   as a timeline (tree, sun, cup) joined by a line that draws itself, then a link to the
+   ingredients. Parallax is desktop only. Origin copy is demo until the client confirms it. */
+const JOURNEY_ICONS = [Tree, Sun, Coffee];
+
 export function Sourcing() {
   const copy = home.sourcing;
   return (
@@ -529,9 +536,9 @@ export function Sourcing() {
       aria-labelledby="sourcing-title"
       className="section-y scroll-mt-20 px-4 md:px-6"
     >
-      <div className="mx-auto grid max-w-[84rem] overflow-hidden rounded-card bg-green text-cream lg:grid-cols-2">
-        <div className="relative min-h-[18rem] lg:order-2 lg:min-h-[38rem]">
-          <div data-anim="media" className="absolute inset-0 overflow-hidden">
+      <div className="mx-auto grid max-w-[84rem] overflow-hidden rounded-card bg-green text-cream lg:grid-cols-[1.05fr_1fr]">
+        <div className="relative min-h-[22rem] overflow-hidden sm:min-h-[26rem] lg:order-2 lg:min-h-[44rem]">
+          <div data-depth="-0.5" className="absolute inset-x-0 -inset-y-12">
             <Img
               media={media.sourcing}
               sizes="(min-width: 1024px) 42rem, 100vw"
@@ -540,41 +547,105 @@ export function Sourcing() {
           </div>
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent lg:bg-gradient-to-r lg:from-green/40"
+            className="absolute inset-0 bg-gradient-to-t from-ink/60 via-ink/5 to-transparent lg:bg-gradient-to-tr lg:from-green/70 lg:via-transparent"
           />
-          <p className="absolute bottom-4 left-4 flex items-center gap-2.5 rounded-full border border-cream/25 bg-ink/35 px-4 py-2 text-sm text-cream backdrop-blur-md sm:bottom-6 sm:left-6">
-            <MapPin aria-hidden="true" weight="light" className="h-4 w-4" />
-            {copy.location}
-          </p>
+          <div
+            data-depth="0.35"
+            className="absolute right-5 top-5 sm:right-8 sm:top-8 lg:right-10 lg:top-16"
+          >
+            <div
+              data-anim="pop"
+              className="aspect-square w-24 overflow-hidden rounded-full ring-4 ring-cream/85 sm:w-32 lg:w-40"
+            >
+              <Img media={media.ingredients.jujube} sizes="10rem" className="h-full w-full" />
+            </div>
+          </div>
+          <div className="absolute bottom-5 left-5 rounded-[1.25rem] border border-cream/20 bg-ink/35 px-4 py-3 backdrop-blur-md sm:bottom-8 sm:left-8">
+            <p className="text-xs text-cream/70">{copy.originLabel}</p>
+            <p className="mt-0.5 flex items-center gap-2 text-cream">
+              <MapPin aria-hidden="true" weight="light" className="h-4 w-4" />
+              {copy.location}
+            </p>
+            <p className="mt-0.5 text-xs text-cream/70 tabular-nums">{copy.coordinates}</p>
+          </div>
         </div>
 
         <div className="flex flex-col justify-center p-6 sm:p-10 lg:p-16">
+          <p data-anim="fade" className="mb-2 text-sm font-medium tracking-[0.06em] text-cream/75">
+            {copy.eyebrow}
+          </p>
           <h2 id="sourcing-title" data-anim="lines" className="title text-cream">
             {copy.title}
           </h2>
           <p data-anim="fade" className="mt-5 max-w-lg text-lg leading-relaxed text-cream/85">
             {copy.text}
           </p>
-          <ol data-anim="cards" className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
-            {copy.journey.map((step, i) => (
-              <li
-                key={step.title}
-                className="flex gap-3 rounded-[1.25rem] border border-cream/15 bg-cream/[0.06] px-4 py-3 sm:block sm:p-4"
+
+          <div className="relative mt-10">
+            {/* The line that joins the steps: down the side on phones, across on larger screens. */}
+            <div
+              data-anim="draw"
+              aria-hidden="true"
+              className="absolute bottom-10 left-[1.375rem] top-[1.375rem] w-px sm:hidden"
+            >
+              <svg
+                viewBox="0 0 2 100"
+                preserveAspectRatio="none"
+                className="h-full w-full overflow-visible"
               >
-                <span
-                  aria-hidden="true"
-                  className="pt-1 text-xs text-cream/55 tabular-nums sm:pt-0"
-                >
-                  0{i + 1}
-                </span>
-                <div>
-                  <h3 className="text-lg text-cream sm:mt-2">{step.title}</h3>
-                  <p className="mt-0.5 text-sm leading-snug text-cream/80 sm:mt-1">{step.text}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <div data-anim="fade" className="mt-8">
+                <path
+                  d="M1 0 V100"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
+                  className="text-cream/40"
+                  fill="none"
+                />
+              </svg>
+            </div>
+            <div
+              data-anim="draw"
+              aria-hidden="true"
+              className="absolute left-[1.375rem] right-[calc(33.333%-0.5rem)] top-[1.375rem] hidden h-px sm:block"
+            >
+              <svg
+                viewBox="0 0 100 2"
+                preserveAspectRatio="none"
+                className="h-full w-full overflow-visible"
+              >
+                <path
+                  d="M0 1 H100"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
+                  className="text-cream/40"
+                  fill="none"
+                />
+              </svg>
+            </div>
+
+            <ol data-anim="cards" className="relative grid gap-6 sm:grid-cols-3 sm:gap-5">
+              {copy.journey.map((step, i) => {
+                const StepIcon = JOURNEY_ICONS[i] ?? Tree;
+                return (
+                  <li key={step.title} className="flex gap-4 sm:block">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-cream text-green ring-8 ring-green">
+                      <StepIcon aria-hidden="true" weight="light" className="h-5 w-5" />
+                    </span>
+                    <div className="sm:mt-5">
+                      <span aria-hidden="true" className="text-xs text-cream/55 tabular-nums">
+                        0{i + 1}
+                      </span>
+                      <h3 className="mt-0.5 text-lg text-cream">{step.title}</h3>
+                      <p className="mt-1 text-sm leading-snug text-cream/80">{step.text}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          <div data-anim="fade" className="mt-10">
             <a href={copy.cta.href} className="btn btn-cream">
               {copy.cta.label}
             </a>
