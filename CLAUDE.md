@@ -140,24 +140,25 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): two worlds, one word. Full screen (`100dvh`), split between the
-   serum world (left: `media.hero.serum`, greyed and cool, "On your face") and the tea world
-   (right: `media.hero.image`, warm, "In your cup"). Each world holds its own copy of the giant
-   word in the same place ("apply." / "drink.", `hero.compare`), so where the divider cuts
-   through, one word turns into the other. `Column` renders the same centred layout three
-   times (shared copy on top with the real h1 "Skin care you drink." and button, and once per
-   world with only the word visible) so the word lines up exactly. On load the divider
-   sweeps to the serum side, then into the tea side (2.8s, after the intro loader). Desktop
-   with a mouse: the divider then follows the pointer, eased. Touch: drag anywhere. Keyboard:
-   a real range input. Desktop scroll: scrolling down slides the divider fully into the tea
-   world. Details: "apply." is a thin outline (`hero-outline`), "drink." solid; "Serum" and
-   "SkinFusion" tags ride the divider; each world has a caption with fact chips
-   (`compare.left/right.facts`); fine film grain (`hero-grain`) over both photos; steam rises
-   in the tea world (desktop). Transform-only. Reduced motion: no sweep, follow or steam. No
-   JavaScript: the full tea world ("drink."), never a cut word. Phones: the drag handle sits above the word, captions and rating hide.
-   **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
-   under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
-   still on phones.
+1. **Hero** (`Hero.tsx`, `hero-lens.ts`): starts in black and white. The serum world fills
+   the screen (`media.hero.serum`, greyscale, "Skin care you apply." with "apply." as a thin
+   outline, caption "On your face" with fact chips). Colour is the reward:
+   - Desktop with a mouse: a 20rem lens of colour follows the cursor (eased); inside it the
+     tea world shows through with the solid letters of "drink.". Clicking spreads it out from
+     that point like a ripple until the whole hero is the tea world.
+   - Touch: tapping spreads the ripple from the tap.
+   - Everyone, keyboard included: the hint button ("Move your cursor. Click to drink." /
+     "Tap to drink", pulses three times) reveals from the centre; "Back to serum" resets.
+   - On reveal the full tea world (`media.hero.image`) mounts again: "drink." rises, the
+     "In your cup" caption and fact chips ease in, steam rises over the cup (desktop).
+     The lens is transform-only: the circle is translated and scaled, its inner copy of the tea
+     world gets the inverse transform (sized by `--fw`/`--fh`). `hero-lens.ts` has no React so
+     the static client preview can run it too. `Column` keeps the shared copy and each world's
+     word aligned. Fine film grain over both photos. Reduced motion: no lens, the button swaps
+     at once. No JavaScript: the black and white serum world.
+     **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
+     under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
+     still on phones.
 2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): "Why we make skin care you
    eat", a short paragraph, three points (creams and serums, food, SkinFusion) and the
    skin-layers drawing (`SkinLayers.tsx`): a cream drop lands and stays on the outer layer,
@@ -553,7 +554,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Divider sweeps serum to tea ("apply." to "drink."), then follows the mouse | Sweep once, then drag                             |
+| Hero                                  | Black and white; colour lens follows the cursor; click ripples into colour | Tap ripples into colour                           |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
