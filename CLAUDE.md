@@ -140,16 +140,15 @@ Seed-inspired layout (layout and motion only; no Seed content, media or fonts). 
 order (`src/routes/index.tsx`):
 
 1. **Hero** (`Hero.tsx`, option 2 picked by the client): one full-width photo in a rounded
-   frame (`media.hero.image`, a steaming glass cup of golden tea, Pexels), a dark wash, a large
-   centred headline "Skin care you drink.", one line and one coral button "Shop our teas" (to
-   `#shop`). Motion is CSS and plays on every visit (after the intro loader when it shows,
-   via `html[data-intro]` delays in styles.css): the photo zooms in slowly and, on desktop,
-   drifts with scroll (`data-depth`); the headline rises word by word, then the line and the
-   button. Wide screens (xl): the four ingredients pop in at the corners, float and follow the
-   pointer (`data-mouse`, GSAP `quickTo`). Desktop: specks of light drift up the photo and a
-   "Scroll" cue pulses; a pause button stops these loops (WCAG 2.2.2). Phones: entrance and
-   zoom only. Reduced motion: no motion. `lib/animations/hero.ts` is no longer used by the
-   hero. Copy: `hero` in content.ts. No buzzwords, no result promises.
+   frame (`media.hero.image`, a steaming glass cup of golden tea, Pexels), a dark wash, a small
+   "Edible skin care" label with a hairline, a large centred headline "Skin care you drink.",
+   one line and one coral button "Shop our teas" (to `#shop`). Motion is deliberately quiet
+   and plays once (CSS, every visit, delayed after the intro loader via `html[data-intro]`):
+   the photo comes up from dark and settles from 1.12 to 1 (2.6s), then zooms very slowly
+   (24s, once); the hairline draws in; the headline is revealed word by word from a mask; the
+   line and button ease in last. Desktop: on scroll the copy fades and lifts away (GSAP
+   ScrollTrigger scrub) while the photo drifts slower than the page (`data-depth`). No
+   floating pieces, particles or loops. Reduced motion: none. Copy: `hero` in content.ts.
 2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): "Why we make skin care you
    eat", a short paragraph, three points (creams and serums, food, SkinFusion) and the
    skin-layers drawing (`SkinLayers.tsx`): a cream drop lands and stays on the outer layer,
@@ -544,7 +543,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Words rise, zoom, ingredients pop in, float and follow the pointer, specks | Words rise, line and button fade up, zoom         |
+| Hero                                  | Photo settles from dark, words revealed, copy fades on scroll              | Same, no scroll fade                              |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
