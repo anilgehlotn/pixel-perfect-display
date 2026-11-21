@@ -41,6 +41,7 @@ export const FREE_SHIPPING_THRESHOLD = 699;
 // Homepage hero: one full-width photo (media.hero.image), a centred headline and one button.
 // Plain words, no result promises.
 export const hero = {
+  kicker: "Edible skin care",
   title: "Skin care you drink.",
   line: "Creams stay on the surface. Our teas are made from four whole foods, for your skin from the inside.",
   shopCta: { label: "Shop our teas", href: "/#shop" },

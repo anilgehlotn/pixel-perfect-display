@@ -317,91 +317,74 @@
     animation: float 8s ease-in-out infinite;
   }
 }
-/* Hero entrance (CSS, every visit): words rise from a mask, the line and button fade up, the
-   ingredients pop in. --d is each element's delay; after the intro loader the whole sequence
-   waits for it. Starts at opacity 0.01, not 0, so the first paint still counts as content. */
-@keyframes hero-word {
-  from {
-    transform: translateY(105%);
-  }
-  to {
-    transform: none;
-  }
-}
-@keyframes hero-rise {
+/* Hero entrance (CSS, every visit, plays once): slow and quiet. --d is each element's delay;
+   after the intro loader the whole sequence waits for it. Fades start at 0.01, not 0, so the
+   first paint still counts as content. */
+@keyframes hero-settle {
   from {
     opacity: 0.01;
-    transform: translateY(18px);
+    transform: scale(1.12);
   }
   to {
     opacity: 1;
     transform: none;
   }
 }
-@keyframes hero-pop {
-  from {
-    opacity: 0.01;
-    transform: scale(0.6);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes speck {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0);
-  }
-  20%,
-  70% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(14px, -38rem, 0);
-  }
-}
-@keyframes scroll-cue {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(200%);
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .hero-word {
-    animation: hero-word 900ms var(--ease-soft) var(--d, 0ms) both;
-  }
-  .hero-rise {
-    animation: hero-rise 800ms var(--ease-soft) var(--d, 0ms) both;
-  }
-  .hero-pop {
-    animation: hero-pop 900ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0ms) both;
-  }
-  html[data-intro="desktop"] :is(.hero-word, .hero-rise, .hero-pop) {
-    animation-delay: calc(var(--d, 0ms) + 1150ms);
-  }
-  html[data-intro="mobile"] :is(.hero-word, .hero-rise, .hero-pop) {
-    animation-delay: calc(var(--d, 0ms) + 680ms);
-  }
-}
-@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .animate-speck {
-    animation: speck 12s linear infinite;
-  }
-  .animate-scroll-cue {
-    animation: scroll-cue 1.8s ease-in-out infinite;
-  }
-}
-/* Hero photo: zooms in slowly once on load. Reduced motion: no zoom. */
-@keyframes kenburns {
+@keyframes hero-breathe {
   from {
     transform: scale(1);
   }
   to {
-    transform: scale(1.08);
+    transform: scale(1.05);
+  }
+}
+@keyframes hero-word {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes hero-ease {
+  from {
+    opacity: 0.01;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes hero-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-settle {
+    animation: hero-settle 2.6s cubic-bezier(0.19, 1, 0.22, 1) var(--d, 0ms) both;
+  }
+  .hero-breathe {
+    animation: hero-breathe 24s ease-out 2.6s both;
+  }
+  .hero-word {
+    animation: hero-word 1.4s cubic-bezier(0.19, 1, 0.22, 1) var(--d, 0ms) both;
+  }
+  .hero-ease {
+    animation: hero-ease 1.2s cubic-bezier(0.19, 1, 0.22, 1) var(--d, 0ms) both;
+  }
+  .hero-line {
+    animation: hero-line 1.2s cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms) both;
+  }
+  html[data-intro="desktop"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line) {
+    animation-delay: calc(var(--d, 0ms) + 1150ms);
+  }
+  html[data-intro="mobile"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line) {
+    animation-delay: calc(var(--d, 0ms) + 680ms);
   }
 }
 /* Skin-layers drawing (SkinLayers.tsx): the cream drop lands and spreads; food particles rise
@@ -460,9 +443,6 @@
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .animate-kenburns {
-    animation: kenburns 14s ease-out both;
-  }
 }
 @keyframes marquee {
   from {
