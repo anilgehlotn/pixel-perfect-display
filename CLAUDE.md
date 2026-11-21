@@ -143,9 +143,10 @@ order (`src/routes/index.tsx`):
    words: edible skin care. Creams and serums sit on the outer layer of the skin; what you eat
    and drink is carried by the blood to the deeper layers, so SkinFusion makes skin care you
    eat and drink. Three slides (`heroSlides` in content.ts, media in `media.hero.slides`):
-   "Skin care you eat, not apply." (skincare video; product card with floating ingredients),
-   "Cream stays on top. Food goes deeper." (bathroom shelf photo; the skin-layers drawing) and
-   "Four whole foods. Nothing added." (red dates photo; the four ingredients popping in). The
+   "Skin care you eat, not apply." (woman sipping tea in sunlight; product card with floating
+   ingredients), "Cream stays on top. Food goes deeper." (steaming golden cup; the skin-layers
+   drawing) and "Four whole foods. Nothing added." (glass teapot pour; the four ingredients
+   popping in). Real Pexels photos; `media.hero.focus` sets each crop point. The
    visuals show on wide screens (xl). Headlines rise word by word on each slide change; slides
    crossfade, the picture zooms slowly, a progress bar fills and moves on after 6.5s. Hover,
    focus or the pause button hold only the looping motion (`data-hold`), never text still
@@ -718,7 +719,7 @@ Demo videos (`public/media/demo/videos/`, Mixkit Free License, all `isDemo: true
 - [ ] `tea-steam.mp4` (How it works)
 - [ ] `morning-window.mp4` (hero)
 - [ ] `window-calm.mp4` (Calm Night Blend card)
-- [ ] `skincare-routine.mp4` (stories, hero slide 1)
+- [ ] `skincare-routine.mp4` (stories)
 - [ ] `skincare-closeup.mp4` (Skin Glow Tea card)
 - [ ] `leaves-sunlight.mp4` (Gut Balance Tea card)
 - [ ] `flowers-breeze.mp4` (stories)
@@ -726,10 +727,11 @@ Demo videos (`public/media/demo/videos/`, Mixkit Free License, all `isDemo: true
 Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
 
 - [ ] `window-tea.webp` (Calm Night card fallback, stories)
-- [ ] `red-dates.webp` (sourcing, hero slide 3)
+- [ ] `red-dates.webp` (sourcing)
+- [ ] `tea-sunlight.webp`, `jasmine-cup.webp`, `glass-pour.webp` (hero slides 1-3; confirm
+      the first two photographers on their Pexels pages)
 - [ ] `ginger-lemon.webp` (Gut Balance card fallback)
-- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage;
-      bathroom-shelf is also hero slide 2)
+- [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage)
 - [ ] `teacup-mint.webp`, `hands-glass.webp` (stories)
 - [ ] `herbal-flatlay.webp` (Glow Ritual Bundle card fallback)
 - [ ] `bathroom-sink.webp` (closing CTA)
