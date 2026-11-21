@@ -50,7 +50,6 @@ export const hero = {
   from: "From",
   // The two worlds. The big word swaps where the divider cuts through it.
   compare: {
-    label: "Move to compare serums and SkinFusion tea",
     prefix: "Skin care you",
     left: {
       word: "apply.",
@@ -66,7 +65,9 @@ export const hero = {
       facts: ["4 whole foods", "0 sugar", "0 caffeine"],
       name: "SkinFusion",
     },
-    hint: "Move across",
+    hover: "Move your cursor. Click to drink.",
+    tap: "Tap to drink",
+    back: "Back to serum",
   },
 };
 

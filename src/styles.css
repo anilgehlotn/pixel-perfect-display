@@ -370,6 +370,23 @@
     animation: hero-wisp 6s ease-in-out infinite;
   }
 }
+/* The hero's "Tap to drink" hint pulses softly three times after it appears. */
+@keyframes hero-hint {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-hint {
+    animation:
+      hero-ease 1.2s cubic-bezier(0.19, 1, 0.22, 1) var(--d, 0ms) both,
+      hero-hint 1.6s ease-in-out calc(var(--d, 0ms) + 1.2s) 3;
+  }
+}
 @keyframes hero-word {
   from {
     transform: translateY(110%);
@@ -414,6 +431,11 @@
   }
   html[data-intro="mobile"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line) {
     animation-delay: calc(var(--d, 0ms) + 680ms);
+  }
+  /* Revealed tea world: replays its word and facts right away, without the intro delay. */
+  html[data-intro] .hero-replay :is(.hero-word, .hero-ease, .hero-line),
+  .hero-replay :is(.hero-word, .hero-ease, .hero-line) {
+    animation-delay: calc(var(--d, 0ms) * 0.4);
   }
 }
 /* Skin-layers drawing (SkinLayers.tsx): the cream drop lands and spreads; food particles rise

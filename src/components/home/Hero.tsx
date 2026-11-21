@@ -1,224 +1,116 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, HandTap } from "@phosphor-icons/react";
 import { hero } from "@/data/content";
 import { media, type MediaImage } from "@/data/media";
 import { inr } from "@/lib/format";
 import { money, type Product } from "@/lib/shopify/types";
 import { Stars } from "@/components/site/Stars";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/animations/gsap";
-import { MOTION_CONDITIONS } from "@/lib/animations/media";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
+import { attachLens } from "./hero-lens";
 import { Img } from "./media";
 
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
-const clamp = (v: number) => Math.min(97, Math.max(3, v));
 
 /**
- * 1. HERO: two worlds, one word. Full screen, split between the serum world (left: cool,
- * grey) and the tea world (right: warm). Each world carries its own copy of the giant word in
- * the same place, "apply." and "drink.", so where the divider cuts through, one word turns
- * into the other.
+ * 1. HERO: starts in black and white. The serum world fills the screen ("Skin care you
+ * apply.", greyed). Colour is the reward:
  *
- * - On load (after the intro loader): the divider sweeps from the serum side into the tea
- *   side once, so "apply." becomes "drink." in front of the visitor.
- * - Desktop with a mouse: the divider then follows the pointer, eased.
- * - Touch: drag anywhere on the hero. Keyboard: a real range input (arrow keys).
- * - Transform-only: the serum layer's wrapper and content shift by opposite amounts.
- * - Reduced motion: no sweep or follow; drag and keys still work. No JavaScript: the full
- *   tea world ("drink."), never a word cut in half.
+ * - Desktop with a mouse: a lens of colour follows the cursor; inside it the tea world shows
+ *   through, with the letters of "drink.". Clicking spreads the colour out from that point
+ *   like a ripple until the whole hero is the tea world.
+ * - Touch: tapping spreads the ripple from the tap.
+ * - Keyboard and everyone: the "Tap to drink" / "Click to drink" button reveals from the
+ *   centre; "Back to serum" returns to black and white.
+ * - On reveal the word rises again, the fact chips ease in and steam starts (desktop).
+ *
+ * The lens is transform-only (see hero-lens.ts). Reduced motion: no lens; the button swaps
+ * instantly. No JavaScript: the black and white serum world.
  */
 export function Hero({ featured }: { featured: Product }) {
-  // Starts fully in the tea world, so the still page shows the whole word "drink.".
-  const [split, setSplit] = useState(3);
   const frame = useRef<HTMLElement>(null);
-  const target = useRef(3);
-  const current = useRef(3);
-  const mode = useRef<"intro" | "follow" | "drag" | "still">("intro");
-  const raf = useRef(0);
+  const [revealed, setRevealed] = useState(false);
+  const [round, setRound] = useState(0);
+  const lens = useRef<ReturnType<typeof attachLens> | null>(null);
   usePauseWhenHidden(frame);
 
-  // Eased follow loop: moves `current` toward `target` and renders.
-  const run = () => {
-    cancelAnimationFrame(raf.current);
-    const tick = () => {
-      const diff = target.current - current.current;
-      if (Math.abs(diff) < 0.05) {
-        current.current = target.current;
-        setSplit(current.current);
-        return;
-      }
-      current.current += diff * 0.12;
-      setSplit(current.current);
-      raf.current = requestAnimationFrame(tick);
-    };
-    raf.current = requestAnimationFrame(tick);
-  };
-
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      mode.current = "still";
-      return;
-    }
-    const intro = document.documentElement.dataset["intro"];
-    const wait = intro === "desktop" ? 1300 : intro === "mobile" ? 800 : 250;
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      // Show the serum world, then sweep into the tea world.
-      const start = performance.now();
-      const a = current.current;
-      const step = (now: number) => {
-        if (cancelled || mode.current !== "intro") return;
-        const t = Math.min(1, (now - start) / 2800);
-        // 0 to 0.3: slide to the serum side; 0.3 to 1: long sweep to the tea side.
-        const v =
-          t < 0.3
-            ? a + (96 - a) * (1 - Math.pow(1 - t / 0.3, 3))
-            : 96 + (22 - 96) * (1 - Math.pow(1 - (t - 0.3) / 0.7, 4));
-        current.current = v;
-        target.current = v;
-        setSplit(v);
-        if (t < 1) raf.current = requestAnimationFrame(step);
-        else mode.current = "follow";
-      };
-      raf.current = requestAnimationFrame(step);
-    }, wait);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-      cancelAnimationFrame(raf.current);
-    };
+    const root = frame.current;
+    if (!root) return;
+    lens.current = attachLens(root, () => {
+      setRevealed(true);
+      setRound((r) => r + 1);
+    });
+    return () => lens.current?.destroy();
   }, []);
 
-  // Desktop: scrolling down slides the divider into the tea world, ending on "drink.".
-  const section = frame;
-  useGSAP(
-    () => {
-      const el = section.current;
-      if (!el) return;
-      const mm = gsap.matchMedia();
-      mm.add(MOTION_CONDITIONS, (ctx) => {
-        const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
-        if (!isDesktop || isReduced) return;
-        let from = 0;
-        const st = ScrollTrigger.create({
-          trigger: el,
-          start: "top top",
-          end: "bottom 40%",
-          onEnter: () => (from = target.current),
-          onUpdate: (self) => {
-            if (mode.current === "intro" || mode.current === "drag") return;
-            if (self.progress < 0.02) return;
-            target.current = from + (3 - from) * self.progress;
-            run();
-          },
-          onLeaveBack: () => (from = target.current),
-        });
-        return () => st.kill();
-      });
-      return () => mm.revert();
-    },
-    { scope: section },
-  );
-
-  const xToSplit = (clientX: number) => {
-    const r = frame.current?.getBoundingClientRect();
-    return r ? clamp(((clientX - r.left) / r.width) * 100) : 50;
-  };
-  const finePointer = () => window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-  const price = money(featured.priceRange.minVariantPrice);
-  const mrp = featured.compareAtPriceRange
-    ? money(featured.compareAtPriceRange.minVariantPrice)
-    : 0;
   const c = hero.compare;
-
   return (
     <section
-      data-hero-compare
+      data-hero-lens
       ref={frame}
       aria-labelledby="hero-title"
-      onPointerMove={(e) => {
-        if (mode.current === "drag" || (mode.current === "follow" && e.pointerType === "mouse")) {
-          target.current = xToSplit(e.clientX);
-          if (mode.current === "drag") {
-            current.current = target.current;
-            setSplit(target.current);
-          } else run();
-        }
-      }}
-      onPointerDown={(e) => {
-        if ((e.target as HTMLElement).closest("a,button,input")) return;
-        if (e.pointerType === "mouse" && finePointer()) return;
-        cancelAnimationFrame(raf.current);
-        mode.current = "drag";
-        current.current = target.current = xToSplit(e.clientX);
-        setSplit(current.current);
-      }}
-      onPointerUp={() => mode.current === "drag" && (mode.current = "follow")}
-      onPointerCancel={() => mode.current === "drag" && (mode.current = "follow")}
-      className="relative h-[100dvh] min-h-[38rem] touch-pan-y select-none overflow-hidden bg-ink text-cream"
+      data-revealed={revealed || undefined}
+      className="group/hero relative h-[100dvh] min-h-[38rem] select-none overflow-hidden bg-ink text-cream"
     >
-      {/* Tea world (full frame, underneath). */}
-      <World side="right" media={media.hero.image} featured={featured} />
+      {/* 1. Serum world, black and white (base). */}
+      <World side="left" media={media.hero.serum} featured={featured} />
 
-      {/* Serum world (on top, cut at the divider): wrapper shifts left, content shifts back. */}
+      {/* 2. Lens of colour that follows the cursor (transform-only, see hero-lens.ts). */}
       <div
-        className="absolute inset-0 z-[1] overflow-hidden"
-        data-serum-outer
-        style={{ transform: `translateX(${split - 100}%)` }}
+        data-lens
+        aria-hidden="true"
+        className="pointer-events-none invisible absolute left-0 top-0 z-[1] h-[20rem] w-[20rem] overflow-hidden rounded-full"
       >
-        <div
-          data-serum-inner
-          className="absolute inset-0"
-          style={{ transform: `translateX(${100 - split}%)` }}
-        >
-          <World side="left" media={media.hero.serum} featured={featured} />
+        <div data-lens-inner className="absolute left-0 top-0 h-[var(--fh)] w-[var(--fw)]">
+          <World side="right" media={media.hero.image} featured={featured} still />
         </div>
       </div>
 
-      {/* Divider and grip. */}
+      {/* 3. The full tea world once revealed (remounts so its entrance plays again). */}
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[2]"
-        data-divider
-        style={{ transform: `translateX(${split}%)` }}
+        data-tea-full
+        className={`absolute inset-0 z-[1] transition-opacity duration-700 ${revealed ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        aria-hidden={!revealed}
       >
-        <span className="absolute inset-y-0 left-0 w-px bg-cream/70 shadow-[0_0_24px_rgba(255,255,255,0.6)]" />
-        <span className="absolute bottom-[calc(9%+4.25rem)] left-0 hidden -translate-x-full pr-3 text-xs uppercase tracking-[0.2em] text-cream/70 sm:block">
-          {c.left.name}
-        </span>
-        <span className="absolute bottom-[calc(9%+4.25rem)] left-0 hidden pl-3 text-xs uppercase tracking-[0.2em] text-cream sm:block">
-          {c.right.name}
-        </span>
-        <span className="absolute left-0 top-[38%] grid h-14 w-14 -translate-x-1/2 place-items-center sm:bottom-[9%] sm:top-auto rounded-full border border-cream/60 bg-cream/15 text-cream backdrop-blur-md">
-          <span className="flex">
-            <CaretLeft size={16} weight="bold" />
-            <CaretRight size={16} weight="bold" />
-          </span>
-        </span>
+        {round > 0 && (
+          <div key={round} className="hero-replay absolute inset-0">
+            <World side="right" media={media.hero.image} featured={featured} settle={false} />
+          </div>
+        )}
       </div>
-      <label className="sr-only" htmlFor="hero-compare">
-        {c.label}
-      </label>
-      <input
-        id="hero-compare"
-        type="range"
-        min={3}
-        max={97}
-        step={1}
-        value={Math.round(split)}
-        onChange={(e) => {
-          cancelAnimationFrame(raf.current);
-          mode.current = "follow";
-          current.current = target.current = Number(e.target.value);
-          setSplit(current.current);
-        }}
-        className="absolute inset-x-0 top-[38%] z-[3] h-14 cursor-ew-resize opacity-0 sm:bottom-[9%] sm:top-auto"
-      />
 
-      {/* Shared copy over both worlds (the big word itself lives in each world). */}
+      {/* 4. Shared copy on top. */}
       <Column layer="shared" featured={featured} />
+
+      {/* 5. Hint / reveal button and the way back. */}
+      <div className="absolute inset-x-0 bottom-6 z-[3] flex justify-center px-4 sm:bottom-8">
+        {revealed ? (
+          <button
+            type="button"
+            onClick={() => {
+              setRevealed(false);
+              lens.current?.reset();
+            }}
+            className="hero-ease inline-flex min-h-11 items-center gap-2 rounded-full border border-cream/40 bg-ink/30 px-5 text-sm text-cream backdrop-blur-md hover:bg-ink/50"
+            style={d(400)}
+          >
+            <ArrowCounterClockwise size={16} weight="light" aria-hidden="true" />
+            {c.back}
+          </button>
+        ) : (
+          <button
+            type="button"
+            data-reveal
+            onClick={() => lens.current?.reveal()}
+            className="hero-hint inline-flex min-h-11 items-center gap-2 rounded-full border border-cream/40 bg-ink/30 px-5 text-sm text-cream backdrop-blur-md hover:bg-ink/50"
+            style={d(1400)}
+          >
+            <HandTap size={18} weight="light" aria-hidden="true" />
+            <span className="sm:hidden">{c.tap}</span>
+            <span className="hidden sm:inline">{c.hover}</span>
+          </button>
+        )}
+      </div>
     </section>
   );
 }
@@ -303,21 +195,27 @@ function World({
   side,
   media: m,
   featured,
+  still = false,
+  settle = true,
 }: {
   side: "left" | "right";
   media: MediaImage;
   featured: Product;
+  /** Inside the lens: no entrance animation and no steam (it follows the cursor). */
+  still?: boolean;
+  /** Photo rises and settles on first load (off when revealed: the lens already shows it). */
+  settle?: boolean;
 }) {
   const c = hero.compare[side];
   const left = side === "left";
   return (
     <div className="absolute inset-0">
-      <div className="hero-settle absolute inset-0" style={d(0)}>
+      <div className={`absolute inset-0 ${still || !settle ? "" : "hero-settle"}`} style={d(0)}>
         <Img
           media={m}
           priority={!left}
           sizes="100vw"
-          className={`h-full w-full ${left ? "object-[35%_60%] grayscale-[85%] brightness-[0.8] contrast-[1.05]" : "object-[60%_60%] saturate-[1.15]"}`}
+          className={`h-full w-full ${left ? "object-[35%_60%] grayscale brightness-[0.8] contrast-[1.08]" : "object-[60%_60%] saturate-[1.15]"}`}
         />
       </div>
       <div
@@ -344,7 +242,7 @@ function World({
           ))}
         </span>
       </p>
-      {!left && <Steam />}
+      {!left && !still && <Steam />}
     </div>
   );
 }
