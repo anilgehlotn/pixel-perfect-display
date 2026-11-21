@@ -330,6 +330,46 @@
     transform: none;
   }
 }
+/* Hero worlds: the serum word is an outline; fine film grain over both photos; steam rises
+   in the tea world (desktop with a mouse). */
+.hero-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(253 250 247 / 0.85);
+}
+.hero-grain {
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+}
+.hero-steam {
+  left: 52%;
+  top: 6%;
+  width: 18%;
+  color: rgb(255 255 255 / 0.85);
+}
+@keyframes hero-wisp {
+  0% {
+    opacity: 0;
+    transform: translateY(18%) scaleY(0.85);
+  }
+  35% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28%) scaleY(1.1);
+  }
+}
+@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .hero-steam {
+    display: block;
+  }
+  .hero-wisp {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: hero-wisp 6s ease-in-out infinite;
+  }
+}
 @keyframes hero-word {
   from {
     transform: translateY(110%);

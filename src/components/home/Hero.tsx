@@ -5,6 +5,9 @@ import { media, type MediaImage } from "@/data/media";
 import { inr } from "@/lib/format";
 import { money, type Product } from "@/lib/shopify/types";
 import { Stars } from "@/components/site/Stars";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/animations/gsap";
+import { MOTION_CONDITIONS } from "@/lib/animations/media";
+import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Img } from "./media";
 
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
@@ -30,6 +33,7 @@ export function Hero({ featured }: { featured: Product }) {
   const current = useRef(50);
   const mode = useRef<"intro" | "follow" | "drag" | "still">("intro");
   const raf = useRef(0);
+  usePauseWhenHidden(frame);
 
   // Eased follow loop: moves `current` toward `target` and renders.
   const run = () => {
@@ -83,6 +87,37 @@ export function Hero({ featured }: { featured: Product }) {
       cancelAnimationFrame(raf.current);
     };
   }, []);
+
+  // Desktop: scrolling down slides the divider into the tea world, ending on "drink.".
+  const section = frame;
+  useGSAP(
+    () => {
+      const el = section.current;
+      if (!el) return;
+      const mm = gsap.matchMedia();
+      mm.add(MOTION_CONDITIONS, (ctx) => {
+        const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
+        if (!isDesktop || isReduced) return;
+        let from = 0;
+        const st = ScrollTrigger.create({
+          trigger: el,
+          start: "top top",
+          end: "bottom 40%",
+          onEnter: () => (from = target.current),
+          onUpdate: (self) => {
+            if (mode.current === "intro" || mode.current === "drag") return;
+            if (self.progress < 0.02) return;
+            target.current = from + (3 - from) * self.progress;
+            run();
+          },
+          onLeaveBack: () => (from = target.current),
+        });
+        return () => st.kill();
+      });
+      return () => mm.revert();
+    },
+    { scope: section },
+  );
 
   const xToSplit = (clientX: number) => {
     const r = frame.current?.getBoundingClientRect();
@@ -141,6 +176,12 @@ export function Hero({ featured }: { featured: Product }) {
         style={{ transform: `translateX(${split}%)` }}
       >
         <span className="absolute inset-y-0 left-0 w-px bg-cream/70 shadow-[0_0_24px_rgba(255,255,255,0.6)]" />
+        <span className="absolute bottom-[calc(9%+4.25rem)] left-0 hidden -translate-x-full pr-3 text-xs uppercase tracking-[0.2em] text-cream/70 sm:block">
+          {c.left.name}
+        </span>
+        <span className="absolute bottom-[calc(9%+4.25rem)] left-0 hidden pl-3 text-xs uppercase tracking-[0.2em] text-cream sm:block">
+          {c.right.name}
+        </span>
         <span className="absolute left-0 top-[38%] grid h-14 w-14 -translate-x-1/2 place-items-center sm:bottom-[9%] sm:top-auto rounded-full border border-cream/60 bg-cream/15 text-cream backdrop-blur-md">
           <span className="flex">
             <CaretLeft size={16} weight="bold" />
@@ -181,10 +222,12 @@ export function Hero({ featured }: { featured: Product }) {
 function Column({
   layer,
   word,
+  outline = false,
   featured,
 }: {
   layer: "shared" | "world";
   word?: string;
+  outline?: boolean;
   featured: Product;
 }) {
   const c = hero.compare;
@@ -216,7 +259,7 @@ function Column({
         </span>
         <span aria-hidden="true" className="block overflow-hidden pb-[0.06em]">
           <span
-            className={`hero-word block text-[clamp(5rem,2.5rem+15vw,15rem)] font-normal leading-[0.95] tracking-[-0.05em] text-cream ${shared ? "invisible" : ""}`}
+            className={`hero-word block text-[clamp(5rem,2.5rem+15vw,15rem)] leading-[0.95] tracking-[-0.05em] ${shared ? "invisible font-normal" : outline ? "hero-outline font-light" : "font-normal text-cream"}`}
             style={d(550)}
           >
             {word ?? c.right.word}
@@ -272,7 +315,8 @@ function World({
         aria-hidden="true"
         className={`absolute inset-0 ${left ? "bg-gradient-to-b from-ink/60 via-ink/35 to-ink/70" : "bg-gradient-to-b from-ink/45 via-ink/15 to-ink/65"}`}
       />
-      <Column layer="world" word={c.word} featured={featured} />
+      <div aria-hidden="true" className="hero-grain absolute inset-0" />
+      <Column layer="world" word={c.word} outline={left} featured={featured} />
       <p
         aria-hidden="true"
         className={`hero-ease absolute top-[30%] hidden max-w-[15rem] sm:block ${left ? "left-8 text-left lg:left-12" : "right-8 text-right lg:right-12"}`}
@@ -280,7 +324,40 @@ function World({
       >
         <span className="label-caps block text-cream/75">{c.tag}</span>
         <span className="mt-2 block text-[1.05rem] leading-snug text-cream/95">{c.text}</span>
+        <span className={`mt-4 flex flex-wrap gap-2 ${left ? "" : "justify-end"}`}>
+          {c.facts.map((f) => (
+            <span
+              key={f}
+              className={`rounded-full px-3 py-1 text-xs ${left ? "border border-cream/40 text-cream/80" : "bg-cream text-green"}`}
+            >
+              {f}
+            </span>
+          ))}
+        </span>
       </p>
+      {!left && <Steam />}
     </div>
+  );
+}
+
+/** Soft steam rising from the cup in the tea world (desktop with a mouse; paused off-screen). */
+function Steam() {
+  const wisps = [
+    "M35 158 C20 128 50 110 35 80 C22 56 45 38 35 8",
+    "M60 158 C46 126 76 106 60 76 C48 52 70 34 60 4",
+    "M85 158 C70 128 100 110 85 80 C72 56 95 38 85 8",
+  ];
+  return (
+    <svg
+      viewBox="0 0 120 160"
+      aria-hidden="true"
+      className="hero-steam pointer-events-none absolute hidden blur-[7px]"
+    >
+      <g fill="none" stroke="currentColor" strokeWidth="9" strokeLinecap="round">
+        {wisps.map((w, i) => (
+          <path key={w} d={w} className="hero-wisp" style={{ animationDelay: `${-i * 2}s` }} />
+        ))}
+      </g>
+    </svg>
   );
 }
