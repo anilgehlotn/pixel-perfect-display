@@ -119,7 +119,8 @@ regenerates `routeTree.gen.ts` automatically.
 - `__root.tsx`: the app shell. Loads the Jost font and `styles.css`, sets site-wide meta tags from
   `lib/seo.ts` (plus `noindex` on Vercel preview builds), and wraps every page in
   `CartProvider` + `Header` + `Footer`, with the cart drawer, toasts, WhatsApp button and
-  10%-off badge floating on top. Also holds the 404 and error screens.
+  10%-off badge floating on top. On phones the WhatsApp button is smaller (48px) and the
+  10%-off badge is hidden so nothing covers the content (the offer stays in the footer). Also holds the 404 and error screens.
 - `Header` (Chrome.tsx): two floating translucent cream pills, 24px from the top (16px on
   phones). Left: logo + `nav.main` (Shop, Ingredients, Learn). Right: "Sign in" (or the
   account initial), cart, coral "Get started" pill to /quiz. Phones: one pill with logo, cart and
@@ -147,7 +148,8 @@ order (`src/routes/index.tsx`):
    the photo comes up from dark and settles from 1.12 to 1 (2.6s), then zooms very slowly
    (24s, once); the hairline draws in; the headline is revealed word by word from a mask; the
    line and button ease in last. Desktop: on scroll the copy fades and lifts away (GSAP
-   ScrollTrigger scrub) while the photo drifts slower than the page (`data-depth`). Option 3 picked by the client: soft blurred steam (`Steam` in Hero.tsx) keeps rising above the cup on desktop with a mouse, with a small pause button; no other loops. Reduced motion: none. Copy: `hero` in content.ts.
+   ScrollTrigger scrub) while the photo drifts slower than the page (`data-depth`). Option 3 picked by the client: soft blurred steam (`Steam` in Hero.tsx) keeps rising above the cup on desktop with a mouse, with a small pause button; no other loops. Reduced motion: none. Phones: the frame fills the screen below the nav, the copy sits at the top over the
+   green background and the cup shows below it. Copy: `hero` in content.ts.
 2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): "Why we make skin care you
    eat", a short paragraph, three points (creams and serums, food, SkinFusion) and the
    skin-layers drawing (`SkinLayers.tsx`): a cream drop lands and stays on the outer layer,
