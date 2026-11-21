@@ -4,13 +4,40 @@ import type { PricedCart } from "../pricing";
 
 // The store backend's Admin GraphQL API: finds pack ids, checks for an existing order and
 // creates the paid order (stock, order list and shipping are managed in the store admin).
-// Server-only. The admin token needs the write_orders and read_products scopes.
+// Server-only. The app needs the write_orders, read_products and write_customers scopes.
 // Verify on a test order before launch: the field names follow the 2026 order-create input.
 
 type GqlError = { message: string };
 
+// Current store apps give a client id and secret; the server exchanges them for an access
+// token that lasts 24 hours (client credentials grant), cached here until shortly before it
+// expires. Older apps give a fixed token instead (STORE_ADMIN_TOKEN).
+let cached: { token: string; expires: number } | null = null;
+
+async function accessToken(): Promise<string> {
+  const { domain, clientId, clientSecret, token } = storeConfig();
+  if (token) return token;
+  if (cached && cached.expires > Date.now()) return cached.token;
+  const res = await fetch(`https://${domain}/admin/oauth/access_token`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+  });
+  if (!res.ok) throw new Error(`[orders] store token ${res.status}`);
+  const json = (await res.json()) as { access_token?: string; expires_in?: number };
+  if (!json.access_token) throw new Error("[orders] store token missing");
+  const seconds = json.expires_in ?? 86_400;
+  cached = { token: json.access_token, expires: Date.now() + Math.max(60, seconds - 300) * 1000 };
+  return cached.token;
+}
+
 async function admin<T>(query: string, variables: Record<string, unknown>): Promise<T> {
-  const { domain, token, apiVersion } = storeConfig();
+  const { domain, apiVersion } = storeConfig();
+  const token = await accessToken();
   const res = await fetch(`https://${domain}/admin/api/${apiVersion}/graphql.json`, {
     method: "POST",
     headers: {

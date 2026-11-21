@@ -100,7 +100,9 @@ describe("recordPaidOrder", () => {
     process.env["RAZORPAY_KEY_ID"] = "rzp_test_key";
     process.env["RAZORPAY_KEY_SECRET"] = "secret";
     process.env["STORE_DOMAIN"] = "store.example";
-    process.env["STORE_ADMIN_TOKEN"] = "token";
+    process.env["STORE_CLIENT_ID"] = "client";
+    process.env["STORE_CLIENT_SECRET"] = "client-secret";
+    delete process.env["STORE_ADMIN_TOKEN"];
     created = null;
     existing = null;
     const notes = encodeNotes(parseForm(form), items);
@@ -108,6 +110,14 @@ describe("recordPaidOrder", () => {
       "fetch",
       vi.fn(async (url: string, init?: RequestInit) => {
         const json = (d: unknown) => new Response(JSON.stringify(d), { status: 200 });
+        if (url === "https://store.example/admin/oauth/access_token") {
+          expect(String(init?.body)).toContain("grant_type=client_credentials");
+          return json({ access_token: "shortlived", expires_in: 86399 });
+        }
+        if (url.includes("/graphql.json"))
+          expect((init?.headers as Record<string, string>)["x-shopify-access-token"]).toBe(
+            "shortlived",
+          );
         if (url.endsWith("/orders/order_TEST123"))
           return json({
             id: "order_TEST123",

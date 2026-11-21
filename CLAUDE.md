@@ -327,8 +327,11 @@ Rules:
   find nothing.
 - Store products must use the same handles as `localProducts` and the same pack titles
   ("1 Pouch", "2 Pouches", "4 Pouches"); a single-pack product may keep its default title.
-- Store admin token scopes: `write_orders`, `read_products` (and customers if orders should
-  create customer records).
+- Store backend access: an app with scopes `write_orders`, `read_products`,
+  `write_customers`. Current apps give `STORE_CLIENT_ID` + `STORE_CLIENT_SECRET`; the server
+  exchanges them for a 24-hour token (client credentials grant, cached in memory). This only
+  works when the app and the store belong to the same organization. Older apps with a fixed
+  token use `STORE_ADMIN_TOKEN` instead.
 - Tests: `src/test/checkout.test.ts` (validation, pricing, notes, signatures, and order
   recording against fake services, including no duplicates).
 
@@ -336,9 +339,10 @@ Going live:
 
 1. Razorpay: create the account (in the client's name), copy the test key id and secret into
    `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET`, add the webhook
-   (`https://skinfusion.in/api/payment-webhook`, event `payment.captured`) and copy its secret.
-2. Store backend: create a custom app with the scopes above, copy the admin token and the
-   store domain into `STORE_ADMIN_TOKEN` / `STORE_DOMAIN`.
+   (`https://skin-fusion.vercel.app/api/payment-webhook`, event `payment.captured`) and copy its secret.
+2. Store backend: create an app with the scopes above in the developer dashboard of the
+   account that owns the store, install it on the store, and copy the admin domain, client id
+   and client secret into `STORE_DOMAIN`, `STORE_CLIENT_ID`, `STORE_CLIENT_SECRET`.
 3. Add all of them in Vercel (Production and Preview), redeploy, place a test order with
    Razorpay test keys and check it appears, paid, in the store admin. Then switch to live keys.
 

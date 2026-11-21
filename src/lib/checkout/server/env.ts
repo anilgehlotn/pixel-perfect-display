@@ -11,8 +11,15 @@ export const paymentConfig = () => ({
   webhookSecret: read("RAZORPAY_WEBHOOK_SECRET"),
 });
 
+// Store backend: the admin domain (xxx.myshopify-style domain, not the public site) and
+// either an app's client id and secret (current apps: the server exchanges them for a
+// 24-hour token) or a fixed admin token (older apps).
 export const storeConfig = () => ({
-  domain: read("STORE_DOMAIN"),
+  domain: read("STORE_DOMAIN")
+    .replace(/^https?:\/\//, "")
+    .replace(/\/+$/, ""),
+  clientId: read("STORE_CLIENT_ID"),
+  clientSecret: read("STORE_CLIENT_SECRET"),
   token: read("STORE_ADMIN_TOKEN"),
   apiVersion: read("STORE_API_VERSION") || "2026-10",
 });
@@ -24,7 +31,7 @@ export const isPaymentConfigured = () => {
 
 export const isStoreConfigured = () => {
   const c = storeConfig();
-  return Boolean(c.domain && c.token);
+  return Boolean(c.domain && (c.token || (c.clientId && c.clientSecret)));
 };
 
 /**
