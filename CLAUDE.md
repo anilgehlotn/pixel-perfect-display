@@ -44,7 +44,7 @@ each route's `head()` (per page).
 ├── src/
 │   ├── assets/                Site images (JPG originals); web/ holds 400/800px WebP copies
 │   ├── components/home/       Homepage sections (see "Homepage" below)
-│   │   ├── Hero.tsx           Headline, pills, floating product composition
+│   │   ├── Hero.tsx           Full-width photo hero with centred headline and one button
 │   │   ├── Sections.tsx       Product row, bundle, how it works, TCM 101, sourcing, closing CTA
 │   │   ├── Stories.tsx        Stories scroller (drag, drift, video cards)
 │   │   ├── SkinLayers.tsx     Animated drawing: cream stays on top, food rises from inside
@@ -139,20 +139,12 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): a full-width banner slider that explains SkinFusion's idea in plain
-   words: edible skin care. Creams and serums sit on the outer layer of the skin; what you eat
-   and drink is carried by the blood to the deeper layers, so SkinFusion makes skin care you
-   eat and drink. Three slides (`heroSlides` in content.ts, media in `media.hero.slides`):
-   "Skin care you eat, not apply." (woman sipping tea in sunlight; product card with floating
-   ingredients), "Cream stays on top. Food goes deeper." (steaming golden cup; the skin-layers
-   drawing) and "Four whole foods. Nothing added." (glass teapot pour; the four ingredients
-   popping in). Real Pexels photos; `media.hero.focus` sets each crop point. The
-   visuals show on wide screens (xl). Headlines rise word by word on each slide change; slides
-   crossfade, the picture zooms slowly, a progress bar fills and moves on after 6.5s. Hover,
-   focus or the pause button hold only the looping motion (`data-hold`), never text still
-   animating in; an off-screen hero or a hidden tab pause it; arrows, bars, arrow keys and
-   swipe change slides. Reduced motion: no autoplay or motion. Keep the copy simple: no
-   buzzwords, no result promises.
+1. **Hero** (`Hero.tsx`, option 2 picked by the client): one full-width photo in a rounded
+   frame (`media.hero.image`, a steaming glass cup of golden tea, Pexels) that zooms in slowly
+   once, a dark wash, a large centred headline "Skin care you drink.", one line and one coral
+   button "Shop our teas" (to `#shop`). The headline, line and button rise in after the intro
+   loader (`hero.ts`). Copy: `hero` in content.ts. Keep it simple: no buzzwords, no result
+   promises.
 2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): "Why we make skin care you
    eat", a short paragraph, three points (creams and serums, food, SkinFusion) and the
    skin-layers drawing (`SkinLayers.tsx`): a cream drop lands and stays on the outer layer,
@@ -547,7 +539,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero slider                           | Autoplay 6.5s with progress bars, slow zoom, text rises in, crossfade      | Same, swipe to change                             |
+| Hero photo                            | Zooms in slowly once (14s)                                                 | Same                                              |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
@@ -698,7 +690,7 @@ become real customer quotes shared with permission:
 
 Demo copy to confirm:
 
-- [ ] The edible skin care wording (`heroSlides`, `howItWorks`, `skinLayers`): "creams and
+- [ ] The edible skin care wording (`hero`, `howItWorks`, `skinLayers`): "creams and
       serums sit on the outer layer", "what you eat is carried by your blood to the deeper
       layers". Client confirms it is how they want to state their belief (no result promises)
 - [ ] Comparison table (`comparison`): client confirms every row
@@ -728,8 +720,7 @@ Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
 
 - [ ] `window-tea.webp` (Calm Night card fallback, stories)
 - [ ] `red-dates.webp` (sourcing)
-- [ ] `tea-sunlight.webp`, `jasmine-cup.webp`, `glass-pour.webp` (hero slides 1-3; confirm
-      the first two photographers on their Pexels pages)
+- [ ] `jasmine-cup.webp` (hero; confirm the photographer on its Pexels page)
 - [ ] `ginger-lemon.webp` (Gut Balance card fallback)
 - [ ] `glass-teapot.webp`, `hands-cup.webp`, `bathroom-shelf.webp` (bundle collage)
 - [ ] `teacup-mint.webp`, `hands-glass.webp` (stories)
