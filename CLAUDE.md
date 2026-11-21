@@ -179,11 +179,13 @@ order (`src/routes/index.tsx`):
    "Save x%", the variant `note`, price per cup (from the "20 tea bags" subtitle) and its own
    "Add to cart". The biggest pack has a green ring, a "Best value" chip and the coral button;
    the others use outline buttons. Stacked on phones, three columns from `md`.
-5. **Ingredients** (`#ingredients`, `HowItWorks` in Sections.tsx): deep green block. Title,
-   what goes in, true-fact counters (4 whole ingredients, 0 preservatives, 0 caffeine),
-   "How to make it" as three numbered pills (one tea bag, hot water, about five minutes) with
-   the TCM line, and the four ingredients as round photos (`media.ingredients`) with name,
-   hanzi and pinyin. Copy: `home.bundle`, `home.howItWorks`, `ingredients`.
+5. **Ingredients** (`#ingredients`, `HowItWorks` in Sections.tsx): deep green block. Title with
+   the intro beside it (desktop), then the four ingredients as cards: arch-shaped photo
+   (`media.ingredients`, zooms slightly on hover), number 01-04, name, hanzi and pinyin, and a
+   short taste line (`taste` in `ingredients`, no health claims). Below a line: true-fact
+   counters (4 whole ingredients, 0 preservatives, 0 caffeine), "How to make it" as three cream
+   step cards with icons (Leaf, ThermometerHot, Timer), the TCM line and a "See Skin Glow Tea"
+   button. 2 columns of cards on phones, 4 on desktop. Copy: `home.howItWorks`, `ingredients`.
 6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx): "SkinFusion vs. the
    rest", our column in green (`comparison` in content.ts).
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill

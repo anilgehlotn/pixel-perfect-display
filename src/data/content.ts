@@ -301,9 +301,11 @@ export const home = {
     ],
     steps: {
       title: "How to make it",
+      step: "Step",
       items: ["One tea bag", "Hot water", "About five minutes"],
       note: "In Traditional Chinese Medicine, these ingredients are traditionally used to support the skin and digestion.",
     },
+    cta: { label: "See Skin Glow Tea", href: "/products/skin-glow-tea" },
   },
   tcm: {
     title: "Why food, not serums",
@@ -373,6 +375,8 @@ export type Ingredient = {
   pinyin: string;
   image: "jujube" | "snowFungus" | "goji" | "ginger";
   text: string;
+  /** One short taste line for the homepage ingredient cards (no health claims). */
+  taste: string;
 };
 
 // The four ingredients of Skin Glow Tea. Images come from media.ingredients (media.ts).
@@ -383,6 +387,7 @@ export const ingredients: Ingredient[] = [
     pinyin: "hóng zǎo",
     image: "jujube",
     text: "The sweet heart of the blend. Red dates have been simmered in Chinese kitchens for centuries and are traditionally used to nourish and warm.",
+    taste: "Naturally sweet, so no sugar is needed.",
   },
   {
     name: "Snow fungus",
@@ -390,6 +395,7 @@ export const ingredients: Ingredient[] = [
     pinyin: "yín ěr",
     image: "snowFungus",
     text: "A delicate mushroom traditionally prized for its silky, hydrating texture, and a classic of the sweet beauty soups served across China.",
+    taste: "Soft and silky in the cup.",
   },
   {
     name: "Goji berry",
@@ -397,6 +403,7 @@ export const ingredients: Ingredient[] = [
     pinyin: "gǒu qǐ",
     image: "goji",
     text: "Bright red berries with a light, fruity tartness, traditionally enjoyed as part of a daily radiance ritual.",
+    taste: "Bright and lightly fruity.",
   },
   {
     name: "Ginger",
@@ -404,6 +411,7 @@ export const ingredients: Ingredient[] = [
     pinyin: "shēng jiāng",
     image: "ginger",
     text: "A soft, rounded warmth that balances the sweetness. Traditionally used to support comfortable digestion.",
+    taste: "A gentle, rounded warmth.",
   },
 ];
 

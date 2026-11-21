@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Pause, Play } from "@phosphor-icons/react";
+import { ArrowRight, Leaf, Pause, Play, ThermometerHot, Timer } from "@phosphor-icons/react";
 import { home, howItWorks, ingredientStrip, ingredients } from "@/data/content";
 import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
@@ -311,8 +311,11 @@ export function Bundle({ product }: { product: Product }) {
   );
 }
 
-/* 5. INGREDIENTS: deep green block. The four ingredients as round photos, the true facts,
-   and how to make a cup in three short steps. */
+/* 5. INGREDIENTS: deep green block. Heading and intro, the four ingredients as arch-shaped
+   photo cards (number, name, hanzi and pinyin, a taste line), then the true facts, how to make
+   a cup in three steps and a link to the product. */
+const STEP_ICONS = [Leaf, ThermometerHot, Timer];
+
 export function HowItWorks() {
   const copy = home.howItWorks;
   return (
@@ -321,74 +324,91 @@ export function HowItWorks() {
       aria-labelledby="ingredients-title"
       className="section-y scroll-mt-20 px-4 md:px-6"
     >
-      <div className="mx-auto grid max-w-[84rem] gap-10 rounded-card bg-green p-6 text-cream sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16 lg:p-16">
-        <div className="flex flex-col">
-          <h2 id="ingredients-title" data-anim="lines" className="title max-w-xl text-cream">
+      <div className="mx-auto max-w-[84rem] rounded-card bg-green p-5 text-cream sm:p-10 lg:p-16">
+        <div className="grid gap-5 lg:grid-cols-2 lg:items-end lg:gap-16">
+          <h2 id="ingredients-title" data-anim="lines" className="title text-cream">
             {copy.title}
           </h2>
-          <p data-anim="fade" className="mt-5 max-w-lg text-lg leading-relaxed text-cream/85">
+          <p data-anim="fade" className="max-w-lg text-lg leading-relaxed text-cream/85">
             {copy.text}
           </p>
-          <dl className="mt-8 grid grid-cols-3 gap-4 border-y border-cream/20 py-6">
+        </div>
+
+        <ul
+          data-anim="cards"
+          className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:mt-14 lg:grid-cols-4"
+        >
+          {ingredients.map((ing, i) => (
+            <li
+              key={ing.name}
+              className="group flex flex-col rounded-[1.5rem] border border-cream/10 bg-cream/[0.06] p-2.5 sm:p-4"
+            >
+              <div className="aspect-[4/5] overflow-hidden rounded-b-[1rem] rounded-t-full bg-green-soft">
+                <Img
+                  media={media.ingredients[ing.image]}
+                  sizes="(min-width: 1024px) 18rem, 45vw"
+                  className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-105"
+                />
+              </div>
+              <div className="mt-4 flex items-baseline justify-between gap-2 px-1">
+                <h3 className="text-lg text-cream sm:text-xl">{ing.name}</h3>
+                <span aria-hidden="true" className="text-xs text-cream/50 tabular-nums">
+                  0{i + 1}
+                </span>
+              </div>
+              <p className="px-1 text-sm text-cream/65">
+                <span lang="zh">{ing.hanzi}</span> {ing.pinyin}
+              </p>
+              <p className="mt-2 px-1 pb-1 text-sm leading-snug text-cream/90">{ing.taste}</p>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-10 grid gap-8 border-t border-cream/15 pt-8 lg:mt-14 lg:grid-cols-[0.9fr_1.6fr] lg:gap-16 lg:pt-10">
+          <dl className="grid grid-cols-3 gap-4 self-start">
             {copy.facts.map((f) => (
               <div key={f.label} className="flex flex-col">
-                <dt className="order-2 mt-1 text-sm leading-snug text-cream/85">{f.label}</dt>
+                <dt className="order-2 mt-1 text-sm leading-snug text-cream/80">{f.label}</dt>
                 <dd
                   data-count
-                  className="order-1 text-[clamp(2.25rem,1.6rem+2vw,3.5rem)] leading-none text-cream tabular-nums"
+                  className="order-1 text-[clamp(2.5rem,1.8rem+2.4vw,4rem)] leading-none text-cream tabular-nums"
                 >
                   {f.value}
                 </dd>
               </div>
             ))}
           </dl>
-          <div data-anim="fade" className="mt-8">
+          <div data-anim="fade">
             <h3 className="text-xl text-cream">{copy.steps.title}</h3>
-            <ol className="mt-4 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-              {copy.steps.items.map((s, i) => (
-                <li key={s} className="flex items-center gap-2">
-                  <span className="flex items-center gap-2 rounded-full border border-cream/30 py-2 pl-2 pr-4 text-sm">
-                    <span
-                      aria-hidden="true"
-                      className="flex h-6 w-6 items-center justify-center rounded-full bg-cream text-xs font-medium text-green"
-                    >
-                      {i + 1}
+            <ol className="mt-4 grid gap-2.5 sm:grid-cols-3">
+              {copy.steps.items.map((s, i) => {
+                const Icon = STEP_ICONS[i] ?? Leaf;
+                return (
+                  <li
+                    key={s}
+                    className="flex items-center gap-3 rounded-[1.25rem] bg-cream px-3.5 py-2.5 text-green sm:px-4 sm:py-3.5"
+                  >
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-green text-cream sm:h-10 sm:w-10">
+                      <Icon aria-hidden="true" weight="light" className="h-5 w-5" />
                     </span>
-                    {s}
-                  </span>
-                  {i < copy.steps.items.length - 1 && (
-                    <ArrowRight
-                      aria-hidden="true"
-                      weight="light"
-                      className="hidden h-4 w-4 text-cream/60 sm:block"
-                    />
-                  )}
-                </li>
-              ))}
+                    <span className="flex flex-col leading-tight">
+                      <span className="text-xs text-muted-foreground">
+                        {copy.steps.step} {i + 1}
+                      </span>
+                      <span>{s}</span>
+                    </span>
+                  </li>
+                );
+              })}
             </ol>
-            <p className="mt-4 max-w-lg text-sm leading-relaxed text-cream/75">{copy.steps.note}</p>
+            <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <p className="max-w-md text-sm leading-relaxed text-cream/75">{copy.steps.note}</p>
+              <Link to={copy.cta.href} className="btn btn-primary shrink-0">
+                {copy.cta.label}
+              </Link>
+            </div>
           </div>
         </div>
-        <ul
-          data-anim="cards"
-          className="grid grid-cols-2 content-center gap-x-4 gap-y-8 sm:gap-x-8"
-        >
-          {ingredients.map((ing) => (
-            <li key={ing.name} className="flex flex-col items-center text-center">
-              <div className="aspect-square w-full max-w-[9.5rem] overflow-hidden rounded-full bg-green-soft sm:max-w-[13rem]">
-                <Img
-                  media={media.ingredients[ing.image]}
-                  sizes="(min-width: 1024px) 13rem, 40vw"
-                  className="h-full w-full"
-                />
-              </div>
-              <p className="mt-4 text-lg text-cream">{ing.name}</p>
-              <p className="text-sm text-cream/70">
-                <span lang="zh">{ing.hanzi}</span> {ing.pinyin}
-              </p>
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   );
