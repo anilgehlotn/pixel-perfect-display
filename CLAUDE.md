@@ -169,14 +169,15 @@ order (`src/routes/index.tsx`):
    a short muted video plays over it, and the button fills green. Phones: the video plays
    while in view; swipe with snap points and a "Swipe to see all" hint. Products without a
    photo show the fallback image from media.ts. Photo and name open the product page.
-3. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): a compact block, "Why we
-   make skin care you eat", a short paragraph, three points (creams and serums, food,
-   SkinFusion), "Shop our teas" and the skin-layers drawing (`SkinLayers.tsx`). The drawing
-   plays a short story once (about 2s) when it comes into view, on every device
-   (`lib/animations/why-edible.ts`): a cream drop lands and stays on the outer layer, food
-   rises from the cup through the blood into the deeper layers, the cup comes forward, with a
-   camera inside the drawing (`data-sl="camera"`) zooming and panning along. No pinning and
-   the text is never held back: this is a shop. Copy: `howItWorks`, `skinLayers`.
+3. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): eyebrow "The idea" and the
+   title, with the paragraph beside them on desktop. Below, a blush card: the skin-layers
+   drawing (`SkinLayers.tsx`) in a white panel (right on desktop, on top on phones) and the
+   three points as numbered step buttons with icons (Drop, ForkKnife, Coffee) plus "Shop our
+   teas". The drawing plays its story once in view (`lib/animations/why-edible.ts`: cream
+   lands on the outer layer, food rises through the blood, the cup comes forward, with a
+   camera zooming along) and the matching step button lights up as it plays; clicking or
+   tapping a step replays that part (`goTo(i)` from the hook). No pinning. Copy:
+   `howItWorks`, `skinLayers`.
 4. **Bundle** (`#bundle`, "Buy more, pay less"): blush block with a pack picker. One white
    card per variant of the featured product (1, 2, 4 pouches): price, MRP crossed out,
    "Save x%", the variant `note`, price per cup (from the "20 tea bags" subtitle) and its own
@@ -450,7 +451,7 @@ Built with GSAP (ScrollTrigger, SplitText, `useGSAP`) and Lenis. Everything live
 | `presets.ts`             | The reusable animations: `heading`, `fade`, `cards`, `tilt`, `draw`, `pop`, `countUp`, `footerReveal`                  |
 | `useScrollAnimations.ts` | Hook used by each page: runs the preset named in every `data-anim` (and every `data-count`) inside the page            |
 | `hero.ts`                | Homepage hero entrance timeline                                                                                        |
-| `why-edible.ts`          | "Why edible" drawing: three-step story that plays once in view (no pinning)                                            |
+| `why-edible.ts`          | "Why edible" drawing: three-step story that plays once in view; step buttons replay a step (no pinning)                |
 | `intro.ts`               | Intro loader: timings, the inline `<head>` script and its CSS                                                          |
 | `smooth-scroll.ts`       | Lenis setup (desktop only) and stop/start for the scroll lock                                                          |
 | `hydration.ts`           | Waits for the first load to settle and skips content already on screen (no flashes)                                    |

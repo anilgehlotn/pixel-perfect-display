@@ -5,6 +5,8 @@ import {
   ArrowRight,
   Check,
   Coffee,
+  Drop,
+  ForkKnife,
   Leaf,
   LockSimple,
   MapPin,
@@ -74,10 +76,13 @@ export function IngredientStrip() {
 
 /* 2. WHY EDIBLE (#how-it-works): SkinFusion's idea in one picture. The skin-layers drawing
    plays when it scrolls into view; three short points say the same thing in words. */
+const POINT_ICONS = [Drop, ForkKnife, Coffee];
+
 export function WhyEdible() {
   const copy = howItWorks;
   const scope = useRef<HTMLElement>(null);
-  useWhyEdibleStory(scope);
+  const [step, setStep] = useState(2);
+  const { goTo } = useWhyEdibleStory(scope, setStep);
   return (
     <section
       id="how-it-works"
@@ -85,37 +90,78 @@ export function WhyEdible() {
       aria-labelledby="how-title"
       className="section-y scroll-mt-20 px-4 md:px-6"
     >
-      <div className="mx-auto grid max-w-[80rem] gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-20">
-        <div className="max-w-lg">
-          <h2 id="how-title" data-anim="lines" className="title">
-            {copy.title}
-          </h2>
-          <p data-anim="fade" className="mt-5 text-lg leading-relaxed text-muted-foreground">
+      <div className="mx-auto max-w-[84rem]">
+        <div className="grid gap-5 lg:grid-cols-2 lg:items-end lg:gap-16">
+          <div>
+            <p data-anim="fade" className="mb-2 text-sm font-medium tracking-[0.06em] text-ink">
+              {copy.eyebrow}
+            </p>
+            <h2 id="how-title" data-anim="lines" className="title">
+              {copy.title}
+            </h2>
+          </div>
+          <p data-anim="fade" className="max-w-xl text-lg leading-relaxed text-muted-foreground">
             {copy.text}
           </p>
-          <ul className="mt-7 space-y-4">
-            {copy.points.map((pt) => (
-              <li key={pt.title} className="flex gap-4">
-                <span
-                  aria-hidden="true"
-                  className="mt-2.5 h-2.5 w-2.5 shrink-0 rounded-full bg-primary"
-                />
-                <p>
-                  <span className="font-medium text-green">{pt.title}.</span>{" "}
-                  <span className="text-muted-foreground">{pt.text}</span>
-                </p>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-8">
-            <a href={copy.cta.href} className="btn btn-primary">
-              {copy.cta.label}
-            </a>
-          </div>
         </div>
-        <div data-why-art>
-          <div data-why-card className="overflow-hidden rounded-card bg-blush p-3 sm:p-8">
-            <SkinLayers className="mx-auto w-full max-w-md" />
+
+        <div className="mt-10 grid gap-4 rounded-card bg-blush p-3 sm:p-5 lg:mt-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6 lg:p-6">
+          <div data-why-art className="lg:order-2">
+            <div
+              data-why-card
+              className="flex h-full items-center overflow-hidden rounded-[1.5rem] bg-surface p-3 sm:p-8"
+            >
+              <SkinLayers className="mx-auto w-full max-w-lg" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 lg:justify-between lg:p-4">
+            <p className="hidden text-sm text-muted-foreground lg:block">{copy.hint}</p>
+            <ol className="flex flex-col gap-2.5">
+              {copy.points.map((pt, i) => {
+                const PointIcon = POINT_ICONS[i] ?? Drop;
+                const active = step === i;
+                return (
+                  <li key={pt.title}>
+                    <button
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => {
+                        setStep(i);
+                        goTo(i);
+                      }}
+                      className={`flex w-full items-start gap-4 rounded-[1.25rem] p-4 text-left transition-colors duration-300 sm:p-5 ${active ? "bg-green text-cream" : "bg-surface/70 text-ink hover:bg-surface"}`}
+                    >
+                      <span
+                        className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors duration-300 ${active ? "bg-primary text-primary-foreground" : "bg-blush text-green"}`}
+                      >
+                        <PointIcon aria-hidden="true" weight="light" className="h-5 w-5" />
+                      </span>
+                      <span className="flex flex-col">
+                        <span
+                          className={`text-xs tabular-nums ${active ? "text-cream/60" : "text-muted-foreground"}`}
+                        >
+                          0{i + 1}
+                        </span>
+                        <span className={`text-lg ${active ? "text-cream" : "text-green"}`}>
+                          {pt.title}
+                        </span>
+                        <span
+                          className={`mt-0.5 text-sm leading-snug ${active ? "text-cream/85" : "text-muted-foreground"}`}
+                        >
+                          {pt.text}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+            <div className="mt-2">
+              <a href={copy.cta.href} className="btn btn-primary">
+                {copy.cta.label}
+              </a>
+            </div>
           </div>
         </div>
       </div>

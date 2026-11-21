@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import { useCallback, useRef, type RefObject } from "react";
 import { gsap, useGSAP } from "./gsap";
 import { MOTION_CONDITIONS } from "./media";
 import { failsafe, safely } from "./safety";
@@ -11,9 +11,27 @@ import { failsafe, safely } from "./safety";
  *   3. the cup comes forward.
  * A camera inside the drawing zooms on the cream, pans down with the food and pulls back.
  * No pinning or scroll-jacking: this is a shop, people must reach the products quickly.
+ * `onStep(i)` reports the step being shown (0-2) so the matching step button can light up, and
+ * the returned `goTo(i)` replays just that step (the step buttons call it).
  * Reduced motion and no JavaScript: the finished picture. Transform and opacity only.
  */
-export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
+export function useWhyEdibleStory(
+  scope: RefObject<HTMLElement | null>,
+  onStep?: (step: number) => void,
+) {
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const replay = useRef<gsap.core.Tween | null>(null);
+  const stepRef = useRef(onStep);
+  stepRef.current = onStep;
+
+  const goTo = useCallback((step: number) => {
+    const tl = tlRef.current;
+    if (!tl) return;
+    replay.current?.kill();
+    tl.pause();
+    replay.current = tl.tweenFromTo(step, Math.min(step + 1, tl.duration()));
+  }, []);
+
   useGSAP(
     () => {
       const root = scope.current;
@@ -86,8 +104,17 @@ export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
           const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.out" } });
           drawing(tl);
           tl.timeScale(1.4);
+          let shown = -1;
+          tl.eventCallback("onUpdate", () => {
+            const s = Math.min(2, Math.floor(tl.time() + 0.001));
+            if (s !== shown) {
+              shown = s;
+              stepRef.current?.(s);
+            }
+          });
           // Show the start state now (the drawing is usually still below the screen).
           tl.progress(1).progress(0);
+          tlRef.current = tl;
           const io = new IntersectionObserver(
             ([entry]) => {
               if (!entry?.isIntersecting) return;
@@ -101,6 +128,8 @@ export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
           cleanup = () => {
             io.disconnect();
             stop();
+            replay.current?.kill();
+            tlRef.current = null;
           };
         });
         return () => cleanup?.();
@@ -109,4 +138,6 @@ export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
     },
     { scope },
   );
+
+  return { goTo };
 }

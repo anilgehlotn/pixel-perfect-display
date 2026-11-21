@@ -92,6 +92,8 @@ export const skinLayers = {
 };
 
 export const howItWorks = {
+  eyebrow: "The idea",
+  hint: "Choose a step to see it in the drawing",
   title: "Why we make skin care you eat",
   text: "Your skin has layers. Creams and serums are applied to the outer one. Your blood reaches the deeper layers, and it carries what you eat and drink. So we put whole foods in a tea bag.",
   points: [
