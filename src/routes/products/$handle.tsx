@@ -23,6 +23,7 @@ import {
   Steps,
 } from "@/components/product/Blocks";
 import { Icon } from "@/components/product/icons";
+import { Img } from "@/components/home/media";
 import type { Product } from "@/lib/catalog/types";
 
 export const Route = createFileRoute("/products/$handle")({
@@ -217,10 +218,17 @@ function ProductPage() {
   );
 }
 
+/**
+ * "Why it belongs in your day" as a bento grid: a tall photo tile with a caption, the first
+ * reason as a large green card, the other five as white cards with a number and an icon in a
+ * blush circle (compact rows on phones, lift on hover on desktop).
+ */
 function Benefits({ benefits }: { benefits: ProductDetails["benefits"] }) {
+  const [lead, ...rest] = benefits;
+  const photo = media.ritual.image;
   return (
-    <section aria-labelledby="benefits-title" className="bg-blush px-4 py-16 md:px-6 lg:py-20">
-      <div className="mx-auto max-w-[72rem]">
+    <section aria-labelledby="benefits-title" className="bg-blush px-4 py-16 md:px-6 lg:py-24">
+      <div className="mx-auto max-w-[76rem]">
         <div className="mx-auto max-w-2xl text-center">
           <p data-anim="fade" className="mb-2 text-sm font-medium tracking-[0.06em] text-ink">
             {pdp.benefits.eyebrow}
@@ -232,20 +240,76 @@ function Benefits({ benefits }: { benefits: ProductDetails["benefits"] }) {
             {pdp.benefits.text}
           </p>
         </div>
-        <ul
-          data-anim="cards"
-          className="mt-10 grid gap-4 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-6"
-        >
-          {benefits.map((b) => (
-            <li key={b.title} className="flex flex-col rounded-card bg-surface p-7 md:p-8">
-              <span className="grid h-14 w-14 place-items-center rounded-full border border-gold/50 text-gold-deep">
-                <Icon name={b.icon} size={28} />
-              </span>
-              <h3 className="mt-5 font-serif text-[1.4rem] leading-snug">{b.title}</h3>
-              <p className="mt-2 leading-relaxed text-ink/80">{b.text}</p>
-            </li>
-          ))}
-        </ul>
+
+        <div className="mt-10 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:mt-14 lg:grid-cols-3 lg:gap-5">
+          <figure
+            data-anim="media"
+            className="relative min-h-[16rem] overflow-hidden rounded-card bg-beige sm:col-span-2 lg:col-span-1 lg:row-span-2 lg:min-h-0"
+          >
+            <Img
+              media={photo}
+              sizes="(min-width: 1024px) 24rem, 100vw"
+              className="absolute inset-0 h-full w-full"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-ink/55 via-transparent to-transparent"
+            />
+            <figcaption className="absolute inset-x-5 bottom-5 text-xl leading-snug text-cream md:text-2xl">
+              {pdp.benefits.photoCaption}
+            </figcaption>
+          </figure>
+
+          {lead && (
+            <div
+              data-anim="fade"
+              className="flex flex-col justify-between rounded-card bg-green p-7 text-cream sm:col-span-2 md:p-10"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <span className="grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground">
+                  <Icon name={lead.icon} size={28} />
+                </span>
+                <span aria-hidden="true" className="text-sm text-cream/55 tabular-nums">
+                  01
+                </span>
+              </div>
+              <div className="mt-8 lg:mt-12">
+                <h3 className="text-[clamp(1.6rem,1.2rem+1.4vw,2.4rem)] leading-tight text-cream">
+                  {lead.title}
+                </h3>
+                <p className="mt-3 max-w-xl text-lg leading-relaxed text-cream/85">{lead.text}</p>
+              </div>
+            </div>
+          )}
+
+          <ul className="contents">
+            {rest.map((b, i) => (
+              <li
+                key={b.title}
+                data-anim="fade"
+                className="lift flex gap-4 rounded-[1.5rem] bg-surface p-5 sm:flex-col sm:gap-0 sm:rounded-card sm:p-7"
+              >
+                <div className="flex items-start justify-between sm:w-full">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-blush text-green sm:h-14 sm:w-14">
+                    <Icon name={b.icon} size={24} />
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="hidden text-sm text-muted-foreground tabular-nums sm:block"
+                  >
+                    0{i + 2}
+                  </span>
+                </div>
+                <div className="sm:mt-6">
+                  <h3 className="text-lg leading-snug text-green sm:text-[1.35rem]">{b.title}</h3>
+                  <p className="mt-1.5 text-[0.95rem] leading-relaxed text-ink/75 sm:mt-2 sm:text-base">
+                    {b.text}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

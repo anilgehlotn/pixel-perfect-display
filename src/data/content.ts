@@ -622,6 +622,7 @@ export const pdp = {
     eyebrow: "In detail",
     title: "Why it belongs in your day",
     text: "Six reasons customers keep a pouch by the kettle. Every one comes from four whole ingredients and nothing else.",
+    photoCaption: "One warm cup, once a day",
   },
   ingredients: { eyebrow: "What's inside", title: "Four whole ingredients" },
   ritual: { eyebrow: "Easy as one, two, three", title: "How to enjoy", taste: "Tasting notes" },

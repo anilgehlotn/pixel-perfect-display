@@ -229,7 +229,9 @@ related products. `head()` sets the title, description, share image and price ta
    Shipping.
    The gallery and buy box fade in on load (`data-anim`).
 4. Products with an entry in `productDetails` (content.ts) also get: "Why it belongs in your
-   day" (six benefit cards), "How to enjoy" with tasting notes, the
+   day" (bento grid: tall photo tile `media.ritual.image` with `pdp.benefits.photoCaption`,
+   the first benefit as a large green card, the other five as numbered white cards with icons
+   in blush circles; compact rows on phones), "How to enjoy" with tasting notes, the
    ingredients block, the comparison table and an FAQ. Today only `skin-glow-tea` has details; the others show the buy
    box, a "coming soon" description, reviews and related products, and no ingredient claims.
 5. Reviews, related products ("You may also like"), wellness disclaimer.
