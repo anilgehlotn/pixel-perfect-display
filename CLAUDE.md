@@ -669,10 +669,10 @@ Demo videos (`public/media/demo/videos/`, Mixkit Free License, all `isDemo: true
 - [ ] `leaves-sunlight.mp4` (Gut Balance Tea card)
 - [ ] `flowers-breeze.mp4` (stories)
 
-Demo photos (`public/media/demo/photos/`, Pexels License, all `isDemo: true`):
+Demo photos (`public/media/demo/photos/`, Pexels License unless noted, all `isDemo: true`):
 
 - [ ] `window-tea.webp` (Calm Night card fallback, stories)
-- [ ] `red-dates.webp` (sourcing)
+- [ ] `jujube-tree.webp` (sourcing, Pixabay; `red-dates.webp` is no longer used)
 - [ ] `jasmine-cup.webp` (hero; confirm the photographer on its Pexels page)
 - [ ] `ginger-lemon.webp` (Gut Balance card fallback)
 - [ ] `glass-teapot.webp`, `hands-cup.webp` (product galleries), `bathroom-shelf.webp`

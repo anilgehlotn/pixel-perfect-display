@@ -21,6 +21,9 @@ Nothing was hotlinked: every file was downloaded once and re-encoded locally.
 - **Pexels License**: free for commercial and personal use, no attribution required. Not
   allowed: selling unaltered copies, implying endorsement by people shown, or redistributing
   the photos as a stock collection. https://www.pexels.com/license/
+- **Pixabay Content License**: free for commercial and personal use, no attribution required.
+  Not allowed: selling unaltered copies, or use that implies endorsement.
+  https://pixabay.com/service/license-summary/
 
 ## Videos (Mixkit)
 
@@ -39,19 +42,19 @@ Each video has a matching poster: `posters/<same name>.webp`.
 
 ## Photos (Pexels)
 
-| File                         | Used in              | Photographer           | Source                                                                                                      |
-| ---------------------------- | -------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `photos/window-tea.webp`     | Product row, Stories | Вальдемар              | https://www.pexels.com/photo/cross-legged-sitting-woman-holding-cup-of-tea-looking-through-window-11012771/ |
-| `photos/red-dates.webp`      | Sourcing             | Towfiqu barbhuiya      | https://www.pexels.com/photo/full-frame-of-drying-red-dates-12625117/                                       |
-| `photos/ginger-lemon.webp`   | Product row          | Angele J               | https://www.pexels.com/photo/ginger-and-2-lemon-fruit-128403/                                               |
-| `photos/glass-teapot.webp`   | Product gallery      | Teejay                 | https://www.pexels.com/photo/clear-glass-teapot-set-1362537/                                                |
-| `photos/teacup-mint.webp`    | Stories              | Mareefe                | https://www.pexels.com/photo/peppermint-tea-on-teacup-1417945/                                              |
-| `photos/herbal-flatlay.webp` | Product row          | Olena Bohovyk          | https://www.pexels.com/photo/clear-glass-bowl-with-herbs-and-tea-3604314/                                   |
-| `photos/bathroom-shelf.webp` | Hero (serum side)    | Karola G               | https://www.pexels.com/photo/set-of-skin-care-products-in-contemporary-bathroom-4239013/                    |
-| `photos/bathroom-sink.webp`  | Closing CTA          | Monstera Production    | https://www.pexels.com/photo/sink-with-skincare-products-in-bathroom-6781117/                               |
-| `photos/hands-glass.webp`    | Stories              | Vlada Karpovich        | https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/                                         |
-| `photos/hands-cup.webp`      | Product gallery      | Teona Swift            | https://www.pexels.com/photo/anonymous-woman-drinking-cup-of-hot-tea-at-home-6874185/                       |
-| `photos/jasmine-cup.webp`    | Hero (mirrored)      | To confirm on the page | https://www.pexels.com/photo/cup-of-aromatic-jasmine-tea-served-on-table-in-garden-7138780/                 |
+| File                         | Used in                 | Photographer           | Source                                                                                                      |
+| ---------------------------- | ----------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `photos/window-tea.webp`     | Product row, Stories    | Вальдемар              | https://www.pexels.com/photo/cross-legged-sitting-woman-holding-cup-of-tea-looking-through-window-11012771/ |
+| `photos/red-dates.webp`      | Not used (was sourcing) | Towfiqu barbhuiya      | https://www.pexels.com/photo/full-frame-of-drying-red-dates-12625117/                                       |
+| `photos/ginger-lemon.webp`   | Product row             | Angele J               | https://www.pexels.com/photo/ginger-and-2-lemon-fruit-128403/                                               |
+| `photos/glass-teapot.webp`   | Product gallery         | Teejay                 | https://www.pexels.com/photo/clear-glass-teapot-set-1362537/                                                |
+| `photos/teacup-mint.webp`    | Stories                 | Mareefe                | https://www.pexels.com/photo/peppermint-tea-on-teacup-1417945/                                              |
+| `photos/herbal-flatlay.webp` | Product row             | Olena Bohovyk          | https://www.pexels.com/photo/clear-glass-bowl-with-herbs-and-tea-3604314/                                   |
+| `photos/bathroom-shelf.webp` | Hero (serum side)       | Karola G               | https://www.pexels.com/photo/set-of-skin-care-products-in-contemporary-bathroom-4239013/                    |
+| `photos/bathroom-sink.webp`  | Closing CTA             | Monstera Production    | https://www.pexels.com/photo/sink-with-skincare-products-in-bathroom-6781117/                               |
+| `photos/hands-glass.webp`    | Stories                 | Vlada Karpovich        | https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/                                         |
+| `photos/hands-cup.webp`      | Product gallery         | Teona Swift            | https://www.pexels.com/photo/anonymous-woman-drinking-cup-of-hot-tea-at-home-6874185/                       |
+| `photos/jasmine-cup.webp`    | Hero (mirrored)         | To confirm on the page | https://www.pexels.com/photo/cup-of-aromatic-jasmine-tea-served-on-table-in-garden-7138780/                 |
 
 ## Still missing (download by hand if wanted)
 
@@ -79,3 +82,11 @@ ingredient photos in `src/assets/`. They came with the original site; the client
 confirm they own them. The SkinFusion pouch photo is still missing
 (`src/assets/skinfusion-pouch.jpg.asset.json` is a pointer to the old builder, not an image),
 so the hero shows the tea cup photo in its place.
+
+## Photos (Pixabay)
+
+| File                      | Used in                             | Author                                | Source                                                         |
+| ------------------------- | ----------------------------------- | ------------------------------------- | -------------------------------------------------------------- |
+| `photos/jujube-tree.webp` | Sourcing ("Where our jujubes grow") | Pixabay contributor (see source page) | https://pixabay.com/photos/red-dates-food-green-jujube-931583/ |
+
+Downloaded from Pixabay's image server (1280px), re-encoded to WebP (853px) plus a 600px copy.

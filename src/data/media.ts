@@ -50,6 +50,7 @@ export type Media = MediaImage | MediaVideo;
 
 const MIXKIT = "Mixkit Free License (free for commercial use, no attribution required)";
 const PEXELS = "Pexels License (free for commercial use, no attribution required)";
+const PIXABAY = "Pixabay Content License (free for commercial use, no attribution required)";
 const OWN = "SkinFusion site asset";
 
 const video = (
@@ -184,6 +185,17 @@ const photos = {
     "Towfiqu barbhuiya on Pexels",
     "https://www.pexels.com/photo/full-frame-of-drying-red-dates-12625117/",
   ),
+  // Pixabay photo: the photographer's name is on the source page (not required by the licence).
+  jujubeTree: {
+    ...photo(
+      "jujube-tree",
+      "Ripe red jujubes hanging on a branch among green leaves",
+      [853, 1280],
+      "Pixabay contributor (see source page)",
+      "https://pixabay.com/photos/red-dates-food-green-jujube-931583/",
+    ),
+    license: PIXABAY,
+  },
   gingerLemon: photo(
     "ginger-lemon",
     "Fresh ginger root beside two lemons on a wooden table",
@@ -316,7 +328,7 @@ export const media = {
     videoC: videos.teaSteeping,
     edgeEnd: site.snowFungus,
   },
-  sourcing: photos.redDates,
+  sourcing: photos.jujubeTree,
   closing: { portrait: photos.bathroomSink, circle: site.evening },
   // Product page (/products/$handle): extra gallery photos after the product's own images.
   gallery: {
