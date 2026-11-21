@@ -149,8 +149,12 @@ order (`src/routes/index.tsx`):
    world with only the word visible) so the word lines up exactly. On load the divider
    sweeps to the serum side, then into the tea side (2.8s, after the intro loader). Desktop
    with a mouse: the divider then follows the pointer, eased. Touch: drag anywhere. Keyboard:
-   a real range input. Transform-only. Reduced motion: no sweep or follow. No JavaScript:
-   50/50. Phones: the drag handle sits above the word, captions and rating hide.
+   a real range input. Desktop scroll: scrolling down slides the divider fully into the tea
+   world. Details: "apply." is a thin outline (`hero-outline`), "drink." solid; "Serum" and
+   "SkinFusion" tags ride the divider; each world has a caption with fact chips
+   (`compare.left/right.facts`); fine film grain (`hero-grain`) over both photos; steam rises
+   in the tea world (desktop). Transform-only. Reduced motion: no sweep, follow or steam. No
+   JavaScript: 50/50. Phones: the drag handle sits above the word, captions and rating hide.
    **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
    under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
    still on phones.
