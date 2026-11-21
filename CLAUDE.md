@@ -145,10 +145,9 @@ order (`src/routes/index.tsx`):
    caption "On your face" with fact chips). Colour then rises from the bottom like tea filling
    a cup, with a thin glowing edge: the tea world (`media.hero.image`, "drink." in solid
    letters, "In your cup" caption, steam on desktop) replaces it as the edge passes.
-   - Phones and tablets (the priority): the fill plays once (1.8s) on the first scroll or touch,
-     or by itself after 3s. No pinning or scrub. Captions sit centred above the headline.
-   - Desktop with a mouse: the hero is pinned for 110% of the screen height and the fill
-     follows the scroll (scrub 0.6). A "Scroll to drink" cue fades out as the colour rises.
+   - Every device: the fill plays once (1.8s) on the first scroll or touch, or by itself
+     after 3s. No pinning or scrub (it is a shop: products must be one scroll away). Phones
+     show the captions centred above the headline; desktop shows a "Scroll to drink" cue.
    - Transform-only: the fill wrapper moves up while its content moves down by the same
      amount. `Column` keeps the shared copy (real h1 and button) and each world's word aligned.
      Fine film grain over both photos. Reduced motion: shown in colour at once. No JavaScript:
@@ -156,26 +155,20 @@ order (`src/routes/index.tsx`):
      **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
      under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
      still on phones.
-2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx), in two parts
-   (`lib/animations/why-edible.ts`):
-   - Statement: "Why we make skin care you eat" and the paragraph in large green type, one
-     span per word (`data-why-word`). The words light up from 14% to full as you scroll
-     (desktop, pinned for 100% of the screen height) or once in sequence (phones).
-   - Story: the three points (numbered 01-03) and the skin-layers drawing (`SkinLayers.tsx`).
-     1. A cream drop lands and stays on the outer layer, which lights up; 2. the blood vessel
-        appears and food rises from the cup into the deeper layers; 3. the cup comes forward.
-        A camera inside the drawing (`data-sl="camera"`) zooms on the cream, pans down with the
-        food and pulls back for the cup. Desktop: pinned for 260% of the screen height, the
-        story follows the scroll, the active point is at full ink, the others dimmed, a green
-        progress line runs down the points and the card grows in as it arrives. Phones: drawing
-        above the points; the story plays once (about 3s) when the drawing comes into view.
-        The server HTML is the finished state. Copy: `howItWorks`, `skinLayers`.
-3. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
+2. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
    video on hover (desktop) or while in view (phones) over the product photo; products without a
    photo show the fallback image from media.ts. Swipe with snap points on phones. Photo and
    name open the product page; cards show rating and review count, price with the MRP crossed
    out and "Save x%", and "Add to cart" adds the first variant. `ProductCard` is exported and
    reused for "You may also like" on the product page.
+3. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): a compact block, "Why we
+   make skin care you eat", a short paragraph, three points (creams and serums, food,
+   SkinFusion), "Shop our teas" and the skin-layers drawing (`SkinLayers.tsx`). The drawing
+   plays a short story once (about 2s) when it comes into view, on every device
+   (`lib/animations/why-edible.ts`): a cream drop lands and stays on the outer layer, food
+   rises from the cup through the blood into the deeper layers, the cup comes forward, with a
+   camera inside the drawing (`data-sl="camera"`) zooming and panning along. No pinning and
+   the text is never held back: this is a shop. Copy: `howItWorks`, `skinLayers`.
 4. **Bundle** (`#bundle`): blush card, copy, "Add 4 pouches" (adds the 4-pouch variant of the
    featured product) and a 2x2 collage of rounded shapes.
 5. **How it works** (`#ingredients`): deep green block, counters for true facts only (4 whole
@@ -526,7 +519,7 @@ Built with GSAP (ScrollTrigger, SplitText, `useGSAP`) and Lenis. Everything live
 | `presets.ts`             | The reusable animations: `heading`, `fade`, `cards`, `tilt`, `draw`, `pop`, `countUp`, `footerReveal`                  |
 | `useScrollAnimations.ts` | Hook used by each page: runs the preset named in every `data-anim` (and every `data-count`) inside the page            |
 | `hero.ts`                | Homepage hero entrance timeline                                                                                        |
-| `why-edible.ts`          | "Why edible" three-step story: pinned scroll story on desktop, play-once sequence on phones                            |
+| `why-edible.ts`          | "Why edible" drawing: three-step story that plays once in view (no pinning)                                            |
 | `intro.ts`               | Intro loader: timings, the inline `<head>` script and its CSS                                                          |
 | `smooth-scroll.ts`       | Lenis setup (desktop only) and stop/start for the scroll lock                                                          |
 | `hydration.ts`           | Waits for the first load to settle and skips content already on screen (no flashes)                                    |
@@ -567,7 +560,7 @@ element: nest wrappers.
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
 | Product videos                        | Play on hover / keyboard focus                                             | Play while in view (max 2 videos at once)         |
 | Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards | Native swipe with snap points                     |
-| Why edible                            | Pinned: words light up, then drawing zooms through cream, food, cup        | Words, then the story, each play once in view     |
+| Why edible drawing                    | Plays once in view: cream, food, cup, with a camera zoom                   | Same                                              |
 | Counters                              | Count up once                                                              | Same                                              |
 | Nav                                   | Hides on scroll down, shows on scroll up                                   | Same                                              |
 | Footer                                | Slides up, columns fade in one by one                                      | Same, smaller distances                           |

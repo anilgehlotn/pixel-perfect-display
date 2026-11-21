@@ -70,64 +70,37 @@ export function WhyEdible() {
       aria-labelledby="how-title"
       className="section-y scroll-mt-20 px-4 md:px-6"
     >
-      {/* Statement: big words that light up one by one. */}
-      <div
-        data-why-statement
-        className="mx-auto max-w-[80rem] lg:flex lg:min-h-[100dvh] lg:flex-col lg:items-center lg:justify-center lg:text-center"
-      >
-        <h2 id="how-title" data-anim="lines" className="title">
-          {copy.title}
-        </h2>
-        <p className="mt-6 max-w-5xl text-[clamp(1.6rem,1rem+2.4vw,3.4rem)] leading-[1.2] tracking-[-0.02em] text-green lg:mt-10">
-          {copy.text.split(" ").map((w, i) => (
-            <span key={`${w}-${i}`} data-why-word>
-              {w}{" "}
-            </span>
-          ))}
-        </p>
-      </div>
-
-      {/* Story: the drawing acts out the three points. */}
-      <div data-why-story className="mt-14 lg:mt-0 lg:flex lg:min-h-[100dvh] lg:items-center">
-        <div className="mx-auto grid w-full max-w-[80rem] gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-20">
-          <div data-why-art className="lg:order-2">
-            <div data-why-card className="overflow-hidden rounded-card bg-blush p-3 sm:p-10">
-              <SkinLayers className="mx-auto w-full max-w-md lg:max-w-xl" />
-            </div>
+      <div className="mx-auto grid max-w-[80rem] gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-20">
+        <div className="max-w-lg">
+          <h2 id="how-title" data-anim="lines" className="title">
+            {copy.title}
+          </h2>
+          <p data-anim="fade" className="mt-5 text-lg leading-relaxed text-muted-foreground">
+            {copy.text}
+          </p>
+          <ul className="mt-7 space-y-4">
+            {copy.points.map((pt) => (
+              <li key={pt.title} className="flex gap-4">
+                <span
+                  aria-hidden="true"
+                  className="mt-2.5 h-2.5 w-2.5 shrink-0 rounded-full bg-primary"
+                />
+                <p>
+                  <span className="font-medium text-green">{pt.title}.</span>{" "}
+                  <span className="text-muted-foreground">{pt.text}</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8">
+            <a href={copy.cta.href} className="btn btn-primary">
+              {copy.cta.label}
+            </a>
           </div>
-          <div className="max-w-lg">
-            <ol className="relative space-y-6">
-              {/* Desktop: a progress line runs down the points as the story plays. */}
-              <span
-                aria-hidden="true"
-                className="absolute bottom-3 left-[4.5px] top-3 hidden w-px bg-green/15 lg:block"
-              >
-                <span data-why-rail className="block h-full w-full origin-top bg-green" />
-              </span>
-              {copy.points.map((pt, i) => (
-                <li key={pt.title} data-why-step className="relative flex gap-4">
-                  <span
-                    aria-hidden="true"
-                    data-why-dot
-                    className="mt-2.5 h-2.5 w-2.5 shrink-0 rounded-full bg-primary"
-                  />
-                  <p>
-                    <span aria-hidden="true" className="label-caps block text-muted-foreground">
-                      0{i + 1}
-                    </span>
-                    <span className="mt-1 block text-xl font-medium text-green lg:text-2xl">
-                      {pt.title}.
-                    </span>{" "}
-                    <span className="mt-1 block text-muted-foreground">{pt.text}</span>
-                  </p>
-                </li>
-              ))}
-            </ol>
-            <div data-anim="fade" className="mt-9">
-              <a href={copy.cta.href} className="btn btn-primary">
-                {copy.cta.label}
-              </a>
-            </div>
+        </div>
+        <div data-why-art>
+          <div data-why-card className="overflow-hidden rounded-card bg-blush p-3 sm:p-8">
+            <SkinLayers className="mx-auto w-full max-w-md" />
           </div>
         </div>
       </div>

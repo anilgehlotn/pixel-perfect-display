@@ -19,9 +19,8 @@ const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
  * moves up while its content moves down by the same amount, so the colour climbs the screen
  * with a soft glowing edge, and "apply." turns into "drink." as the edge passes the word.
  *
- * - Phones (the priority): the fill plays once, 1.8s, as soon as the visitor starts
- *   scrolling, or by itself after 3s. No pinning or scrubbing on phones.
- * - Desktop with a mouse: the hero is pinned and the fill follows the scroll (scrub).
+ * - Every device: the fill plays once, 1.8s, as soon as the visitor starts scrolling, or by
+ *   itself after 3s. No pinning or scrubbing.
  * - Reduced motion: shown straight away in colour. No JavaScript: black and white.
  * Transform-only.
  */
@@ -46,7 +45,7 @@ export function Hero({ featured }: { featured: Product }) {
       };
       const mm = gsap.matchMedia();
       mm.add(MOTION_CONDITIONS, (ctx) => {
-        const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
+        const { isReduced } = ctx.conditions as Record<string, boolean>;
         if (isReduced) {
           fill.p = 1;
           paint();
@@ -54,26 +53,8 @@ export function Hero({ featured }: { featured: Product }) {
         }
         fill.p = 0;
         paint();
-        if (isDesktop) {
-          const tween = gsap.to(fill, {
-            p: 1,
-            ease: "none",
-            onUpdate: paint,
-            scrollTrigger: {
-              trigger: root,
-              start: "top top",
-              end: "+=110%",
-              scrub: 0.6,
-              pin: true,
-              anticipatePin: 1,
-            },
-          });
-          return () => {
-            tween.scrollTrigger?.kill();
-            tween.kill();
-          };
-        }
-        // Phones and tablets: play once on the first scroll, or after 3s.
+        // Every device: play once on the first scroll, or after 3s. No pinning: this is a
+        // shop, the products must be one scroll away.
         let played = false;
         const play = () => {
           if (played) return;
@@ -131,7 +112,7 @@ export function Hero({ featured }: { featured: Product }) {
       {/* Shared copy on top. */}
       <Column layer="shared" featured={featured} />
 
-      {/* Hint (desktop: the fill follows the scroll there), fades as the colour rises. */}
+      {/* Hint (desktop), fades as the colour rises. */}
       <div
         data-fill-hint
         aria-hidden="true"

@@ -38,8 +38,8 @@ function Index() {
     <main ref={scope}>
       <Hero featured={featured} />
       <IngredientStrip />
-      <WhyEdible />
       <ProductRow products={products} />
+      <WhyEdible />
       <Bundle product={featured} />
       <HowItWorks />
       <ComparisonTable />
