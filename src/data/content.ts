@@ -349,8 +349,17 @@ export const home = {
   },
   closing: {
     title: "Try it for yourself",
-    line: "One cup a day. Free shipping on orders above ₹699.",
-    cta: { label: "Shop now", href: "/products/skin-glow-tea" },
+    line: "One cup a day, made from four whole foods. Start with a single pouch, or save with a pack.",
+    trust: [
+      { icon: "truck", text: "Free shipping on orders above ₹699" },
+      { icon: "lock", text: "Secure payment by UPI, cards or net banking" },
+      { icon: "leaf", text: "Caffeine free, with no added sugar" },
+    ],
+    from: "From",
+    reviews: "reviews",
+    save: "Save",
+    add: "Add to cart",
+    details: "View details",
   },
 };
 

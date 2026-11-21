@@ -46,7 +46,7 @@ function Index() {
       <Tcm101 />
       <Stories />
       <Sourcing />
-      <ClosingCta />
+      <ClosingCta product={featured} />
     </main>
   );
 }

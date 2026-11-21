@@ -1,7 +1,16 @@
 import { useRef, useState } from "react";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Leaf, Pause, Play, ThermometerHot, Timer } from "@phosphor-icons/react";
+import {
+  ArrowRight,
+  Leaf,
+  LockSimple,
+  Pause,
+  Play,
+  ThermometerHot,
+  Timer,
+  Truck,
+} from "@phosphor-icons/react";
 import { home, howItWorks, ingredientStrip, ingredients } from "@/data/content";
 import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
@@ -502,37 +511,130 @@ export function Sourcing() {
   );
 }
 
-/* 9. CLOSING CTA: a soft bookend. */
-export function ClosingCta() {
+/* 9. CLOSING CTA: a blush bookend that sells. Headline, a short line and three trust points on
+   the left; a card for the featured product (photo, rating, price, saving, Add to cart, View
+   details) on the right, framed by two photos on desktop. */
+const TRUST_ICONS = { truck: Truck, lock: LockSimple, leaf: Leaf } as const;
+
+export function ClosingCta({ product }: { product: Product }) {
   const copy = home.closing;
+  const { add } = useCart();
+  const variant = product.variants.find((v) => v.availableForSale) ?? product.variants[0];
+  const price = money(product.priceRange.minVariantPrice);
+  const mrp = product.compareAtPriceRange ? money(product.compareAtPriceRange.minVariantPrice) : 0;
+  const off = variant ? savePercent(variant) : 0;
   return (
     <section aria-labelledby="closing-title" className="px-4 pb-16 md:px-6 md:pb-24">
-      <div className="mx-auto grid max-w-[84rem] items-center gap-10 overflow-hidden rounded-card bg-blush p-6 sm:p-10 lg:grid-cols-[1fr_1.3fr_1fr] lg:gap-12 lg:p-14">
-        <div data-anim="media" className="hidden overflow-hidden rounded-stadium lg:block">
-          <Img media={media.closing.portrait} sizes="18rem" className="aspect-[3/4.5] w-full" />
-        </div>
-        <div className="text-center">
+      <div className="mx-auto grid max-w-[84rem] items-center gap-10 overflow-hidden rounded-card bg-blush p-5 sm:p-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16 lg:p-16">
+        <div>
           <h2 id="closing-title" data-anim="lines" className="display">
             {copy.title}
           </h2>
-          <p data-anim="fade" className="mx-auto mt-5 max-w-sm text-lg text-muted-foreground">
+          <p
+            data-anim="fade"
+            className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground"
+          >
             {copy.line}
           </p>
-          <div data-anim="fade" className="mt-8">
-            <a href={copy.cta.href} className="btn btn-primary">
-              {copy.cta.label}
-            </a>
-          </div>
+          <ul data-anim="cards" className="mt-8 space-y-3">
+            {copy.trust.map((item) => {
+              const Icon = TRUST_ICONS[item.icon as keyof typeof TRUST_ICONS] ?? Leaf;
+              return (
+                <li key={item.text} className="flex items-center gap-3 text-foreground">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-surface text-green">
+                    <Icon aria-hidden="true" weight="light" className="h-5 w-5" />
+                  </span>
+                  {item.text}
+                </li>
+              );
+            })}
+          </ul>
         </div>
-        <div
-          data-anim="media"
-          className="mx-auto w-2/3 overflow-hidden rounded-full sm:w-1/2 lg:w-full"
-        >
-          <Img
-            media={media.closing.circle}
-            sizes="(min-width: 1024px) 18rem, 50vw"
-            className="aspect-square w-full"
-          />
+
+        <div className="relative mx-auto w-full max-w-md lg:max-w-none lg:px-10 lg:py-8">
+          {/* Two photos frame the card on desktop. */}
+          <div
+            aria-hidden="true"
+            className="absolute -left-2 top-0 hidden h-[78%] w-[42%] overflow-hidden rounded-stadium lg:block"
+          >
+            <Img media={media.closing.portrait} sizes="16rem" className="h-full w-full" />
+          </div>
+          <div
+            aria-hidden="true"
+            className="absolute -right-2 bottom-0 hidden aspect-square w-[38%] overflow-hidden rounded-full lg:block"
+          >
+            <Img media={media.closing.circle} sizes="14rem" className="h-full w-full" />
+          </div>
+
+          <article
+            data-anim="fade"
+            className="relative mx-auto max-w-sm rounded-[1.75rem] bg-surface p-3 shadow-[0_20px_60px_-30px_rgba(30,77,58,0.35)]"
+          >
+            <Link
+              to="/products/$handle"
+              params={{ handle: product.handle }}
+              className="block overflow-hidden rounded-[1.25rem] bg-beige"
+            >
+              {product.featuredImage && (
+                <ProductImage
+                  image={product.featuredImage}
+                  alt={product.title}
+                  className="aspect-[4/3] w-full object-cover"
+                />
+              )}
+            </Link>
+            <div className="px-3 pb-3 pt-4">
+              {product.rating && (
+                <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Stars value={product.rating.value} size={13} />
+                  {product.rating.value.toFixed(1)} ({product.rating.count.toLocaleString("en-IN")}{" "}
+                  {copy.reviews})
+                </p>
+              )}
+              <h3 className="mt-2 text-xl text-green">
+                <Link to="/products/$handle" params={{ handle: product.handle }}>
+                  {product.title}
+                </Link>
+              </h3>
+              {product.subtitle && (
+                <p className="text-sm text-muted-foreground">{product.subtitle}</p>
+              )}
+              <p className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="text-sm text-muted-foreground">{copy.from}</span>
+                <span className="text-2xl text-foreground tabular-nums">{inr(price)}</span>
+                {mrp > price && (
+                  <span className="text-muted-foreground line-through tabular-nums">
+                    {inr(mrp)}
+                  </span>
+                )}
+                {off > 0 && (
+                  <span className="rounded-full bg-blush px-2 py-0.5 text-xs font-medium text-green">
+                    {copy.save} {off}%
+                  </span>
+                )}
+              </p>
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                {variant && (
+                  <button
+                    type="button"
+                    disabled={!variant.availableForSale}
+                    onClick={() => add(product, variant, 1, { openDrawer: true })}
+                    aria-label={`${copy.add}: ${product.title}, ${variant.title}`}
+                    className="btn btn-primary flex-1"
+                  >
+                    {copy.add}
+                  </button>
+                )}
+                <Link
+                  to="/products/$handle"
+                  params={{ handle: product.handle }}
+                  className="btn btn-outline flex-1"
+                >
+                  {copy.details}
+                </Link>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
     </section>

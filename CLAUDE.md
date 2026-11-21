@@ -196,7 +196,13 @@ order (`src/routes/index.tsx`):
    slight parallax between cards. Phones: native swipe with snap points, no drift.
 9. **Sourcing** (`#sourcing`): location label, heading, large rounded image, "Read more". The
    origin copy is DEMO until the client confirms it (`home.sourcing.isDemo`).
-10. **Closing CTA**: blush bookend, "Start your glow ritual", "Shop now".
+10. **Closing CTA** (`ClosingCta`, gets the featured product): blush block. "Try it for
+    yourself", a short line and three trust points with icons (free shipping above ₹699,
+    secure UPI / card / net banking payment, caffeine free with no added sugar). Beside it a
+    white product card for the featured product: photo, rating, subtitle, "From" price with
+    MRP and saving, "Add to cart" (first available pack, opens the cart) and "View details".
+    On desktop two photos (`media.closing`, stadium and circle) frame the card. Copy:
+    `home.closing`.
 11. **Footer** (site-wide, see above).
 
 Copy for all of it is in `home`, `hero` and `nav` in content.ts. Media is in `src/data/media.ts`.
