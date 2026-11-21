@@ -140,17 +140,17 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): SkinFusion's idea as something you can touch. The frame is split
-   between skincare bottles (`media.hero.serum`, left, "On your face: serums stay on the outer
-   layer") and the cup of tea (`media.hero.image`, right, "In your cup: food reaches the deeper
-   layers"). A round handle drags the split (pointer, touch, or arrow keys through a real
-   range input, `hero.compare.label`). On load the split sweeps once from the serum side to
-   the tea side (2.2s, after the intro loader). Over the middle: "Edible skin care" label,
-   "Don't apply your skin care. / Drink it." revealed word by word, one line, coral "Shop
-   edible skin care" and (from sm) rating and price. Motion is transform-only (the serum
-   layer's wrapper and photo shift by opposite amounts). Phones: the side labels and rating
-   hide, the handle sits near the bottom. Reduced motion: no sweep or entrance, handle works.
-   No JavaScript: still 50/50 split.
+1. **Hero** (`Hero.tsx`): two worlds, one word. Full screen (`100dvh`), split between the
+   serum world (left: `media.hero.serum`, greyed and cool, "On your face") and the tea world
+   (right: `media.hero.image`, warm, "In your cup"). Each world holds its own copy of the giant
+   word in the same place ("apply." / "drink.", `hero.compare`), so where the divider cuts
+   through, one word turns into the other. `Column` renders the same centred layout three
+   times (shared copy on top with the real h1 "Skin care you drink." and button, and once per
+   world with only the word visible) so the word lines up exactly. On load the divider
+   sweeps to the serum side, then into the tea side (2.8s, after the intro loader). Desktop
+   with a mouse: the divider then follows the pointer, eased. Touch: drag anywhere. Keyboard:
+   a real range input. Transform-only. Reduced motion: no sweep or follow. No JavaScript:
+   50/50. Phones: the drag handle sits above the word, captions and rating hide.
    **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
    under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
    still on phones.
@@ -549,7 +549,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Split sweeps from serum to tea once, words revealed; drag to compare       | Same                                              |
+| Hero                                  | Divider sweeps serum to tea ("apply." to "drink."), then follows the mouse | Sweep once, then drag                             |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
