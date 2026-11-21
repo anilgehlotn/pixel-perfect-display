@@ -24,13 +24,15 @@ const clamp = (v: number) => Math.min(97, Math.max(3, v));
  * - Desktop with a mouse: the divider then follows the pointer, eased.
  * - Touch: drag anywhere on the hero. Keyboard: a real range input (arrow keys).
  * - Transform-only: the serum layer's wrapper and content shift by opposite amounts.
- * - Reduced motion: no sweep or follow; drag and keys still work. No JavaScript: 50/50.
+ * - Reduced motion: no sweep or follow; drag and keys still work. No JavaScript: the full
+ *   tea world ("drink."), never a word cut in half.
  */
 export function Hero({ featured }: { featured: Product }) {
-  const [split, setSplit] = useState(50);
+  // Starts fully in the tea world, so the still page shows the whole word "drink.".
+  const [split, setSplit] = useState(3);
   const frame = useRef<HTMLElement>(null);
-  const target = useRef(50);
-  const current = useRef(50);
+  const target = useRef(3);
+  const current = useRef(3);
   const mode = useRef<"intro" | "follow" | "drag" | "still">("intro");
   const raf = useRef(0);
   usePauseWhenHidden(frame);
@@ -133,6 +135,7 @@ export function Hero({ featured }: { featured: Product }) {
 
   return (
     <section
+      data-hero-compare
       ref={frame}
       aria-labelledby="hero-title"
       onPointerMove={(e) => {
@@ -162,9 +165,14 @@ export function Hero({ featured }: { featured: Product }) {
       {/* Serum world (on top, cut at the divider): wrapper shifts left, content shifts back. */}
       <div
         className="absolute inset-0 z-[1] overflow-hidden"
+        data-serum-outer
         style={{ transform: `translateX(${split - 100}%)` }}
       >
-        <div className="absolute inset-0" style={{ transform: `translateX(${100 - split}%)` }}>
+        <div
+          data-serum-inner
+          className="absolute inset-0"
+          style={{ transform: `translateX(${100 - split}%)` }}
+        >
           <World side="left" media={media.hero.serum} featured={featured} />
         </div>
       </div>
@@ -173,6 +181,7 @@ export function Hero({ featured }: { featured: Product }) {
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[2]"
+        data-divider
         style={{ transform: `translateX(${split}%)` }}
       >
         <span className="absolute inset-y-0 left-0 w-px bg-cream/70 shadow-[0_0_24px_rgba(255,255,255,0.6)]" />

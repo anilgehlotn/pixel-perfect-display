@@ -154,7 +154,7 @@ order (`src/routes/index.tsx`):
    "SkinFusion" tags ride the divider; each world has a caption with fact chips
    (`compare.left/right.facts`); fine film grain (`hero-grain`) over both photos; steam rises
    in the tea world (desktop). Transform-only. Reduced motion: no sweep, follow or steam. No
-   JavaScript: 50/50. Phones: the drag handle sits above the word, captions and rating hide.
+   JavaScript: the full tea world ("drink."), never a cut word. Phones: the drag handle sits above the word, captions and rating hide.
    **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
    under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
    still on phones.
