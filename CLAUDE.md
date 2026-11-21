@@ -186,8 +186,12 @@ order (`src/routes/index.tsx`):
    counters (4 whole ingredients, 0 preservatives, 0 caffeine), "How to make it" as three cream
    step cards with icons (Leaf, ThermometerHot, Timer), the TCM line and a "See Skin Glow Tea"
    button. 2 columns of cards on phones, 4 on desktop. Copy: `home.howItWorks`, `ingredients`.
-6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx): "SkinFusion vs. the
-   rest", our column in green (`comparison` in content.ts).
+6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx, `comparison` in
+   content.ts): "SkinFusion vs. the rest". A real table styled as a raised green SkinFusion
+   column (coral leaf badge, "Whole-food tea", coral tick badges, "See Skin Glow Tea" at its
+   foot) beside quieter columns with icons (Coffee, Pill). Phones show SkinFusion against one
+   other column, chosen with a pill switch; from `md` all show. The product page uses it with
+   `cta={false}`.
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
    that opens the full-screen `VideoDialog`.
 8. **Stories** (`#stories`, `Stories.tsx`): full-bleed strip of mixed shapes (half-visible circles

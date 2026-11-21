@@ -438,6 +438,9 @@ export const comparison = {
   title: "SkinFusion vs. the rest",
   text: "Most tea bags hold crushed leaf and flavourings. Ours hold four whole ingredients from a two-thousand-year-old tradition, and nothing else.",
   columns: ["SkinFusion", "Regular tea bags", "Beauty supplements"],
+  ourTag: "Whole-food tea",
+  compareWith: "Compare SkinFusion with",
+  cta: { label: "See Skin Glow Tea", href: "/products/skin-glow-tea" },
   rows: [
     { label: "Whole ingredients you can see", values: [true, "Crushed leaf", "Pills or powder"] },
     { label: "Caffeine free", values: [true, "Usually not", "Varies"] },

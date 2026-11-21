@@ -183,7 +183,7 @@ function ProductPage() {
             eyebrow={pdp.ingredients.eyebrow}
             title={pdp.ingredients.title}
           />
-          <ComparisonTable />
+          <ComparisonTable cta={false} />
         </>
       )}
 

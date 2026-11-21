@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { Check, Minus, Plus } from "@phosphor-icons/react";
+import { useState, type ReactNode } from "react";
+import { Check, Coffee, Leaf, Minus, Pill, Plus } from "@phosphor-icons/react";
 import {
   comparison,
   reviews,
@@ -57,71 +57,139 @@ export function SectionIntro({
 }
 
 /** "SkinFusion vs. the rest": our column in green. Phones drop the third column. */
-export function ComparisonTable() {
+/**
+ * "SkinFusion vs. the rest". A real table (screen readers read it row by row) styled as a
+ * raised green SkinFusion column with coral tick badges, beside quieter columns with icons.
+ * Phones show SkinFusion against one other column at a time, picked with a pill switch;
+ * from md all columns show. `cta` adds "See Skin Glow Tea" at the foot of our column
+ * (off on the product page itself).
+ */
+const OTHER_ICONS = [Coffee, Pill];
+
+export function ComparisonTable({ cta = true }: { cta?: boolean }) {
   const [ours, ...others] = comparison.columns;
+  const [vs, setVs] = useState(0);
+  // Phones: only the chosen competitor column; md and up: all of them.
+  const shown = (i: number) => (i === vs ? "" : "hidden md:table-cell");
+  const shownCol = (i: number) => (i === vs ? "" : "hidden md:table-column");
   return (
-    <section aria-labelledby="compare-title" className="px-4 py-16 md:px-6 lg:py-20">
-      <div className="mx-auto max-w-[64rem]">
+    <section aria-labelledby="compare-title" className="px-4 py-16 md:px-6 lg:py-24">
+      <div className="mx-auto max-w-[68rem]">
         <SectionIntro
           id="compare-title"
           eyebrow={comparison.eyebrow}
           title={comparison.title}
           text={comparison.text}
         />
-        <div data-anim="fade" className="mt-10 min-w-0 lg:mt-12">
-          <table className="w-full table-fixed border-separate border-spacing-0 text-center text-sm">
+
+        {others.length > 1 && (
+          <div className="mt-8 flex justify-center md:hidden">
+            <div
+              role="group"
+              aria-label={comparison.compareWith}
+              className="inline-flex rounded-full bg-blush p-1"
+            >
+              {others.map((c, i) => (
+                <button
+                  key={c}
+                  type="button"
+                  aria-pressed={vs === i}
+                  onClick={() => setVs(i)}
+                  className={`min-h-11 rounded-full px-4 text-sm transition-colors ${vs === i ? "bg-green text-cream" : "text-green"}`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div data-anim="fade" className="mt-6 min-w-0 md:mt-14">
+          <table className="w-full table-fixed border-separate border-spacing-0 text-center">
             <caption className="sr-only">
               {ours} compared with {others.join(" and ")}
             </caption>
             <colgroup>
-              <col className="w-[38%] sm:w-[34%]" />
-              <col />
-              <col />
-              <col className="hidden sm:table-column" />
+              <col className="w-[40%] md:w-[34%]" />
+              <col className="w-[30%] md:w-[24%]" />
+              {others.map((c, i) => (
+                <col key={c} className={shownCol(i)} />
+              ))}
             </colgroup>
             <thead>
               <tr>
                 <td />
                 <th
                   scope="col"
-                  className="rounded-t-lg bg-green px-2 py-4 font-serif text-base font-normal text-cream md:text-lg"
+                  className="rounded-t-[1.75rem] bg-green px-2 pb-5 pt-6 align-bottom font-normal text-cream md:px-4 md:pt-8"
                 >
-                  {ours}
+                  <span className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full bg-primary text-primary-foreground">
+                    <Leaf size={22} weight="light" aria-hidden="true" />
+                  </span>
+                  <span className="block text-base md:text-xl">{ours}</span>
+                  <span className="mt-1 block text-xs text-cream/70">{comparison.ourTag}</span>
                 </th>
-                {others.map((c, i) => (
-                  <th
-                    key={c}
-                    scope="col"
-                    className={`px-2 py-4 align-bottom text-[0.82rem] font-medium text-muted-foreground ${i === 1 ? "hidden sm:table-cell" : ""}`}
-                  >
-                    {c}
-                  </th>
-                ))}
+                {others.map((c, i) => {
+                  const ColIcon = OTHER_ICONS[i] ?? Coffee;
+                  return (
+                    <th
+                      key={c}
+                      scope="col"
+                      className={`px-2 pb-5 align-bottom font-normal md:px-4 ${shown(i)}`}
+                    >
+                      <span className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full bg-beige text-muted-foreground">
+                        <ColIcon size={22} weight="light" aria-hidden="true" />
+                      </span>
+                      <span className="block text-sm leading-snug text-muted-foreground md:text-base">
+                        {c}
+                      </span>
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
-              {comparison.rows.map((row, r) => {
-                const last = r === comparison.rows.length - 1;
-                return (
-                  <tr key={row.label}>
-                    <th
-                      scope="row"
-                      className="border-t border-ink/10 py-4 pr-3 text-left text-[0.9rem] font-medium leading-snug text-ink md:text-base"
+              {comparison.rows.map((row) => (
+                <tr key={row.label}>
+                  <th
+                    scope="row"
+                    className="border-t border-ink/10 py-5 pr-3 text-left text-[0.95rem] font-normal leading-snug text-ink md:pr-6 md:text-lg"
+                  >
+                    {row.label}
+                  </th>
+                  {row.values.map((v, i) => (
+                    <td
+                      key={i}
+                      className={
+                        i === 0
+                          ? "border-t border-cream/10 bg-green px-2 py-5 text-cream"
+                          : `border-t border-ink/10 px-2 py-5 text-muted-foreground ${shown(i - 1)}`
+                      }
                     >
-                      {row.label}
-                    </th>
-                    {row.values.map((v, i) => (
-                      <td
-                        key={i}
-                        className={`border-t px-2 py-4 ${i === 0 ? `border-cream/15 bg-green text-cream ${last ? "rounded-b-lg" : ""}` : "border-ink/10 text-muted-foreground"} ${i === 2 ? "hidden sm:table-cell" : ""}`}
-                      >
-                        <Cell value={v} strong={i === 0} />
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
+                      <Cell value={v} ours={i === 0} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
+            <tfoot>
+              <tr>
+                <td />
+                <td className="rounded-b-[1.75rem] bg-green px-2 pb-6 pt-3 md:px-4">
+                  {cta && (
+                    <a
+                      href={comparison.cta.href}
+                      className="btn btn-primary w-full whitespace-normal px-3 text-sm leading-tight md:text-base"
+                    >
+                      {comparison.cta.label}
+                    </a>
+                  )}
+                </td>
+                {others.map((c, i) => (
+                  <td key={c} className={shown(i)} />
+                ))}
+              </tr>
+            </tfoot>
           </table>
         </div>
       </div>
@@ -129,23 +197,25 @@ export function ComparisonTable() {
   );
 }
 
-function Cell({ value, strong }: { value: string | boolean; strong: boolean }) {
+function Cell({ value, ours }: { value: string | boolean; ours: boolean }) {
   if (value === true)
-    return (
+    return ours ? (
       <>
-        <Check
-          size={24}
-          weight={strong ? "bold" : "light"}
-          className="mx-auto"
-          aria-hidden="true"
-        />
+        <span className="mx-auto grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
+          <Check size={18} weight="bold" aria-hidden="true" />
+        </span>
+        <span className="sr-only">Yes</span>
+      </>
+    ) : (
+      <>
+        <Check size={22} weight="light" className="mx-auto text-green" aria-hidden="true" />
         <span className="sr-only">Yes</span>
       </>
     );
   if (value === false)
     return (
       <>
-        <Minus size={20} weight="light" className="mx-auto" aria-hidden="true" />
+        <Minus size={20} weight="light" className="mx-auto text-ink/35" aria-hidden="true" />
         <span className="sr-only">No</span>
       </>
     );
