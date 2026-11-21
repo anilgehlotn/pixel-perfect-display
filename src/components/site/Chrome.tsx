@@ -8,14 +8,7 @@ import {
 } from "react";
 import { Link } from "@tanstack/react-router";
 import { Handbag, List, X, Plus, Minus, WhatsappLogo, CheckCircle } from "@phosphor-icons/react";
-import {
-  brand,
-  cartCopy,
-  nav,
-  footer,
-  FREE_SHIPPING_THRESHOLD,
-  type FooterLink,
-} from "@/data/content";
+import { brand, nav, footer, FREE_SHIPPING_THRESHOLD, type FooterLink } from "@/data/content";
 import { useCart } from "@/lib/cart/context";
 import { useScrollLock } from "@/lib/scroll-lock";
 import { useNotify } from "@/lib/notify-context";
@@ -208,7 +201,7 @@ export function Header() {
 }
 
 export function CartDrawer() {
-  const { open, setOpen, lines, setQty, subtotal, checkoutUrl, checkout } = useCart();
+  const { open, setOpen, lines, setQty, subtotal } = useCart();
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const pct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
   useScrollLock(open);
@@ -296,18 +289,14 @@ export function CartDrawer() {
             <span className="label-caps">Subtotal</span>
             <span>{inr(subtotal)}</span>
           </div>
-          {/* Online checkout is not connected yet: checkoutUrl stays null. */}
-          <button
-            className="btn btn-primary w-full"
-            disabled={!lines.length || !checkoutUrl}
-            onClick={() => void checkout()}
-          >
-            Checkout
-          </button>
-          {!checkoutUrl && (
-            <p className="mt-3 text-center text-sm text-muted-foreground">
-              {cartCopy.checkoutSoon}
-            </p>
+          {lines.length ? (
+            <Link to="/checkout" onClick={() => setOpen(false)} className="btn btn-primary w-full">
+              Checkout
+            </Link>
+          ) : (
+            <button type="button" className="btn btn-primary w-full" disabled>
+              Checkout
+            </button>
           )}
         </div>
       </aside>

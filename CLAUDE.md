@@ -1,11 +1,12 @@
 # SkinFusion storefront
 
 Frontend for SkinFusion, a premium skin-wellness tea brand (TCM-inspired, Mumbai, prices in INR).
-Server-rendered with TanStack Start and deployed on Vercel. There is no store backend yet:
-products come from `src/data/content.ts`, the cart is saved in the browser and online checkout
-is not connected (the cart's Checkout button is disabled with an "opens soon" line). The store
-backend will be added later; keep product reads behind `getProducts()` / `getProduct()` and
-the cart behind `CartStore` so only those files change then.
+Server-rendered with TanStack Start and deployed on Vercel. Products come from
+`src/data/content.ts` and the cart is saved in the browser. Checkout is the site's own page
+(`/checkout`): Razorpay takes the payment in its window over our page, and the server then
+creates the paid order in the store backend through its Admin API (see "Checkout and
+payments"). The store backend is never named or shown anywhere a visitor can see: not in
+copy, markup, browser code, URLs or `VITE_` variables. It is reached only from server code.
 
 This project is built and maintained with Claude Code only.
 
@@ -68,6 +69,9 @@ each route's `head()` (per page).
 │   │   ├── catalog/
 │   │   │   ├── types.ts       Product / variant / photo / money types
 │   │   │   └── products.ts    getProducts() and getProduct(handle): the only way to read products
+│   │   ├── checkout/          Checkout: types, validation, india.ts (states), pricing.ts,
+│   │   │                      functions.ts (server functions), server/ (env, razorpay,
+│   │   │                      notes, store-orders, record; server-only)
 │   │   ├── cart/
 │   │   │   ├── context.ts     Cart types and the useCart() hook
 │   │   │   ├── store.ts       CartStore interface + localStorage implementation
@@ -95,13 +99,16 @@ each route's `head()` (per page).
 
 ## Pages and routes
 
-| URL                 | File                              | What it shows                                                                                        |
-| ------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `/`                 | `src/routes/index.tsx`            | Homepage (see "Homepage"). Loader: all products + featured product                                   |
-| `/real-results`     | `src/routes/real-results.tsx`     | Before/after sliders, video stories, serum comparison, ingredient spotlight, story form, product CTA |
-| `/quiz`             | `src/routes/quiz.tsx`             | 4-question skin quiz with a product recommendation. Linked from the hero and the Explore menu        |
-| `/products/:handle` | `src/routes/products/$handle.tsx` | Product page (see "Product page")                                                                    |
-| anything else       | `__root.tsx` NotFoundComponent    | 404 page (inside the normal header/footer)                                                           |
+| URL                    | File                                | What it shows                                                                                        |
+| ---------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `/`                    | `src/routes/index.tsx`              | Homepage (see "Homepage"). Loader: all products + featured product                                   |
+| `/real-results`        | `src/routes/real-results.tsx`       | Before/after sliders, video stories, serum comparison, ingredient spotlight, story form, product CTA |
+| `/quiz`                | `src/routes/quiz.tsx`               | 4-question skin quiz with a product recommendation. Linked from the hero and the Explore menu        |
+| `/products/:handle`    | `src/routes/products/$handle.tsx`   | Product page (see "Product page")                                                                    |
+| `/checkout`            | `src/routes/checkout.tsx`           | Checkout: contact, delivery address, order summary, Pay (see "Checkout and payments")                |
+| `/order-confirmed`     | `src/routes/order-confirmed.tsx`    | Thank-you page with the order reference (`?ref=`)                                                    |
+| `/api/payment-webhook` | `src/routes/api/payment-webhook.ts` | POST only: Razorpay webhook (server route)                                                           |
+| anything else          | `__root.tsx` NotFoundComponent      | 404 page (inside the normal header/footer)                                                           |
 
 Product cards (photo and name), the hero's "Shop Skin Glow Tea", the closing CTA and the
 footer link open `/products/<handle>` (see "Product page"). Unknown handles show the 404 page.
@@ -264,22 +271,76 @@ Details:
 
 ## How the cart works
 
-- `useCart()` (`src/lib/cart/context.ts`) gives: `lines`, `count`, `subtotal`, `checkoutUrl`,
-  `add(product, variant, quantity?, { openDrawer })`, `setQty(lineId, quantity)`, `checkout()`,
+- `useCart()` (`src/lib/cart/context.ts`) gives: `lines`, `count`, `subtotal`,
+  `add(product, variant, quantity?, { openDrawer })`, `setQty(lineId, quantity)`, `clear()`,
   `open`/`setOpen` (drawer) and `toast`.
 - Lines are `{ id, quantity, merchandise: { id (variant id), title, price, image, product:
 { handle, title } } }`. Adding the same variant again increases its quantity; different packs
   are separate lines. Quantity 0 removes the line.
 - `CartProvider` never touches storage directly. It calls a `CartStore` (`src/lib/cart/store.ts`)
-  with `load`, `add` and `update`. `localCartStore` saves lines in localStorage
+  with `load`, `add`, `update` and `clear`. `localCartStore` saves lines in localStorage
   (`skinfusion-cart-v1`), so the cart survives a refresh.
 - The cart loads after the page hydrates, so the server-rendered HTML always shows an empty cart.
-- Checkout: `checkoutUrl` is always null for now, so the Checkout button is disabled and the
-  drawer shows `cartCopy.checkoutSoon`. A future store backend sets `checkoutUrl` from its own
-  `CartStore`; `checkout()` already waits for pending changes and redirects to it.
-- Free-shipping threshold: `FREE_SHIPPING_THRESHOLD` in content.ts (699).
+- The drawer's Checkout button links to `/checkout`. The cart is cleared after a successful
+  payment.
+- Free-shipping threshold: `FREE_SHIPPING_THRESHOLD` in content.ts (699); below it delivery
+  costs `SHIPPING_FEE` (79, to confirm).
 
 There are no customer accounts or sign-in pages.
+
+## Checkout and payments
+
+Flow (all on our site; the store backend is invisible to shoppers):
+
+1. `/checkout` (`src/routes/checkout.tsx`): contact (name, email, +91 mobile), delivery address
+   (Indian states, 6-digit PIN), order summary with delivery and total. The details are
+   remembered on the device (`skinfusion-checkout-v1`), never the payment.
+2. Pay calls the `startPayment` server function: it validates the form and cart
+   (`validation.ts`), prices the cart from the catalog on the server (`pricing.ts`, the browser
+   never sends prices), and creates a Razorpay order for exactly that amount. The order
+   details travel in the Razorpay order notes (`server/notes.ts`), so the payment is the single
+   source of truth.
+3. The browser loads Razorpay's checkout script only at that moment and opens its payment
+   window (UPI, cards, net banking, wallets) over our page, themed in brand green.
+4. On success `confirmPayment` checks the signature (HMAC with the key secret), then
+   `recordPaidOrder` (`server/record.ts`) re-reads the order and payment from Razorpay, checks
+   status and amount, and creates the paid order in the store backend
+   (`server/store-orders.ts`: finds each pack's id by product handle and pack title, then
+   creates the order with customer, address, delivery line, a paid "Razorpay" transaction and
+   the tag `rzp-<order id>`). The shopper lands on `/order-confirmed?ref=#1001`.
+5. Backup: the `payment.captured` webhook (`/api/payment-webhook`, signature checked with
+   `RAZORPAY_WEBHOOK_SECRET`) waits 15s and records the order if it is still missing (the tag
+   prevents duplicates). Failures return 500 so Razorpay retries.
+
+Modes (`server/env.ts` `paymentMode()`): `live` with Razorpay keys; `test` on the local dev
+server without keys (a "Test payment" button completes the flow, nothing is charged, no order
+is created); `off` in a production build without keys (Pay is disabled, "Online payment opens
+soon").
+
+Rules:
+
+- Every key is server-only (no `VITE_` prefix) and read only in `src/lib/checkout/server/*`,
+  which browser code cannot import (vite.config.ts import protection). The browser receives
+  only the public Razorpay key id.
+- After every build, the browser bundle (`.output/public`) must contain no store backend name
+  and no secret: `grep -ril "admin/api\|STORE_ADMIN_TOKEN\|KEY_SECRET" .output/public` must
+  find nothing.
+- Store products must use the same handles as `localProducts` and the same pack titles
+  ("1 Pouch", "2 Pouches", "4 Pouches"); a single-pack product may keep its default title.
+- Store admin token scopes: `write_orders`, `read_products` (and customers if orders should
+  create customer records).
+- Tests: `src/test/checkout.test.ts` (validation, pricing, notes, signatures, and order
+  recording against fake services, including no duplicates).
+
+Going live:
+
+1. Razorpay: create the account (in the client's name), copy the test key id and secret into
+   `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET`, add the webhook
+   (`https://skinfusion.in/api/payment-webhook`, event `payment.captured`) and copy its secret.
+2. Store backend: create a custom app with the scopes above, copy the admin token and the
+   store domain into `STORE_ADMIN_TOKEN` / `STORE_DOMAIN`.
+3. Add all of them in Vercel (Production and Preview), redeploy, place a test order with
+   Razorpay test keys and check it appears, paid, in the store admin. Then switch to live keys.
 
 ## Editing content (src/data/content.ts)
 
@@ -563,6 +624,9 @@ Demo copy to confirm:
 - [ ] "How it fits your day": steeping time (about five minutes)
 - [ ] Bundle copy: "Save up to 15%, with free shipping on the four-pack" must match
       the real prices and shipping rules
+- [ ] Delivery charge below ₹699 (`SHIPPING_FEE`, now ₹79)
+- [ ] One test order end to end with Razorpay test keys (see "Checkout and payments")
+- [ ] Order emails sent by the store backend use SkinFusion branding
 
 Demo videos (`public/media/demo/videos/`, Mixkit Free License, all `isDemo: true` in media.ts):
 

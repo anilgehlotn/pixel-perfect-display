@@ -36,6 +36,8 @@ export const nav = {
 };
 
 export const FREE_SHIPPING_THRESHOLD = 699;
+// Delivery charge below the free-shipping threshold (rupees). Confirm with the client.
+export const SHIPPING_FEE = 79;
 
 // Homepage hero: one full-width photo (media.hero.image), a centred headline and one button.
 // Plain words, no result promises.
@@ -230,8 +232,44 @@ export const localProducts: Product[] = [
    MARKETING COPY
 --------------------------------------------------------------------------- */
 
-// Cart drawer: shown under the Checkout button while online checkout is not connected.
-export const cartCopy = { checkoutSoon: "Online checkout opens soon." };
+// Checkout (/checkout) and order confirmation (/order-confirmed).
+export const checkoutCopy = {
+  title: "Checkout",
+  contact: "Contact",
+  delivery: "Delivery address",
+  summary: "Your order",
+  fields: {
+    name: "Full name",
+    email: "Email",
+    phone: "Mobile number",
+    address1: "House number and street",
+    address2: "Area, landmark (optional)",
+    city: "City",
+    state: "State",
+    pin: "PIN code",
+  },
+  choose: "Choose",
+  subtotal: "Subtotal",
+  shipping: "Delivery",
+  free: "Free",
+  total: "Total",
+  pay: "Pay",
+  paying: "Opening payment...",
+  testPay: "Test payment (local only)",
+  off: "Online payment opens soon.",
+  secure:
+    "Payments are encrypted and processed securely. UPI, cards, net banking and wallets accepted.",
+  empty: "Your cart is empty.",
+  emptyCta: "Shop our teas",
+  failed: "The payment did not go through. You have not been charged. Please try again.",
+  fixErrors: "Please check the highlighted fields.",
+  confirmed: {
+    title: "Thank you, your order is placed",
+    text: "We have received your payment. A confirmation will reach your email shortly, and we will message you when your order ships.",
+    reference: "Order reference",
+    cta: "Continue shopping",
+  },
+};
 
 // Sample customer quotes for the client preview. isDemo: true means the quote is invented
 // and must be replaced with a real, permitted customer quote before launch.

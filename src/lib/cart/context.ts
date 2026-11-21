@@ -17,14 +17,12 @@ export type CartLine = {
 export type Cart = {
   id: string | null; // null for the browser cart
   lines: CartLine[];
-  checkoutUrl: string | null; // null until online checkout exists
 };
 
 export type CartCtx = {
   lines: CartLine[];
   count: number;
   subtotal: number;
-  checkoutUrl: string | null;
   open: boolean;
   setOpen: (v: boolean) => void;
   add: (
@@ -34,8 +32,8 @@ export type CartCtx = {
     opts?: { openDrawer?: boolean },
   ) => void;
   setQty: (lineId: string, quantity: number) => void;
-  /** Sends the shopper to checkout (disabled while checkoutUrl is null). */
-  checkout: () => Promise<void>;
+  /** Empties the cart (after a successful payment). */
+  clear: () => void;
   toast: string | null;
 };
 

@@ -6,10 +6,11 @@ export type CartStore = {
   load: () => Promise<Cart>;
   add: (cart: Cart, merchandise: CartLine["merchandise"], quantity: number) => Promise<Cart>;
   update: (cart: Cart, lineId: string, quantity: number) => Promise<Cart>;
+  clear: () => Promise<Cart>;
 };
 
 const STORAGE_KEY = "skinfusion-cart-v1";
-const emptyCart: Cart = { id: null, lines: [], checkoutUrl: null };
+const emptyCart: Cart = { id: null, lines: [] };
 
 function save(cart: Cart) {
   try {
@@ -47,5 +48,9 @@ export const localCartStore: CartStore = {
     const next = { ...cart, lines };
     save(next);
     return next;
+  },
+  async clear() {
+    save(emptyCart);
+    return emptyCart;
   },
 };

@@ -31,6 +31,7 @@
   --color-green-soft: var(--green-soft);
   --color-cream: var(--cream);
   --color-error-on-dark: var(--error-on-dark);
+  --color-error: var(--error);
   --color-surface: var(--surface);
   --color-sand: var(--sand);
   --color-gold: var(--gold);
@@ -86,6 +87,8 @@
   --jujube: #1e4d3a;
   /* Error text on the deep green footer (8:1). */
   --error-on-dark: #ffc9c2;
+  /* Error text on cream and white (6.4:1). */
+  --error: #a8322d;
   /* single-accent system: "brand" and "teal" map to text/accent so older markup stays on-palette */
   --brand: #1e4d3a;
   --brand-foreground: #fbf7f2;
@@ -160,6 +163,25 @@
   }
 }
 
+/* Form inputs (checkout): 48px tall, soft border, green focus ring, red when invalid. */
+@utility field {
+  display: block;
+  width: 100%;
+  min-height: 3rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(0 0 0 / 0.14);
+  background: var(--surface);
+  padding: 0.75rem 1rem;
+  color: var(--foreground);
+  font-size: 1rem;
+  &:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 1px;
+  }
+  &[aria-invalid="true"] {
+    border-color: var(--error);
+  }
+}
 @utility label-caps {
   text-transform: uppercase;
   letter-spacing: 0.22em;

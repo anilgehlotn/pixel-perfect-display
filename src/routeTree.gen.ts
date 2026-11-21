@@ -10,13 +10,26 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as OrderConfirmedRouteImport } from './routes/order-confirmed'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as RealResultsRouteImport } from './routes/real-results'
+import { Route as ApiPaymentWebhookRouteImport } from './routes/api/payment-webhook'
 import { Route as ProductsHandleRouteImport } from './routes/products/$handle'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderConfirmedRoute = OrderConfirmedRouteImport.update({
+  id: '/order-confirmed',
+  path: '/order-confirmed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuizRoute = QuizRouteImport.update({
@@ -29,6 +42,11 @@ const RealResultsRoute = RealResultsRouteImport.update({
   path: '/real-results',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPaymentWebhookRoute = ApiPaymentWebhookRouteImport.update({
+  id: '/api/payment-webhook',
+  path: '/api/payment-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsHandleRoute = ProductsHandleRouteImport.update({
   id: '/products/$handle',
   path: '/products/$handle',
@@ -37,35 +55,69 @@ const ProductsHandleRoute = ProductsHandleRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/order-confirmed': typeof OrderConfirmedRoute
   '/quiz': typeof QuizRoute
   '/real-results': typeof RealResultsRoute
+  '/api/payment-webhook': typeof ApiPaymentWebhookRoute
   '/products/$handle': typeof ProductsHandleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/order-confirmed': typeof OrderConfirmedRoute
   '/quiz': typeof QuizRoute
   '/real-results': typeof RealResultsRoute
+  '/api/payment-webhook': typeof ApiPaymentWebhookRoute
   '/products/$handle': typeof ProductsHandleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/order-confirmed': typeof OrderConfirmedRoute
   '/quiz': typeof QuizRoute
   '/real-results': typeof RealResultsRoute
+  '/api/payment-webhook': typeof ApiPaymentWebhookRoute
   '/products/$handle': typeof ProductsHandleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/quiz' | '/real-results' | '/products/$handle'
+  fullPaths:
+    | '/'
+    | '/checkout'
+    | '/order-confirmed'
+    | '/quiz'
+    | '/real-results'
+    | '/api/payment-webhook'
+    | '/products/$handle'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/quiz' | '/real-results' | '/products/$handle'
-  id: '__root__' | '/' | '/quiz' | '/real-results' | '/products/$handle'
+  to:
+    | '/'
+    | '/checkout'
+    | '/order-confirmed'
+    | '/quiz'
+    | '/real-results'
+    | '/api/payment-webhook'
+    | '/products/$handle'
+  id:
+    | '__root__'
+    | '/'
+    | '/checkout'
+    | '/order-confirmed'
+    | '/quiz'
+    | '/real-results'
+    | '/api/payment-webhook'
+    | '/products/$handle'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CheckoutRoute: typeof CheckoutRoute
+  OrderConfirmedRoute: typeof OrderConfirmedRoute
   QuizRoute: typeof QuizRoute
   RealResultsRoute: typeof RealResultsRoute
+  ApiPaymentWebhookRoute: typeof ApiPaymentWebhookRoute
   ProductsHandleRoute: typeof ProductsHandleRoute
 }
 
@@ -76,6 +128,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order-confirmed': {
+      id: '/order-confirmed'
+      path: '/order-confirmed'
+      fullPath: '/order-confirmed'
+      preLoaderRoute: typeof OrderConfirmedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quiz': {
@@ -92,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RealResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/payment-webhook': {
+      id: '/api/payment-webhook'
+      path: '/api/payment-webhook'
+      fullPath: '/api/payment-webhook'
+      preLoaderRoute: typeof ApiPaymentWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products/$handle': {
       id: '/products/$handle'
       path: '/products/$handle'
@@ -104,8 +177,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CheckoutRoute: CheckoutRoute,
+  OrderConfirmedRoute: OrderConfirmedRoute,
   QuizRoute: QuizRoute,
   RealResultsRoute: RealResultsRoute,
+  ApiPaymentWebhookRoute: ApiPaymentWebhookRoute,
   ProductsHandleRoute: ProductsHandleRoute,
 }
 export const routeTree = rootRouteImport

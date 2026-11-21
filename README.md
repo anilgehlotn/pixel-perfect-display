@@ -2,8 +2,9 @@
 
 Storefront for SkinFusion, caffeine-free TCM skin-wellness teas from Mumbai. Built with
 TanStack Start (React, server-side rendering) and Tailwind CSS, deployed on Vercel. Products
-come from local product data and the cart is saved in the browser. Online checkout is not
-connected yet.
+come from local product data and the cart is saved in the browser. Checkout runs on the site
+itself (`/checkout`): Razorpay takes the payment and the server records the paid order in the
+store backend.
 
 ## Tech stack
 
@@ -40,9 +41,15 @@ npm run dev                  # http://localhost:8080
 See `.env.example`. `VITE_` variables end up in the browser bundle, so never put a secret in
 one.
 
-| Variable        | Purpose                                            |
-| --------------- | -------------------------------------------------- |
-| `VITE_SITE_URL` | Live site URL, used for absolute share-image links |
+| Variable                  | Purpose                                                |
+| ------------------------- | ------------------------------------------------------ |
+| `VITE_SITE_URL`           | Live site URL, used for absolute share-image links     |
+| `RAZORPAY_KEY_ID`         | Razorpay key id (server-only)                          |
+| `RAZORPAY_KEY_SECRET`     | Razorpay key secret (server-only)                      |
+| `RAZORPAY_WEBHOOK_SECRET` | Secret of the `payment.captured` webhook (server-only) |
+| `STORE_DOMAIN`            | Store backend domain where paid orders are created     |
+| `STORE_ADMIN_TOKEN`       | Store backend admin API token (server-only)            |
+| `STORE_API_VERSION`       | Optional, defaults to `2026-10`                        |
 
 ## Deploy to Vercel
 

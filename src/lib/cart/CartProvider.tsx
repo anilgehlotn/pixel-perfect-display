@@ -9,7 +9,7 @@ const store = localCartStore;
 export function CartProvider({ children }: { children: ReactNode }) {
   // Starts empty on the server and first client render, then loads the saved cart after
   // hydration so server and client HTML match.
-  const [cart, setCart] = useState<Cart>({ id: null, lines: [], checkoutUrl: null });
+  const [cart, setCart] = useState<Cart>({ id: null, lines: [] });
   const [open, setOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -43,7 +43,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       lines: cart.lines,
       count: cart.lines.reduce((s, l) => s + l.quantity, 0),
       subtotal: cart.lines.reduce((s, l) => s + l.quantity * money(l.merchandise.price), 0),
-      checkoutUrl: cart.checkoutUrl,
       open,
       setOpen,
       toast,
@@ -67,11 +66,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         timer.current = setTimeout(() => setToast(null), 2600);
       },
       setQty: (lineId, quantity) => run((c) => store.update(c, lineId, quantity)),
-      checkout: async () => {
-        // Wait for pending cart changes, then go to checkout (none yet: the button is off).
-        const current = (await queue.current) ?? cart;
-        if (current.checkoutUrl) window.location.href = current.checkoutUrl;
-      },
+      clear: () => run(() => store.clear()),
     }),
     // run reads refs only; cart is listed so the memo stays in step with renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
