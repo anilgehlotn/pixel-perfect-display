@@ -140,16 +140,22 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`, option 2 picked by the client): one full-width photo in a rounded
-   frame (`media.hero.image`, a steaming glass cup of golden tea, Pexels), a dark wash, a small
-   "Edible skin care" label with a hairline, a large centred headline "Skin care you drink.",
-   one line and one coral button "Shop our teas" (to `#shop`). Motion is deliberately quiet
-   and plays once (CSS, every visit, delayed after the intro loader via `html[data-intro]`):
-   the photo comes up from dark and settles from 1.12 to 1 (2.6s), then zooms very slowly
-   (24s, once); the hairline draws in; the headline is revealed word by word from a mask; the
-   line and button ease in last. Desktop: on scroll the copy fades and lifts away (GSAP
-   ScrollTrigger scrub) while the photo drifts slower than the page (`data-depth`). Option 3 picked by the client: soft blurred steam (`Steam` in Hero.tsx) keeps rising above the cup on desktop with a mouse, with a small pause button; no other loops. Reduced motion: none. Phones: the frame fills the screen below the nav, the copy sits at the top over the
-   green background and the cup shows below it. Copy: `hero` in content.ts.
+1. **Hero** (`Hero.tsx`): "the cup is the skin care". A large editorial headline ("Skin care"
+   / "you drink.", `hero.titleLines`) split around a tall arch holding the steaming cup
+   (`media.hero.image`), the four ingredients in circles around the arch, the line and coral
+   "Shop our teas" bottom left, rating and "From" price bottom right. Entrance (CSS, every
+   visit, after the intro loader via `html[data-intro]`): the photo rises and settles, words
+   are revealed from a mask, the ingredients pop in, the copy eases in. Desktop with a mouse:
+   steam rises from the cup, the ingredients float, and the hero is pinned for 140% of the
+   viewport while you scroll (GSAP ScrollTrigger, scrub): the arch grows (scale 4.8) until the
+   cup fills the screen, the headline halves slide apart, the ingredients fly outward, and
+   "Cream stays on top. Food goes deeper." (`hero.dive`, decorative, aria-hidden) is revealed
+   word by word. A pause button stops every endless loop on the page
+   (`html[data-motion-paused]`). Phones: stacked composition (headline, arch with ingredients,
+   copy, proof) with the same entrance; no pinning or loops. Reduced motion or no JavaScript:
+   the finished composition, still.
+   **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
+   under the hero; moves slowly on desktop (paused off-screen), still on phones.
 2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): "Why we make skin care you
    eat", a short paragraph, three points (creams and serums, food, SkinFusion) and the
    skin-layers drawing (`SkinLayers.tsx`): a cream drop lands and stays on the outer layer,
@@ -192,6 +198,7 @@ related products. `head()` sets the title, description, share image and price ta
    (opens the cart drawer), highlights, "Why you'll love it", assurance icons. Then accordions
    (native `<details>`, content in the server HTML): Description, Ingredients, How to brew,
    Shipping.
+   The gallery and buy box fade in on load (`data-anim`).
 4. Products with an entry in `productDetails` (content.ts) also get: "Why it belongs in your
    day" (six benefit cards), "How to enjoy" with tasting notes, the
    ingredients block, the comparison table and an FAQ. Today only `skin-glow-tea` has details; the others show the buy
@@ -544,7 +551,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Photo settles, words revealed, steam rises, copy fades on scroll           | Same, no steam or scroll fade                     |
+| Hero                                  | Entrance, steam, floating ingredients, pinned scroll dive into the cup     | Entrance only, no pin or loops                    |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
@@ -585,8 +592,9 @@ JavaScript: everything visible, posters instead of videos, no loader.
 
 ## Design skills and priority rules
 
-Design skills are installed in `.claude/skills/` (19 skills: frontend-design (Anthropic,
-Apache 2.0), component-builder (kostja94/bricks, MIT), design-taste-frontend,
+Design skills are installed in `.claude/skills/` (20 skills: frontend-design (Anthropic,
+Apache 2.0), component-builder (kostja94/bricks, MIT), build-awwwards-quality-sites
+(MengTo/Skills, MIT), design-taste-frontend,
 high-end-visual-design, minimalist-ui, redesign-existing-projects, ui-ux-pro-max, ui-styling,
 design-system, brand, web-design-guidelines, writing-guidelines, full-output-enforcement,
 vercel-react-best-practices, vercel-composition-patterns, gsap-core, gsap-react,
