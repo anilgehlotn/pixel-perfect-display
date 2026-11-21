@@ -58,7 +58,7 @@ export function Hero() {
     <section ref={section} aria-labelledby="hero-title" className="px-4 pt-24 md:px-6 md:pt-28">
       <div
         data-paused={paused || undefined}
-        className="relative mx-auto grid min-h-[34rem] max-w-[84rem] place-items-center overflow-hidden rounded-card bg-ink text-center text-cream lg:h-[min(80dvh,46rem)]"
+        className="relative mx-auto grid h-[min(calc(100dvh-7rem),44rem)] min-h-[32rem] max-w-[84rem] place-items-start overflow-hidden rounded-card bg-ink text-center text-cream lg:h-[min(80dvh,46rem)] lg:min-h-[34rem] lg:place-items-center"
       >
         {/* Photo layers: scroll drift (desktop) > settle-in > very slow zoom. */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -68,12 +68,12 @@ export function Hero() {
                 media={media.hero.image}
                 priority
                 sizes="(min-width: 1344px) 84rem, 100vw"
-                className="hero-breathe h-full w-full object-[58%_60%]"
+                className="hero-breathe h-full w-full object-[64%_60%] lg:object-[58%_60%]"
               />
               <Steam />
             </div>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-ink/30 via-ink/40 to-ink/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-ink/65 via-ink/25 to-ink/5 lg:from-ink/30 lg:via-ink/40 lg:to-ink/60" />
         </div>
 
         <button
@@ -89,7 +89,7 @@ export function Hero() {
           )}
         </button>
 
-        <div ref={copy} className="relative max-w-3xl px-6 py-20">
+        <div ref={copy} className="relative w-full max-w-3xl px-6 pb-10 pt-10 lg:py-20">
           <p className="flex flex-col items-center gap-3">
             <span
               className="hero-ease label-caps text-cream/85"
@@ -103,7 +103,10 @@ export function Hero() {
               style={{ "--d": "450ms" } as CSSProperties}
             />
           </p>
-          <h1 id="hero-title" className="display mt-6 text-cream lg:text-[5.5rem]">
+          <h1
+            id="hero-title"
+            className="display mt-5 text-cream max-sm:text-[2.85rem] lg:mt-6 lg:text-[5.5rem]"
+          >
             {words.map((w, i) => (
               <span key={i} className="inline-block overflow-hidden pb-[0.12em] align-top">
                 <span
@@ -117,13 +120,13 @@ export function Hero() {
             ))}
           </h1>
           <p
-            className="hero-ease mx-auto mt-5 max-w-lg text-lg leading-relaxed text-cream/90"
+            className="hero-ease mx-auto mt-4 max-w-lg leading-relaxed text-cream/90 sm:text-lg lg:mt-5"
             style={{ "--d": `${after}ms` } as CSSProperties}
           >
             {hero.line}
           </p>
           <div
-            className="hero-ease mt-9 flex justify-center"
+            className="hero-ease mt-6 flex justify-center lg:mt-9"
             style={{ "--d": `${after + 150}ms` } as CSSProperties}
           >
             <a href={hero.shopCta.href} className="btn btn-primary">

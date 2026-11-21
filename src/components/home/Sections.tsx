@@ -49,7 +49,7 @@ export function WhyEdible() {
             </a>
           </div>
         </div>
-        <div className="rounded-card bg-blush p-6 sm:p-10">
+        <div className="rounded-card bg-blush p-3 sm:p-10">
           <SkinLayers playOnView className="mx-auto w-full max-w-md" />
         </div>
       </div>

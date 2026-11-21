@@ -415,9 +415,9 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noreferrer"
       aria-label="Chat with us on WhatsApp"
-      className="fixed bottom-5 left-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground transition-transform hover:bg-primary-hover active:scale-95"
+      className="fixed bottom-4 left-4 z-30 grid h-12 w-12 place-items-center lg:bottom-5 lg:left-5 lg:h-14 lg:w-14 rounded-full bg-primary text-primary-foreground transition-transform hover:bg-primary-hover active:scale-95"
     >
-      <WhatsappLogo size={28} weight="light" />
+      <WhatsappLogo size={26} weight="light" />
     </a>
   );
 }
@@ -495,7 +495,7 @@ export function DiscountBadge() {
       <button
         data-hero="badge"
         onClick={() => setOpen(true)}
-        className="label-caps fixed bottom-5 right-5 z-30 grid h-20 w-20 place-items-center rounded-full bg-green text-center text-[0.62rem] leading-tight text-cream transition-transform active:scale-95"
+        className="label-caps fixed bottom-5 right-5 z-30 hidden h-20 w-20 place-items-center lg:grid rounded-full bg-green text-center text-[0.62rem] leading-tight text-cream transition-transform active:scale-95"
       >
         10% off?
       </button>

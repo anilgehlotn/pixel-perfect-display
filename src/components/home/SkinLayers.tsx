@@ -49,7 +49,7 @@ export function SkinLayers({
       <path d={`${wave(78)} V300 H0 Z`} fill="var(--pastel-pink)" />
       <path d={`${wave(128)} V300 H0 Z`} fill="var(--blush)" />
       <path d={`${wave(198)} V300 H0 Z`} fill="var(--pastel-peach)" />
-      <g fill="var(--muted-foreground)" fontSize="10" letterSpacing="0.5">
+      <g fill="var(--muted-foreground)" fontSize="12.5" letterSpacing="0.3">
         <text x="12" y="104">
           {outer}
         </text>
@@ -62,7 +62,7 @@ export function SkinLayers({
       </g>
 
       {/* Cream: a drop that lands and spreads on the outer layer, and stays there. */}
-      <text x="156" y="72" fontSize="10.5" fill="var(--green)">
+      <text x="146" y="70" fontSize="13" fill="var(--green)">
         {skinLayers.cream}
       </text>
       <path
@@ -115,7 +115,7 @@ export function SkinLayers({
           />
         ))}
       </g>
-      <text x="226" y="150" textAnchor="end" fontSize="10.5" fill="var(--green)">
+      <text x="226" y="150" textAnchor="end" fontSize="13" fill="var(--green)">
         {skinLayers.food}
       </text>
 
@@ -124,7 +124,7 @@ export function SkinLayers({
         <path d="M220 268 h32 v14 a10 10 0 0 1 -10 10 h-12 a10 10 0 0 1 -10 -10 Z" />
         <path d="M252 272 h4 a5 5 0 0 1 0 10 h-4" />
       </g>
-      <text x="212" y="286" textAnchor="end" fontSize="10.5" fill="var(--green)">
+      <text x="212" y="286" textAnchor="end" fontSize="13" fill="var(--green)">
         {skinLayers.cup}
       </text>
     </svg>
