@@ -38,56 +38,16 @@ export const nav = {
 
 export const FREE_SHIPPING_THRESHOLD = 699;
 
+// Homepage hero: one full-width photo (media.hero.image), a centred headline and one button.
+// Plain words, no result promises.
 export const hero = {
-  title: "Glow from within, one cup at a time.",
-  line: "Jujube, snow fungus and goji, brewed whole into a caffeine-free cup for your daily ritual.",
+  title: "Skin care you drink.",
+  line: "Creams stay on the surface. Our teas are made from four whole foods, for your skin from the inside.",
+  shopCta: { label: "Shop our teas", href: "/#shop" },
   quizCta: { label: "Take the quiz", href: "/quiz" },
-  shopCta: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
   ratingLabel: "reviews",
   from: "From",
 };
-
-// Hero banner slider. Each slide: kicker, title, line, primary and optional secondary
-// action. "add" buttons add a pack of the featured product instead of linking. Media for each
-// slide is media.hero.slides[i] (same order).
-export type HeroSlide = {
-  kicker: string;
-  title: string;
-  line: string;
-  primary: { label: string; href?: string; addPack?: string };
-  secondary?: { label: string; href: string };
-  /** What the right-hand side shows on wide screens. */
-  visual: "product" | "layers" | "ingredients";
-};
-
-// SkinFusion's idea, in plain words: skin care you eat and drink, made from whole food,
-// instead of more products on your face. No result promises (see "Rules for all future work").
-export const heroSlides: HeroSlide[] = [
-  {
-    kicker: "Edible skin care",
-    title: "Skin care you eat, not apply.",
-    line: "SkinFusion makes teas from whole food. Instead of adding another cream or serum to your face, you look after your skin from the inside, one cup a day.",
-    primary: { label: "Shop our teas", href: "/#shop" },
-    secondary: { label: "How it works", href: "/#how-it-works" },
-    visual: "product",
-  },
-  {
-    kicker: "Why edible",
-    title: "Cream stays on top. Food goes deeper.",
-    line: "Creams and serums sit on the outer layer of your skin. What you eat and drink is carried by your blood to the deeper layers.",
-    primary: { label: "Shop Skin Glow Tea", href: "/products/skin-glow-tea" },
-    secondary: { label: "How it works", href: "/#how-it-works" },
-    visual: "layers",
-  },
-  {
-    kicker: "What's inside",
-    title: "Four whole foods. Nothing added.",
-    line: "Red dates, snow fungus, goji berries and ginger. No sugar, no caffeine, no preservatives.",
-    primary: { label: "Meet the ingredients", href: "/#ingredients" },
-    secondary: { label: "Shop now", href: "/products/skin-glow-tea" },
-    visual: "ingredients",
-  },
-];
 
 // The skin-layers drawing (hero slide 2 and the "How it works" section). The idea is the
 // brand's belief, written without result promises; the client should confirm this wording.
@@ -111,17 +71,6 @@ export const howItWorks = {
     },
   ],
   cta: { label: "Shop our teas", href: "/#shop" },
-};
-
-export const heroSlider = {
-  label: "Featured",
-  previous: "Previous slide",
-  next: "Next slide",
-  pause: "Pause slideshow",
-  play: "Play slideshow",
-  goTo: "Show slide",
-  card: { add: "Add to cart", reviews: "reviews" },
-  ingredients: "Everything in the bag",
 };
 
 /* ---------------------------------------------------------------------------

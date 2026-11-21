@@ -233,26 +233,12 @@ const photos = {
     "Vlada Karpovich on Pexels",
     "https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/",
   ),
-  teaSunlight: photo(
-    "tea-sunlight",
-    "A woman sipping a cup of tea in warm morning sunlight",
-    [1600, 1065],
-    "Pexels photographer (photo 321599)",
-    "https://www.pexels.com/photo/woman-holding-cup-321599/",
-  ),
   jasmineCup: photo(
     "jasmine-cup",
     "A steaming glass cup of golden herbal tea with white flowers on a wooden table",
     [1600, 1067],
     "Pexels photographer (photo 7138780)",
     "https://www.pexels.com/photo/cup-of-aromatic-jasmine-tea-served-on-table-in-garden-7138780/",
-  ),
-  glassPour: photo(
-    "glass-pour",
-    "Herbal tea poured from a glass teapot into two small glass cups on a wooden board",
-    [1600, 1103],
-    "Anna Pou on Pexels",
-    "https://www.pexels.com/photo/a-person-pouring-tea-in-a-glass-8329310/",
   ),
   handsCup: photo(
     "hands-cup",
@@ -305,13 +291,8 @@ const site = {
 
 export const media = {
   hero: {
-    // Banner slides, in the order of heroSlides in content.ts. Real stock media (Mixkit,
-    // Pexels); replace with SkinFusion campaign shots before launch.
-    slides: [photos.teaSunlight, photos.jasmineCup, photos.glassPour] as Media[],
-    // Where each photo is anchored when the frame crops it (tall frames on phones).
-    focus: ["object-[52%_40%]", "object-[58%_60%]", "object-[50%_55%]"],
-    // Product photo in the floating card.
-    product: site.brew,
+    // One full-width photo with a slow zoom. Replace with a SkinFusion campaign photo later.
+    image: photos.jasmineCup,
   },
   // Product row: keyed by Shopify product handle. `video` plays on hover (desktop) or in view
   // (phones); `fallback` shows when the product has no image yet.

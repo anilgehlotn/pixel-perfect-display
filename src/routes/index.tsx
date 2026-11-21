@@ -35,7 +35,7 @@ function Index() {
   useScrollAnimations(scope);
   return (
     <main ref={scope}>
-      <Hero featured={featured} />
+      <Hero />
       <WhyEdible />
       <ProductRow products={products} />
       <Bundle product={featured} />

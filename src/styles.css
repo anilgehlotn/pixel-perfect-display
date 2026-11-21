@@ -317,48 +317,13 @@
     animation: float 8s ease-in-out infinite;
   }
 }
-/* Hero slider: the active slide's progress bar fills (transform only), its picture zooms in
-   slowly. Reduced motion: no fill (so no autoplay) and no zoom. */
-@keyframes slide-progress {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
+/* Hero photo: zooms in slowly once on load. Reduced motion: no zoom. */
 @keyframes kenburns {
   from {
     transform: scale(1);
   }
   to {
     transform: scale(1.08);
-  }
-}
-@keyframes word-rise {
-  from {
-    transform: translateY(105%);
-  }
-  to {
-    transform: none;
-  }
-}
-@keyframes pop-in {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes strike {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
   }
 }
 /* Skin-layers drawing (SkinLayers.tsx): the cream drop lands and spreads; food particles rise
@@ -417,20 +382,8 @@
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .animate-word-rise {
-    animation: word-rise 800ms var(--ease-soft) both;
-  }
-  .animate-pop-in {
-    animation: pop-in 700ms var(--ease-soft) both;
-  }
-  .animate-strike {
-    animation: strike 450ms ease-out both;
-  }
-  .animate-slide-progress {
-    animation: slide-progress 6.5s linear both;
-  }
   .animate-kenburns {
-    animation: kenburns 9s ease-out both;
+    animation: kenburns 14s ease-out both;
   }
 }
 @keyframes marquee {
@@ -454,14 +407,6 @@
 }
 .animate-rotate-slow {
   animation: rotate-slow 20s linear infinite;
-}
-/* Hero slider hover / pause: holds only the endless and timed motion (progress, zoom, floats,
-   rising dots), never the text and cards that are still animating in. */
-[data-hold] .animate-slide-progress,
-[data-hold] .animate-kenburns,
-[data-hold] .animate-float,
-[data-hold] .anim-rise {
-  animation-play-state: paused !important;
 }
 /* Set by usePauseWhenHidden while off-screen or the tab is hidden, or by a pause button */
 [data-paused] *,
