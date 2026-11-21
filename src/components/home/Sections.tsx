@@ -3,6 +3,7 @@ import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
+  Check,
   Leaf,
   LockSimple,
   MapPin,
@@ -119,34 +120,54 @@ export function WhyEdible() {
   );
 }
 
-/* 3. PRODUCT ROW: products from getProducts(). Swipe on phones, four columns on desktop. */
+/* 3. PRODUCT ROW: products from getProducts(). Header with a short line; swipe on phones (with a
+   hint), four columns on desktop. */
 export function ProductRow({ products }: { products: Product[] }) {
+  const copy = home.products;
   return (
     <section id="shop" aria-labelledby="shop-title" className="section-y scroll-mt-20">
-      <div className="container-x">
-        <h2 id="shop-title" data-anim="lines" className="title max-w-xl">
-          {home.products.title}
-        </h2>
+      <div className="container-x flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-10">
+        <div>
+          <p data-anim="fade" className="mb-2 text-sm font-medium tracking-[0.06em] text-ink">
+            {copy.eyebrow}
+          </p>
+          <h2 id="shop-title" data-anim="lines" className="title">
+            {copy.title}
+          </h2>
+        </div>
+        <p data-anim="fade" className="max-w-sm text-lg leading-relaxed text-muted-foreground">
+          {copy.text}
+        </p>
       </div>
       <ul
         data-anim="cards"
-        className="no-scrollbar mx-auto mt-10 flex max-w-[80rem] snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 pb-2 md:mt-14 lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible"
+        className="no-scrollbar mx-auto mt-8 flex max-w-[80rem] snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 pb-4 pt-2 md:mt-12 lg:grid lg:grid-cols-4 lg:gap-5 lg:overflow-visible"
       >
         {products.map((p) => (
           <ProductCard key={p.id} p={p} />
         ))}
       </ul>
+      <p
+        aria-hidden="true"
+        className="container-x mt-2 flex items-center gap-2 text-sm text-muted-foreground lg:hidden"
+      >
+        {copy.swipe}
+        <ArrowRight size={16} weight="light" className="arrow-nudge" />
+      </p>
     </section>
   );
 }
 
 /**
- * Product card: a short video plays over the photo on hover (desktop) or in view (phones).
- * The picture and the name open the product page; rating, price with the MRP crossed out and
- * the saving help people decide; "Add to cart" adds the first pack.
+ * Product card: a white card with the photo inset. On hover (desktop) the card lifts, the
+ * photo zooms slowly while a short muted video plays over it, and the button fills green; on
+ * phones the video plays while in view. Frosted tags (best seller, label, rating) sit on the
+ * photo. The picture and the name open the product page; "Add to cart" adds the first pack and
+ * briefly shows "Added".
  */
 export function ProductCard({ p, sizes }: { p: Product; sizes?: string }) {
   const { add } = useCart();
+  const [added, setAdded] = useState(false);
   const variant = p.variants[0];
   const art = media.products[p.handle] ?? media.productDefault;
   const badge = hasTag(p, "best-seller") ? "Best seller" : null;
@@ -155,89 +176,116 @@ export function ProductCard({ p, sizes }: { p: Product; sizes?: string }) {
   const price = money(p.priceRange.minVariantPrice);
   const mrp = p.compareAtPriceRange ? money(p.compareAtPriceRange.minVariantPrice) : 0;
   const off = mrp > price ? Math.round((1 - price / mrp) * 100) : 0;
+  const onAdd = () => {
+    if (!variant) return;
+    add(p, variant);
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1600);
+  };
   return (
-    <li data-video-hover className="lift w-[78%] shrink-0 snap-start sm:w-[45%] lg:w-auto">
-      <div className="relative">
-        <Link
-          to="/products/$handle"
-          params={{ handle: p.handle }}
-          tabIndex={-1}
-          aria-hidden="true"
-          className="block"
-        >
-          <LoopVideo
-            video={art.video}
-            trigger="hover"
-            className="aspect-[4/5] w-full rounded-card bg-blush"
+    <li data-video-hover className="group lift w-[78%] shrink-0 snap-start sm:w-[45%] lg:w-auto">
+      <article className="flex h-full flex-col rounded-[2rem] bg-surface p-2.5 ring-1 ring-ink/5 transition-shadow duration-500 group-hover:shadow-[0_28px_60px_-32px_rgba(30,77,58,0.4)]">
+        <div className="relative overflow-hidden rounded-[1.6rem] bg-blush">
+          <Link
+            to="/products/$handle"
+            params={{ handle: p.handle }}
+            tabIndex={-1}
+            aria-hidden="true"
+            className="block"
           >
-            {p.featuredImage ? (
-              <ProductImage
-                image={p.featuredImage}
-                alt={p.featuredImage.altText ?? p.title}
-                className="h-full w-full"
-              />
+            <LoopVideo
+              video={art.video}
+              trigger="hover"
+              className="aspect-[4/5] w-full transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
+            >
+              {p.featuredImage ? (
+                <ProductImage
+                  image={p.featuredImage}
+                  alt={p.featuredImage.altText ?? p.title}
+                  className="h-full w-full"
+                />
+              ) : (
+                <Img
+                  media={art.fallback}
+                  sizes={sizes ?? "(min-width: 1024px) 18rem, 78vw"}
+                  className="h-full w-full"
+                />
+              )}
+            </LoopVideo>
+          </Link>
+          {(badge || label) && (
+            <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-2">
+              {badge && (
+                <span className="rounded-full border border-white/40 bg-background/75 px-3 py-1 text-xs font-medium text-green backdrop-blur-md">
+                  {badge}
+                </span>
+              )}
+              {label && (
+                <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                  {label}
+                </span>
+              )}
+            </div>
+          )}
+          {p.rating && (
+            <p className="pointer-events-none absolute bottom-3 left-3 z-10 flex items-center gap-1.5 rounded-full border border-white/40 bg-background/75 px-3 py-1.5 text-xs text-ink backdrop-blur-md">
+              <Stars value={p.rating.value} size={12} />
+              <span>
+                {p.rating.value.toFixed(1)}
+                <span className="text-muted-foreground">
+                  {" "}
+                  ({p.rating.count.toLocaleString("en-IN")})
+                </span>
+              </span>
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col px-3 pb-3 pt-5">
+          <h3 className="text-xl leading-snug text-green">
+            <Link
+              to="/products/$handle"
+              params={{ handle: p.handle }}
+              className="underline-offset-4 hover:underline"
+            >
+              {p.title}
+            </Link>
+          </h3>
+          {p.subtitle && <p className="mt-1 text-sm text-muted-foreground">{p.subtitle}</p>}
+          <p className="mt-auto flex flex-wrap items-baseline gap-x-2 gap-y-1 pt-4">
+            <span className="text-sm text-muted-foreground">{home.products.from}</span>
+            <span className="text-2xl text-foreground tabular-nums">{inr(price)}</span>
+            {mrp > price && (
+              <span className="text-sm text-muted-foreground line-through tabular-nums">
+                {inr(mrp)}
+              </span>
+            )}
+            {off > 0 && (
+              <span className="rounded-full bg-blush px-2 py-0.5 text-xs font-medium text-green">
+                Save {off}%
+              </span>
+            )}
+          </p>
+          <button
+            type="button"
+            onClick={onAdd}
+            disabled={!available}
+            aria-label={available ? `${home.products.cta}: ${p.title}` : undefined}
+            className="btn btn-outline mt-4 w-full gap-2 lg:group-hover:bg-green lg:group-hover:text-cream"
+          >
+            {!available ? (
+              "Sold out"
+            ) : added ? (
+              <>
+                <Check size={18} weight="light" aria-hidden="true" />
+                {home.products.added}
+              </>
             ) : (
-              <Img
-                media={art.fallback}
-                sizes={sizes ?? "(min-width: 1024px) 18rem, 78vw"}
-                className="h-full w-full"
-              />
+              home.products.cta
             )}
-          </LoopVideo>
-        </Link>
-        {(badge || label) && (
-          <div className="pointer-events-none absolute left-4 top-4 z-10 flex flex-wrap gap-2">
-            {badge && (
-              <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-green">
-                {badge}
-              </span>
-            )}
-            {label && (
-              <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-                {label}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-      {p.rating && (
-        <p className="mt-5 flex items-center gap-2 px-1 text-sm text-muted-foreground">
-          <Stars value={p.rating.value} size={14} />
-          <span>
-            {p.rating.value.toFixed(1)} ({p.rating.count.toLocaleString("en-IN")})
-          </span>
-        </p>
-      )}
-      <h3 className="mt-2 px-1 text-xl leading-snug">
-        <Link
-          to="/products/$handle"
-          params={{ handle: p.handle }}
-          className="underline-offset-4 hover:underline"
-        >
-          {p.title}
-        </Link>
-      </h3>
-      <p className="mt-1 flex flex-wrap items-center gap-x-2 px-1">
-        <span className="text-muted-foreground">{home.products.from}</span>
-        <span className="text-foreground">{inr(price)}</span>
-        {mrp > price && (
-          <span className="text-sm text-muted-foreground line-through">{inr(mrp)}</span>
-        )}
-        {off > 0 && (
-          <span className="rounded-full bg-blush px-2 py-0.5 text-xs font-medium text-green">
-            Save {off}%
-          </span>
-        )}
-      </p>
-      <button
-        type="button"
-        onClick={() => variant && add(p, variant)}
-        disabled={!available}
-        aria-label={available ? `${home.products.cta}: ${p.title}` : undefined}
-        className="btn btn-outline mt-5 w-full"
-      >
-        {available ? home.products.cta : "Sold out"}
-      </button>
+          </button>
+        </div>
+      </article>
     </li>
   );
 }

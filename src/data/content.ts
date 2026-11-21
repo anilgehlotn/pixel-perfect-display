@@ -277,9 +277,13 @@ export type StoryQuote = { text: string; name: string; city: string; isDemo: boo
 
 export const home = {
   products: {
+    eyebrow: "The collection",
     title: "Our teas",
+    text: "Whole-food blends for every part of the day. Start with one pouch, or save with a pack.",
+    swipe: "Swipe to see all",
     from: "From",
     cta: "Add to cart",
+    added: "Added",
   },
   bundle: {
     title: "Buy more, pay less",

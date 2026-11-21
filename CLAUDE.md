@@ -160,12 +160,15 @@ order (`src/routes/index.tsx`):
      **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
      under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
      still on phones.
-2. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
-   video on hover (desktop) or while in view (phones) over the product photo; products without a
-   photo show the fallback image from media.ts. Swipe with snap points on phones. Photo and
-   name open the product page; cards show rating and review count, price with the MRP crossed
-   out and "Save x%", and "Add to cart" adds the first variant. `ProductCard` is exported and
-   reused for "You may also like" on the product page.
+2. **Product row** (`#shop`): eyebrow "The collection", "Our teas" and a short line beside it
+   (`home.products`). `getProducts()` as white cards (`ProductCard`, exported and reused for
+   "You may also like"): the photo is inset with rounded corners, frosted tags on it (best
+   seller, `label:` tag, star rating with count); below, the name, subtitle, "From" price with
+   MRP crossed out and "Save x%", and "Add to cart" (first pack), which briefly shows "Added"
+   with a tick. Desktop hover: the card lifts with a soft shadow, the photo zooms slowly while
+   a short muted video plays over it, and the button fills green. Phones: the video plays
+   while in view; swipe with snap points and a "Swipe to see all" hint. Products without a
+   photo show the fallback image from media.ts. Photo and name open the product page.
 3. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): a compact block, "Why we
    make skin care you eat", a short paragraph, three points (creams and serums, food,
    SkinFusion), "Shop our teas" and the skin-layers drawing (`SkinLayers.tsx`). The drawing
