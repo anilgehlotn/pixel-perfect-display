@@ -1,45 +1,43 @@
-// Product types modelled on the Shopify Storefront API, with connections (edges/nodes)
-// already flattened into arrays. The Shopify fetch layer must map its response to these.
+// Product types used across the site.
 
 export type Money = {
-  amount: string; // decimal string, e.g. "649.00", as Shopify returns it
+  amount: string; // decimal string, e.g. "649.00"
   currencyCode: string;
 };
 
-export type ShopifyImage = {
+export type ProductPhoto = {
   url: string;
   altText: string | null;
   width: number;
   height: number;
-  // Local-only: optimized WebP of a bundled image. Shopify's CDN negotiates WebP itself.
+  // Optimized WebP of a bundled image.
   webpUrl?: string;
 };
 
 export type ProductVariant = {
-  id: string; // Shopify: "gid://shopify/ProductVariant/123"
+  id: string;
   title: string; // e.g. "2 Pouches"
   availableForSale: boolean;
   price: Money;
   compareAtPrice: Money | null;
   selectedOptions: { name: string; value: string }[];
-  // Short merchandising line under the pack button. Shopify: variant metafield custom.pack_note
+  // Short merchandising line under the pack button.
   note: string | null;
 };
 
 export type Product = {
-  id: string; // Shopify: "gid://shopify/Product/123"
+  id: string;
   handle: string;
   title: string;
   description: string;
   tags: string[];
-  featuredImage: ShopifyImage | null;
-  images: ShopifyImage[];
+  featuredImage: ProductPhoto | null;
+  images: ProductPhoto[];
   priceRange: { minVariantPrice: Money };
   compareAtPriceRange: { minVariantPrice: Money } | null;
   variants: ProductVariant[];
-  // Shopify: product metafield custom.subtitle (e.g. "20 tea bags · 100g")
+  // e.g. "20 tea bags · 100g"
   subtitle: string | null;
-  // Shopify: standard review metafields reviews.rating and reviews.rating_count
   rating: { value: number; count: number } | null;
 };
 

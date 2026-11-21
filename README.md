@@ -1,9 +1,9 @@
 # SkinFusion
 
 Storefront for SkinFusion, caffeine-free TCM skin-wellness teas from Mumbai. Built with
-TanStack Start (React, server-side rendering) and Tailwind CSS, deployed on Vercel. Products,
-cart and checkout will come from Shopify's Storefront API; until the store is connected, the
-site runs on local product data and a browser-saved cart.
+TanStack Start (React, server-side rendering) and Tailwind CSS, deployed on Vercel. Products
+come from local product data and the cart is saved in the browser. Online checkout is not
+connected yet.
 
 ## Tech stack
 
@@ -11,7 +11,6 @@ site runs on local product data and a browser-saved cart.
 - Vite 8, Nitro (server packaging for Vercel)
 - Tailwind CSS 4, Jost font, Phosphor icons
 - TypeScript (strict), ESLint + Prettier, Vitest
-- Shopify Storefront API (prepared in `src/lib/shopify/`, not connected yet)
 
 ## Requirements
 
@@ -21,7 +20,7 @@ Node.js 20 (20.19 or newer) and npm.
 
 ```sh
 npm install
-cp .env.example .env.local   # optional until Shopify is connected
+cp .env.example .env.local   # optional
 npm run dev                  # http://localhost:8080
 ```
 
@@ -38,15 +37,12 @@ npm run dev                  # http://localhost:8080
 
 ## Environment variables
 
-See `.env.example`. All are public (`VITE_` variables end up in the browser bundle), so
-only the Shopify Storefront **public** token goes here. Never add an Admin API token.
+See `.env.example`. `VITE_` variables end up in the browser bundle, so never put a secret in
+one.
 
-| Variable                               | Purpose                                            |
-| -------------------------------------- | -------------------------------------------------- |
-| `VITE_SITE_URL`                        | Live site URL, used for absolute share-image links |
-| `VITE_SHOPIFY_STORE_DOMAIN`            | e.g. `your-store.myshopify.com`                    |
-| `VITE_SHOPIFY_STOREFRONT_PUBLIC_TOKEN` | Storefront API public access token                 |
-| `VITE_SHOPIFY_API_VERSION`             | Optional, defaults to `2026-07`                    |
+| Variable        | Purpose                                            |
+| --------------- | -------------------------------------------------- |
+| `VITE_SITE_URL` | Live site URL, used for absolute share-image links |
 
 ## Deploy to Vercel
 

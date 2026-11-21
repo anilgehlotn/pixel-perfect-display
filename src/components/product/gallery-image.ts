@@ -1,5 +1,5 @@
 import type { MediaImage } from "@/data/media";
-import type { ShopifyImage } from "@/lib/shopify/types";
+import type { ProductPhoto } from "@/lib/catalog/types";
 
 export type GalleryImage = {
   src: string;
@@ -9,7 +9,7 @@ export type GalleryImage = {
   height: number;
 };
 
-export const fromShopify = (img: ShopifyImage, fallbackAlt: string): GalleryImage => ({
+export const fromProduct = (img: ProductPhoto, fallbackAlt: string): GalleryImage => ({
   src: img.webpUrl ?? img.url,
   alt: img.altText ?? fallbackAlt,
   width: img.width,

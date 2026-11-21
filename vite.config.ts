@@ -49,13 +49,9 @@ export default defineConfig(({ command, isPreview }) => ({
     (command === "build" || isPreview) &&
       nitro({
         vercel: { functions: { runtime: "nodejs24.x" } },
-        // Account pages hold personal data: never cache them at the edge or in the browser.
-        routeRules: {
-          "/account/**": { headers: { "cache-control": "private, no-store" } },
-          ...(isVercelPreview
-            ? { "/**": { headers: { "x-robots-tag": "noindex, nofollow" } } }
-            : {}),
-        },
+        routeRules: isVercelPreview
+          ? { "/**": { headers: { "x-robots-tag": "noindex, nofollow" } } }
+          : {},
       }),
     viteReact(),
   ],

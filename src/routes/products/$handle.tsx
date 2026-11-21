@@ -6,13 +6,13 @@ import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
 import { absoluteUrl, site } from "@/lib/seo";
-import { getProduct, getProducts } from "@/lib/shopify/products";
-import { money } from "@/lib/shopify/types";
+import { getProduct, getProducts } from "@/lib/catalog/products";
+import { money } from "@/lib/catalog/types";
 import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { BuyBox } from "@/components/product/BuyBox";
 import { usePurchase, type Purchase } from "@/components/product/purchase";
 import { Gallery } from "@/components/product/Gallery";
-import { fromMedia, fromShopify } from "@/components/product/gallery-image";
+import { fromMedia, fromProduct } from "@/components/product/gallery-image";
 import { ProductCard } from "@/components/home/Sections";
 import {
   ComparisonTable,
@@ -23,7 +23,7 @@ import {
   Steps,
 } from "@/components/product/Blocks";
 import { Icon } from "@/components/product/icons";
-import type { Product } from "@/lib/shopify/types";
+import type { Product } from "@/lib/catalog/types";
 
 export const Route = createFileRoute("/products/$handle")({
   loader: async ({ params }) => {
@@ -70,7 +70,7 @@ function ProductPage() {
   useScrollAnimations(scope, [product.handle]);
 
   const images = [
-    ...product.images.map((img) => fromShopify(img, product.title)),
+    ...product.images.map((img) => fromProduct(img, product.title)),
     ...(media.gallery[product.handle] ?? []).map(fromMedia),
   ];
   if (!images.length) {

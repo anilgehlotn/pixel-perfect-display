@@ -1,6 +1,5 @@
-// All storefront content lives here: product data (until Shopify is connected) and the
-// marketing copy. Images set to null render as a soft beige placeholder with a label.
-import type { Money, Product, ProductVariant, ShopifyImage } from "@/lib/shopify/types";
+// All site content lives here: product data and the marketing copy. Images set to null render as a soft beige placeholder with a label.
+import type { Money, Product, ProductVariant, ProductPhoto } from "@/lib/catalog/types";
 import ritual from "@/assets/ritual.jpg";
 import ingSnow from "@/assets/ing-snowfungus.jpg";
 import ingJujube from "@/assets/ing-jujube.jpg";
@@ -105,11 +104,10 @@ export const howItWorks = {
 };
 
 /* ---------------------------------------------------------------------------
-   PRODUCTS (local stand-in for Shopify)
-   Shaped like the Shopify Storefront API (see src/lib/shopify/types.ts). Components never
-   import these directly: they go through getProducts() / getProduct(handle) in
-   src/lib/shopify/products.ts, which is the one place to switch to live Shopify data.
-   Prices are decimal strings like Shopify returns them. "images: []" shows a placeholder.
+   PRODUCTS
+   Typed in src/lib/catalog/types.ts. Components never import these directly: they go
+   through getProducts() / getProduct(handle) in src/lib/catalog/products.ts.
+   Prices are decimal strings ("649.00"). "images: []" shows a placeholder.
 --------------------------------------------------------------------------- */
 
 export const FEATURED_PRODUCT_HANDLE = "skin-glow-tea";
@@ -118,7 +116,7 @@ const inr = (amount: string): Money => ({ amount, currencyCode: "INR" });
 
 // The pouch photo (src/assets/skinfusion-pouch.jpg) is still missing: the old file is only a
 // pointer to the previous site builder. Until it arrives, the product shows the brewed cup.
-const brewImage: ShopifyImage = {
+const brewImage: ProductPhoto = {
   url: brew3,
   webpUrl: brew3Webp,
   altText: "A cup of Skin Glow Tea with whole jujubes and goji",
@@ -126,7 +124,7 @@ const brewImage: ShopifyImage = {
   height: 1024,
 };
 
-// Single-variant products: Shopify gives these one variant titled "Default Title".
+// Single-variant products: one "1 Pouch" variant.
 const singleVariant = (handle: string, price: string, compareAt: string): ProductVariant[] => [
   {
     id: `local-variant:${handle}:1`,
@@ -229,8 +227,11 @@ export const localProducts: Product[] = [
 ];
 
 /* ---------------------------------------------------------------------------
-   MARKETING COPY (stays here after Shopify is connected)
+   MARKETING COPY
 --------------------------------------------------------------------------- */
+
+// Cart drawer: shown under the Checkout button while online checkout is not connected.
+export const cartCopy = { checkoutSoon: "Online checkout opens soon." };
 
 // Sample customer quotes for the client preview. isDemo: true means the quote is invented
 // and must be replaced with a real, permitted customer quote before launch.

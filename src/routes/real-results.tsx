@@ -11,8 +11,8 @@ import {
   CaretRight,
 } from "@phosphor-icons/react";
 import { realResults, FEATURED_PRODUCT_HANDLE } from "@/data/content";
-import { getProduct } from "@/lib/shopify/products";
-import { money } from "@/lib/shopify/types";
+import { getProduct } from "@/lib/catalog/products";
+import { money } from "@/lib/catalog/types";
 import { ProductImage } from "@/components/site/ProductImage";
 import { useCart } from "@/lib/cart/context";
 import { rs } from "@/lib/format";

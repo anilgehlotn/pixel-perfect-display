@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useScrollAnimations } from "@/lib/animations/useScrollAnimations";
 import { FEATURED_PRODUCT_HANDLE } from "@/data/content";
-import { getProduct, getProducts } from "@/lib/shopify/products";
+import { getProduct, getProducts } from "@/lib/catalog/products";
 import { Hero } from "@/components/home/Hero";
 import {
   IngredientStrip,

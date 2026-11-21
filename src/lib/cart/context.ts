@@ -1,24 +1,23 @@
 import { createContext, useContext } from "react";
-import type { Money, Product, ProductVariant, ShopifyImage } from "@/lib/shopify/types";
+import type { Money, Product, ProductVariant, ProductPhoto } from "@/lib/catalog/types";
 
-// Cart shapes mirror the Shopify Cart API (Cart, CartLine, merchandise) so the local store
-// and a future Shopify store return the same thing.
+// Cart shapes shared by the cart store, the provider and the cart drawer.
 export type CartLine = {
-  id: string; // local: variant id. Shopify: "gid://shopify/CartLine/..."
+  id: string; // the variant id
   quantity: number;
   merchandise: {
-    id: string; // variant id, what Shopify's cartLinesAdd expects as merchandiseId
+    id: string; // variant id
     title: string; // variant title, e.g. "2 Pouches"
     price: Money;
-    image: ShopifyImage | null;
+    image: ProductPhoto | null;
     product: { handle: string; title: string };
   };
 };
 
 export type Cart = {
-  id: string | null; // Shopify cart id, null for the local cart
+  id: string | null; // null for the browser cart
   lines: CartLine[];
-  checkoutUrl: string | null; // Shopify hosted checkout, null for the local cart
+  checkoutUrl: string | null; // null until online checkout exists
 };
 
 export type CartCtx = {
@@ -34,13 +33,8 @@ export type CartCtx = {
     quantity?: number,
     opts?: { openDrawer?: boolean },
   ) => void;
-  /** Adds several lines at once (e.g. "Buy again" from a past order). */
-  addLines: (
-    lines: { merchandise: CartLine["merchandise"]; quantity: number }[],
-    opts?: { openDrawer?: boolean },
-  ) => void;
   setQty: (lineId: string, quantity: number) => void;
-  /** Sends the shopper to Shopify checkout (linked to their account when signed in). */
+  /** Sends the shopper to checkout (disabled while checkoutUrl is null). */
   checkout: () => Promise<void>;
   toast: string | null;
 };

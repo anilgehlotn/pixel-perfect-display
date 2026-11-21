@@ -6,18 +6,16 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { Link, useLoaderData } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
+import { Handbag, List, X, Plus, Minus, WhatsappLogo, CheckCircle } from "@phosphor-icons/react";
 import {
-  User,
-  Handbag,
-  List,
-  X,
-  Plus,
-  Minus,
-  WhatsappLogo,
-  CheckCircle,
-} from "@phosphor-icons/react";
-import { brand, nav, footer, FREE_SHIPPING_THRESHOLD, type FooterLink } from "@/data/content";
+  brand,
+  cartCopy,
+  nav,
+  footer,
+  FREE_SHIPPING_THRESHOLD,
+  type FooterLink,
+} from "@/data/content";
 import { useCart } from "@/lib/cart/context";
 import { useScrollLock } from "@/lib/scroll-lock";
 import { useNotify } from "@/lib/notify-context";
@@ -27,7 +25,7 @@ import { footerReveal } from "@/lib/animations/presets";
 import { afterInitialLoad } from "@/lib/animations/hydration";
 import { safely } from "@/lib/animations/safety";
 import { inr } from "@/lib/format";
-import { money } from "@/lib/shopify/types";
+import { money } from "@/lib/catalog/types";
 import { ProductImage } from "./ProductImage";
 
 const ICON = 22;
@@ -71,7 +69,6 @@ export function Header() {
   const [menu, setMenu] = useState(false);
   const [hidden, setHidden] = useState(false);
   const { count, setOpen } = useCart();
-  const session = useLoaderData({ from: "__root__" });
   useScrollLock(menu);
 
   useEffect(() => {
@@ -148,7 +145,6 @@ export function Header() {
             </div>
           </div>
           <div className={`${PILL} hidden gap-1 py-1.5 pl-2 pr-1.5 lg:flex`}>
-            <AccountLink />
             {cartButton}
             <NavLink href={nav.cta.href} className="btn btn-primary min-h-11 px-5 py-2">
               {nav.cta.label}
@@ -204,28 +200,6 @@ export function Header() {
             >
               {nav.cta.label}
             </NavLink>
-            {session.signedIn ? (
-              <div className="grid grid-cols-2 gap-3">
-                <Link
-                  to="/account"
-                  onClick={() => setMenu(false)}
-                  className="btn btn-outline w-full"
-                >
-                  My account
-                </Link>
-                <a href="/account/logout" className="btn btn-outline w-full">
-                  Sign out
-                </a>
-              </div>
-            ) : (
-              <Link
-                to="/account/login"
-                onClick={() => setMenu(false)}
-                className="btn btn-outline w-full"
-              >
-                Sign in
-              </Link>
-            )}
           </div>
         </div>
       )}
@@ -322,7 +296,7 @@ export function CartDrawer() {
             <span className="label-caps">Subtotal</span>
             <span>{inr(subtotal)}</span>
           </div>
-          {/* checkoutUrl is null for the local cart (Shopify not configured) */}
+          {/* Online checkout is not connected yet: checkoutUrl stays null. */}
           <button
             className="btn btn-primary w-full"
             disabled={!lines.length || !checkoutUrl}
@@ -330,48 +304,18 @@ export function CartDrawer() {
           >
             Checkout
           </button>
+          {!checkoutUrl && (
+            <p className="mt-3 text-center text-sm text-muted-foreground">
+              {cartCopy.checkoutSoon}
+            </p>
+          )}
         </div>
       </aside>
     </div>
   );
 }
 
-// Account link in the right nav pill: "Sign in" when signed out, a round initial badge
-// linking to the account when signed in. Session comes from the root loader (httpOnly
-// cookies, read on the server).
-function AccountLink() {
-  const session = useLoaderData({ from: "__root__" });
-  const initial = session.firstName?.trim().charAt(0).toUpperCase();
-  if (!session.signedIn)
-    return (
-      <Link
-        to="/account/login"
-        className="grid h-11 place-items-center rounded-full px-4 hover:bg-blush"
-      >
-        Sign in
-      </Link>
-    );
-  return (
-    <Link
-      to="/account"
-      aria-label={session.firstName ? `My account, ${session.firstName}` : "My account"}
-      className="grid h-11 w-11 place-items-center rounded-full hover:bg-blush"
-    >
-      {initial ? (
-        <span
-          aria-hidden="true"
-          className="grid h-8 w-8 place-items-center rounded-full bg-green text-sm text-cream"
-        >
-          {initial}
-        </span>
-      ) : (
-        <User size={ICON} weight="light" />
-      )}
-    </Link>
-  );
-}
-
-/** Short confirmations from useNotify ("Address saved", "You've been signed out"). */
+/** Short confirmations from useNotify (e.g. "Saved"). */
 export function Notice() {
   const { notice } = useNotify();
   return (

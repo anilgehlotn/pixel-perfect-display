@@ -2,7 +2,7 @@ import { useRef, type CSSProperties } from "react";
 import { hero } from "@/data/content";
 import { media, type MediaImage } from "@/data/media";
 import { inr } from "@/lib/format";
-import { money, type Product } from "@/lib/shopify/types";
+import { money, type Product } from "@/lib/catalog/types";
 import { Stars } from "@/components/site/Stars";
 import { gsap, useGSAP } from "@/lib/animations/gsap";
 import { MOTION_CONDITIONS } from "@/lib/animations/media";

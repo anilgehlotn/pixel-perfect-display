@@ -295,7 +295,7 @@ export const media = {
     serum: photos.bathroomShelf,
     image: photos.jasmineCup,
   },
-  // Product row: keyed by Shopify product handle. `video` plays on hover (desktop) or in view
+  // Product row: keyed by product handle. `video` plays on hover (desktop) or in view
   // (phones); `fallback` shows when the product has no image yet.
   products: {
     "skin-glow-tea": { video: videos.skincareCloseup, fallback: site.brew },

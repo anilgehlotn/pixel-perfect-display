@@ -4,7 +4,7 @@ import { Check, Minus, Plus } from "@phosphor-icons/react";
 import { pdp, type ProductDetails } from "@/data/content";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
-import { money, type Product } from "@/lib/shopify/types";
+import { money, type Product } from "@/lib/catalog/types";
 import { Stars } from "@/components/site/Stars";
 import { Icon } from "./icons";
 import { pouches, savePercent, type Purchase } from "./purchase";

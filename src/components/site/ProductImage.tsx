@@ -1,4 +1,4 @@
-import type { ShopifyImage } from "@/lib/shopify/types";
+import type { ProductPhoto } from "@/lib/catalog/types";
 
 // Product photo with a WebP source and JPG fallback. width/height reserve the space so the
 // layout does not jump while it loads; className sets the displayed size and crop.
@@ -8,7 +8,7 @@ export function ProductImage({
   className = "",
   loading = "lazy",
 }: {
-  image: ShopifyImage;
+  image: ProductPhoto;
   alt?: string;
   className?: string;
   loading?: "lazy" | "eager";

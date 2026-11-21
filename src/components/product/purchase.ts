@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { money, type Product, type ProductVariant } from "@/lib/shopify/types";
+import { money, type Product, type ProductVariant } from "@/lib/catalog/types";
 
 /** Pouches in a pack, read from the variant title ("2 Pouches" -> 2). */
 export const pouches = (v: ProductVariant) => Number(/\d+/.exec(v.title)?.[0] ?? 1) || 1;

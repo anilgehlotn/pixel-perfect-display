@@ -6,7 +6,7 @@ import { home, howItWorks, ingredientStrip, ingredients } from "@/data/content";
 import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
-import { cornerLabel, hasTag, money, type Product, type ProductVariant } from "@/lib/shopify/types";
+import { cornerLabel, hasTag, money, type Product, type ProductVariant } from "@/lib/catalog/types";
 import { pouches, savePercent } from "@/components/product/purchase";
 import { ProductImage } from "@/components/site/ProductImage";
 import { Stars } from "@/components/site/Stars";
