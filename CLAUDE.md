@@ -147,8 +147,7 @@ order (`src/routes/index.tsx`):
    the photo comes up from dark and settles from 1.12 to 1 (2.6s), then zooms very slowly
    (24s, once); the hairline draws in; the headline is revealed word by word from a mask; the
    line and button ease in last. Desktop: on scroll the copy fades and lifts away (GSAP
-   ScrollTrigger scrub) while the photo drifts slower than the page (`data-depth`). No
-   floating pieces, particles or loops. Reduced motion: none. Copy: `hero` in content.ts.
+   ScrollTrigger scrub) while the photo drifts slower than the page (`data-depth`). Option 3 picked by the client: soft blurred steam (`Steam` in Hero.tsx) keeps rising above the cup on desktop with a mouse, with a small pause button; no other loops. Reduced motion: none. Copy: `hero` in content.ts.
 2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): "Why we make skin care you
    eat", a short paragraph, three points (creams and serums, food, SkinFusion) and the
    skin-layers drawing (`SkinLayers.tsx`): a cream drop lands and stays on the outer layer,
@@ -543,7 +542,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Photo settles from dark, words revealed, copy fades on scroll              | Same, no scroll fade                              |
+| Hero                                  | Photo settles, words revealed, steam rises, copy fades on scroll           | Same, no steam or scroll fade                     |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
