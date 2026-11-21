@@ -345,7 +345,12 @@ export const home = {
     location: "Xinjiang, China",
     title: "Where our jujubes grow",
     text: "Long, dry summers and cool nights let the dates sweeten slowly on the tree before they are sun-dried. Our goji berries and snow fungus come from small family farms we taste from every season.",
-    cta: { label: "Read more", href: "/real-results" },
+    journey: [
+      { title: "On the tree", text: "Long summers sweeten the dates slowly." },
+      { title: "Sun-dried", text: "Dried whole in the open air." },
+      { title: "In your cup", text: "Packed whole, with nothing added." },
+    ],
+    cta: { label: "See all four ingredients", href: "/#ingredients" },
   },
   closing: {
     title: "Try it for yourself",

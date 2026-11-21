@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Leaf,
   LockSimple,
+  MapPin,
   Pause,
   Play,
   ThermometerHot,
@@ -469,42 +470,67 @@ export function Tcm101() {
   );
 }
 
-/* 8. SOURCING: location label, heading, large rounded image. Origin copy is demo. */
+/* 8. SOURCING: deep green block. Photo of the jujubes (right half on desktop, on top on phones)
+   with a frosted location tag; heading, text, the jujube's journey in three numbered steps and
+   a link to the ingredients. Origin copy is demo until the client confirms it. */
 export function Sourcing() {
   const copy = home.sourcing;
   return (
-    <section id="sourcing" aria-labelledby="sourcing-title" className="section-y scroll-mt-20">
-      <div className="container-x grid items-center gap-10 lg:grid-cols-2 lg:gap-20">
-        <div data-anim="media" className="overflow-hidden rounded-card bg-beige">
-          <Img
-            media={media.sourcing}
-            sizes="(min-width: 1024px) 40rem, 100vw"
-            className="aspect-[4/5] w-full lg:aspect-square"
+    <section
+      id="sourcing"
+      aria-labelledby="sourcing-title"
+      className="section-y scroll-mt-20 px-4 md:px-6"
+    >
+      <div className="mx-auto grid max-w-[84rem] overflow-hidden rounded-card bg-green text-cream lg:grid-cols-2">
+        <div className="relative min-h-[18rem] lg:order-2 lg:min-h-[38rem]">
+          <div data-anim="media" className="absolute inset-0 overflow-hidden">
+            <Img
+              media={media.sourcing}
+              sizes="(min-width: 1024px) 42rem, 100vw"
+              className="h-full w-full"
+            />
+          </div>
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent lg:bg-gradient-to-r lg:from-green/40"
           />
-        </div>
-        <div className="max-w-md">
-          <p
-            data-anim="fade"
-            className="label-caps flex items-center gap-2.5 text-muted-foreground"
-          >
-            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" />
+          <p className="absolute bottom-4 left-4 flex items-center gap-2.5 rounded-full border border-cream/25 bg-ink/35 px-4 py-2 text-sm text-cream backdrop-blur-md sm:bottom-6 sm:left-6">
+            <MapPin aria-hidden="true" weight="light" className="h-4 w-4" />
             {copy.location}
           </p>
-          <h2 id="sourcing-title" data-anim="lines" className="title mt-5">
+        </div>
+
+        <div className="flex flex-col justify-center p-6 sm:p-10 lg:p-16">
+          <h2 id="sourcing-title" data-anim="lines" className="title text-cream">
             {copy.title}
           </h2>
-          <p data-anim="fade" className="mt-5 text-lg leading-relaxed text-muted-foreground">
+          <p data-anim="fade" className="mt-5 max-w-lg text-lg leading-relaxed text-cream/85">
             {copy.text}
           </p>
-          <Link
-            to={copy.cta.href}
-            data-anim="fade"
-            className="group mt-8 inline-flex min-h-11 items-center gap-2 font-medium text-green underline underline-offset-4"
-          >
-            {copy.cta.label}
-            <span className="sr-only"> about {copy.title.toLowerCase()}</span>
-            <ArrowRight size={18} weight="light" className="arrow-nudge" aria-hidden="true" />
-          </Link>
+          <ol data-anim="cards" className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
+            {copy.journey.map((step, i) => (
+              <li
+                key={step.title}
+                className="flex gap-3 rounded-[1.25rem] border border-cream/15 bg-cream/[0.06] px-4 py-3 sm:block sm:p-4"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pt-1 text-xs text-cream/55 tabular-nums sm:pt-0"
+                >
+                  0{i + 1}
+                </span>
+                <div>
+                  <h3 className="text-lg text-cream sm:mt-2">{step.title}</h3>
+                  <p className="mt-0.5 text-sm leading-snug text-cream/80 sm:mt-1">{step.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div data-anim="fade" className="mt-8">
+            <a href={copy.cta.href} className="btn btn-cream">
+              {copy.cta.label}
+            </a>
+          </div>
         </div>
       </div>
     </section>
