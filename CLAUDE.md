@@ -47,7 +47,7 @@ each route's `head()` (per page).
 │   │   ├── Hero.tsx           Full-width photo hero with centred headline and one button
 │   │   ├── Sections.tsx       Product row, bundle, how it works, TCM 101, sourcing, closing CTA
 │   │   ├── Stories.tsx        Stories scroller (drag, drift, video cards)
-│   │   ├── SkinLayers.tsx     Animated drawing: cream stays on top, food rises from inside
+│   │   ├── SkinLayers.tsx     Skin-layers drawing (animated by lib/animations/why-edible.ts)
 │   │   └── media.tsx          Img, LoopVideo, PlayPill, VideoDialog (all media goes through these)
 │   ├── components/product/    Product page parts: BuyBox, purchase.ts, Gallery (+ gallery-image.ts),
 │   │                          Blocks (SectionIntro, ComparisonTable, Standards, Ingredients, Steps,
@@ -158,9 +158,14 @@ order (`src/routes/index.tsx`):
      still on phones.
 2. **Why edible** (`#how-it-works`, `WhyEdible` in Sections.tsx): "Why we make skin care you
    eat", a short paragraph, three points (creams and serums, food, SkinFusion) and the
-   skin-layers drawing (`SkinLayers.tsx`): a cream drop lands and stays on the outer layer,
-   food dots rise from a cup through a blood vessel into the deeper layers. It plays when it
-   scrolls into view; the rising loop runs on desktop only. Copy: `howItWorks`, `skinLayers`.
+   skin-layers drawing (`SkinLayers.tsx`), told as a three-step story
+   (`lib/animations/why-edible.ts`): 1. a cream drop lands and stays on the outer layer, which
+   lights up; 2. the blood vessel appears and food rises from the cup into the deeper layers; 3. the cup comes forward. Desktop: the section is pinned for 220% of the screen height and
+   the story follows the scroll; the active point is at full ink, the others dimmed, and a
+   green progress line runs down the points; the drawing's card grows in as the section
+   arrives. Phones: laid out as intro, drawing, points; the story plays once (about 3s) when
+   the drawing comes into view, each point appearing as the drawing acts it out. The SVG
+   markup is the finished picture. Copy: `howItWorks`, `skinLayers`.
 3. **Product row** (`#shop`): `getProducts()` as rounded cards. The media area plays a short muted
    video on hover (desktop) or while in view (phones) over the product photo; products without a
    photo show the fallback image from media.ts. Swipe with snap points on phones. Photo and
@@ -517,6 +522,7 @@ Built with GSAP (ScrollTrigger, SplitText, `useGSAP`) and Lenis. Everything live
 | `presets.ts`             | The reusable animations: `heading`, `fade`, `cards`, `tilt`, `draw`, `pop`, `countUp`, `footerReveal`                  |
 | `useScrollAnimations.ts` | Hook used by each page: runs the preset named in every `data-anim` (and every `data-count`) inside the page            |
 | `hero.ts`                | Homepage hero entrance timeline                                                                                        |
+| `why-edible.ts`          | "Why edible" three-step story: pinned scroll story on desktop, play-once sequence on phones                            |
 | `intro.ts`               | Intro loader: timings, the inline `<head>` script and its CSS                                                          |
 | `smooth-scroll.ts`       | Lenis setup (desktop only) and stop/start for the scroll lock                                                          |
 | `hydration.ts`           | Waits for the first load to settle and skips content already on screen (no flashes)                                    |
@@ -557,6 +563,7 @@ element: nest wrappers.
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
 | Product videos                        | Play on hover / keyboard focus                                             | Play while in view (max 2 videos at once)         |
 | Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards | Native swipe with snap points                     |
+| Why edible story                      | Pinned; drawing and points step through cream, food, cup with the scroll   | Plays once when the drawing comes into view       |
 | Counters                              | Count up once                                                              | Same                                              |
 | Nav                                   | Hides on scroll down, shows on scroll up                                   | Same                                              |
 | Footer                                | Slides up, columns fade in one by one                                      | Same, smaller distances                           |

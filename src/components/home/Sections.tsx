@@ -11,6 +11,7 @@ import { ProductImage } from "@/components/site/ProductImage";
 import { Stars } from "@/components/site/Stars";
 import { Img, LoopVideo, PlayPill, VideoDialog } from "./media";
 import { SkinLayers } from "./SkinLayers";
+import { useWhyEdibleStory } from "@/lib/animations/why-edible";
 
 /* INGREDIENT STRIP: a slow moving line of the ingredients and promises under the hero.
    Desktop with a mouse: it moves (paused off-screen and in hidden tabs). Phones and reduced
@@ -60,25 +61,43 @@ export function IngredientStrip() {
    plays when it scrolls into view; three short points say the same thing in words. */
 export function WhyEdible() {
   const copy = howItWorks;
+  const scope = useRef<HTMLElement>(null);
+  useWhyEdibleStory(scope);
   return (
     <section
       id="how-it-works"
+      ref={scope}
       aria-labelledby="how-title"
-      className="section-y scroll-mt-20 px-4 md:px-6"
+      className="section-y scroll-mt-20 px-4 md:px-6 lg:flex lg:min-h-[100dvh] lg:items-center"
     >
-      <div className="mx-auto grid max-w-[80rem] items-center gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
-        <div className="max-w-lg">
+      <div className="mx-auto grid w-full max-w-[80rem] gap-10 lg:grid-cols-[1fr_1.1fr] lg:grid-rows-[auto_auto] lg:gap-x-20 lg:gap-y-0">
+        <div className="max-w-lg lg:self-end">
           <h2 id="how-title" data-anim="lines" className="title">
             {copy.title}
           </h2>
           <p data-anim="fade" className="mt-5 text-lg leading-relaxed text-muted-foreground">
             {copy.text}
           </p>
-          <ul data-anim="cards" className="mt-8 space-y-5">
+        </div>
+        <div data-why-art className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center">
+          <div data-why-card className="rounded-card bg-blush p-3 sm:p-10">
+            <SkinLayers className="mx-auto w-full max-w-md lg:max-w-lg" />
+          </div>
+        </div>
+        <div className="max-w-lg lg:self-start">
+          <ol className="relative space-y-5 lg:mt-8">
+            {/* Desktop: a progress line runs down the points as the story plays. */}
+            <span
+              aria-hidden="true"
+              className="absolute bottom-3 left-[4.5px] top-3 hidden w-px bg-green/15 lg:block"
+            >
+              <span data-why-rail className="block h-full w-full origin-top bg-green" />
+            </span>
             {copy.points.map((pt) => (
-              <li key={pt.title} className="flex gap-4">
+              <li key={pt.title} data-why-step className="relative flex gap-4">
                 <span
                   aria-hidden="true"
+                  data-why-dot
                   className="mt-2.5 h-2.5 w-2.5 shrink-0 rounded-full bg-primary"
                 />
                 <p>
@@ -87,15 +106,12 @@ export function WhyEdible() {
                 </p>
               </li>
             ))}
-          </ul>
+          </ol>
           <div data-anim="fade" className="mt-9">
             <a href={copy.cta.href} className="btn btn-primary">
               {copy.cta.label}
             </a>
           </div>
-        </div>
-        <div className="rounded-card bg-blush p-3 sm:p-10">
-          <SkinLayers playOnView className="mx-auto w-full max-w-md" />
         </div>
       </div>
     </section>
