@@ -9,8 +9,10 @@ import { failsafe, safely } from "./safety";
  *   1. Creams and serums: a drop falls and spreads on the outer layer, which lights up.
  *   2. Food: the blood vessel appears and food rises from the cup into the deeper layers.
  *   3. SkinFusion: the cup comes forward, the whole picture settles.
+ * Before the story, a big statement ("Your skin has layers...") lights up word by word, and
+ * inside the drawing a camera zooms on the cream, pans down with the food and pulls back.
  *
- * Desktop with a mouse: the section is pinned and the story follows the scroll (scrub), with
+ * Desktop with a mouse: the statement and then the story are pinned and the story follows the scroll (scrub), with
  * the active point at full ink, the others dimmed, a progress line beside the points, and the
  * drawing's card growing in as the section arrives.
  * Phones and tablets: no pinning; the same story plays once (about 3s) when the drawing
@@ -40,7 +42,19 @@ export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
           .set([...sl("cream-label"), ...sl("food-label"), ...sl("cup-label")], { opacity: 0 }, 0)
           .set(sl("vessel"), { opacity: 0 }, 0)
           .set(dots, { y: 0, opacity: 0 }, 0)
-          .set(sl("cup"), { scale: 0.7, opacity: 0.35, transformOrigin: "50% 100%" }, 0);
+          .set(sl("cup"), { scale: 0.7, opacity: 0.35, transformOrigin: "50% 100%" }, 0)
+          .set(sl("camera"), { x: 0, y: 0, scale: 1, svgOrigin: "0 0" }, 0);
+        // Camera: zoom on the cream (step 1), pan down with the food (step 2), pull back (3).
+        // Focus point (fx, fy) at scale s lands in the middle of the 320x300 drawing.
+        const focus = (fx: number, fy: number, s: number, at: number) =>
+          tl.to(
+            sl("camera"),
+            { x: 160 - s * fx, y: 150 - s * fy, scale: s, duration: 0.6, ease: "power2.inOut" },
+            at,
+          );
+        focus(150, 85, 1.3, 0);
+        focus(200, 190, 1.25, 0.95);
+        focus(160, 150, 1, 1.95);
 
         // Step 1: cream lands on the outer layer and stays there.
         stepOn(0, 0);
@@ -72,6 +86,12 @@ export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
           .to({}, { duration: 0.35 }, 2.65);
       };
 
+      const statement = root.querySelector<HTMLElement>("[data-why-statement]");
+      const story = root.querySelector<HTMLElement>("[data-why-story]");
+      const words = q("[data-why-word]");
+      if (!statement || !story) return;
+      all.push(...words);
+
       const mm = gsap.matchMedia();
       mm.add(MOTION_CONDITIONS, (ctx) => {
         const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
@@ -79,7 +99,25 @@ export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
         let cleanup: (() => void) | undefined;
         safely("why-edible", all, () => {
           if (isDesktop) {
-            // The card grows in as the section scrolls up to the top of the screen.
+            // The statement holds on screen while its words light up one by one.
+            gsap.fromTo(
+              words,
+              { opacity: 0.14 },
+              {
+                opacity: 1,
+                stagger: 0.1,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: statement,
+                  start: "top top",
+                  end: "+=100%",
+                  scrub: 0.6,
+                  pin: true,
+                  anticipatePin: 1,
+                },
+              },
+            );
+            // The card grows in as the story scrolls up to the top of the screen.
             gsap.fromTo(
               card,
               { scale: 0.86, opacity: 0.4 },
@@ -87,16 +125,16 @@ export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
                 scale: 1,
                 opacity: 1,
                 ease: "none",
-                scrollTrigger: { trigger: root, start: "top bottom", end: "top top", scrub: 0.6 },
+                scrollTrigger: { trigger: story, start: "top bottom", end: "top top", scrub: 0.6 },
               },
             );
 
             const tl = gsap.timeline({
               defaults: { ease: "power2.out" },
               scrollTrigger: {
-                trigger: root,
+                trigger: story,
                 start: "top top",
-                end: "+=220%",
+                end: "+=260%",
                 scrub: 0.8,
                 pin: true,
                 anticipatePin: 1,
@@ -119,7 +157,22 @@ export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
             return;
           }
 
-          // Phones and tablets: play once when the drawing comes into view.
+          // Phones and tablets: the statement's words light up once, then the story plays once.
+          const said = gsap.fromTo(
+            words,
+            { opacity: 0.14 },
+            { opacity: 1, duration: 0.5, stagger: 0.035, ease: "none", paused: true },
+          );
+          const sayIo = new IntersectionObserver(
+            ([entry]) => {
+              if (!entry?.isIntersecting) return;
+              said.play();
+              sayIo.disconnect();
+            },
+            { threshold: 0.4 },
+          );
+          sayIo.observe(statement);
+          const sayStop = failsafe(statement, said, 5000);
           const tl = gsap.timeline({
             paused: true,
             defaults: { ease: "power2.out" },
@@ -146,6 +199,8 @@ export function useWhyEdibleStory(scope: RefObject<HTMLElement | null>) {
           cleanup = () => {
             io.disconnect();
             stop();
+            sayIo.disconnect();
+            sayStop();
           };
         });
         return () => cleanup?.();
