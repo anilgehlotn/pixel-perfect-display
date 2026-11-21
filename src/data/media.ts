@@ -291,7 +291,8 @@ const site = {
 
 export const media = {
   hero: {
-    // One full-width photo with a slow zoom. Replace with a SkinFusion campaign photo later.
+    // Drag comparison: skincare bottles (left) against the cup of tea (right).
+    serum: photos.bathroomShelf,
     image: photos.jasmineCup,
   },
   // Product row: keyed by Shopify product handle. `video` plays on hover (desktop) or in view

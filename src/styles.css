@@ -330,27 +330,6 @@
     transform: none;
   }
 }
-@keyframes hero-breathe {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.05);
-  }
-}
-@keyframes hero-wisp {
-  0% {
-    opacity: 0;
-    transform: translateY(18%) scaleY(0.85);
-  }
-  35% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-28%) scaleY(1.1);
-  }
-}
 @keyframes hero-word {
   from {
     transform: translateY(110%);
@@ -369,16 +348,6 @@
     transform: none;
   }
 }
-@keyframes hero-pop {
-  from {
-    opacity: 0.01;
-    transform: scale(0.6);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
 @keyframes hero-line {
   from {
     transform: scaleX(0);
@@ -387,29 +356,9 @@
     transform: scaleX(1);
   }
 }
-/* Steam over the cup: desktop with a mouse only, where the wide crop puts the cup centre. */
-.hero-steam {
-  left: 28%;
-  top: -2%;
-  width: 44%;
-  color: rgb(255 255 255 / 0.9);
-}
-@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .hero-steam {
-    display: block;
-  }
-  .hero-wisp {
-    transform-box: fill-box;
-    transform-origin: 50% 100%;
-    animation: hero-wisp 6s ease-in-out infinite;
-  }
-}
 @media (prefers-reduced-motion: no-preference) {
   .hero-settle {
     animation: hero-settle 2.6s cubic-bezier(0.19, 1, 0.22, 1) var(--d, 0ms) both;
-  }
-  .hero-breathe {
-    animation: hero-breathe 24s ease-out 2.6s both;
   }
   .hero-word {
     animation: hero-word 1.4s cubic-bezier(0.19, 1, 0.22, 1) var(--d, 0ms) both;
@@ -417,16 +366,13 @@
   .hero-ease {
     animation: hero-ease 1.2s cubic-bezier(0.19, 1, 0.22, 1) var(--d, 0ms) both;
   }
-  .hero-pop {
-    animation: hero-pop 1s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0ms) both;
-  }
   .hero-line {
     animation: hero-line 1.2s cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms) both;
   }
-  html[data-intro="desktop"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line, .hero-pop) {
+  html[data-intro="desktop"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line) {
     animation-delay: calc(var(--d, 0ms) + 1150ms);
   }
-  html[data-intro="mobile"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line, .hero-pop) {
+  html[data-intro="mobile"] :is(.hero-settle, .hero-word, .hero-ease, .hero-line) {
     animation-delay: calc(var(--d, 0ms) + 680ms);
   }
 }
@@ -514,10 +460,6 @@
 }
 .animate-rotate-slow {
   animation: rotate-slow 20s linear infinite;
-}
-/* The hero's pause button pauses every endless loop on the page. */
-html[data-motion-paused] :is(.strip-move, .hero-wisp, .animate-float) {
-  animation-play-state: paused !important;
 }
 /* Set by usePauseWhenHidden while off-screen or the tab is hidden, or by a pause button */
 [data-paused] *,

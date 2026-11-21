@@ -1,300 +1,211 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { Pause, Play } from "@phosphor-icons/react";
-import { hero, ingredients } from "@/data/content";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { hero } from "@/data/content";
 import { media } from "@/data/media";
 import { inr } from "@/lib/format";
 import { money, type Product } from "@/lib/shopify/types";
-import { gsap, useGSAP } from "@/lib/animations/gsap";
-import { MOTION_CONDITIONS } from "@/lib/animations/media";
-import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Stars } from "@/components/site/Stars";
 import { Img } from "./media";
-
-// Ingredient circles around the arch (desktop positions in viewport units).
-const ORBIT = [
-  { pos: "lg:left-[31vw] lg:top-[16%]", size: "lg:w-[7.5vw]", out: [-30, -20] },
-  { pos: "lg:left-[63vw] lg:top-[22%]", size: "lg:w-[6vw]", out: [30, -24] },
-  { pos: "lg:left-[33vw] lg:top-[66%]", size: "lg:w-[6vw]", out: [-28, 26] },
-  { pos: "lg:left-[61.5vw] lg:top-[62%]", size: "lg:w-[8vw]", out: [32, 22] },
-];
-const MOBILE_ORBIT = [
-  "left-[2%] top-[6%] w-[22%]",
-  "right-[2%] top-[18%] w-[18%]",
-  "left-[0%] bottom-[16%] w-[18%]",
-  "right-[0%] bottom-[4%] w-[24%]",
-];
 
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
 /**
- * 1. HERO: "the cup is the skin care". A large editorial headline split around a tall arch
- * holding the steaming cup, with the four ingredients floating around it.
+ * 1. HERO: SkinFusion's idea as something you can touch. The frame is split between a photo
+ * of serum bottles (left, "On your face") and the cup of tea (right, "In your cup"); a
+ * handle in the middle drags the split (pointer, touch, or arrow keys through a real range
+ * input). On load the split sweeps from the serum side to the tea side once, so visitors see
+ * it move. The headline "Don't apply your skin care. Drink it." sits over the middle.
  *
- * - Entrance (CSS, every visit, after the intro loader): the arch photo rises and settles,
- *   words are revealed from a mask, the ingredients pop in, the copy eases in last.
- * - Desktop with a mouse: steam rises from the cup, ingredients float, and the hero is
- *   pinned while you scroll: the arch grows until the cup fills the screen, the headline
- *   halves slide apart, the ingredients fly outward, and "Cream stays on top. Food goes
- *   deeper." appears over the photo.
- * - Phones: a stacked composition with the same entrance; no pinning or loops.
- * - Reduced motion or no JavaScript: the finished composition, still.
+ * Motion is transform-only: the serum layer is a wrapper shifted left and its photo shifted
+ * back by the same amount. Reduced motion: no sweep (the handle still works). Without
+ * JavaScript: a still 50/50 split.
  */
 export function Hero({ featured }: { featured: Product }) {
-  const section = useRef<HTMLElement>(null);
-  const [paused, setPaused] = useState(false);
-  usePauseWhenHidden(section);
-  useEffect(
-    () => () => {
-      delete document.documentElement.dataset["motionPaused"];
-    },
-    [],
-  );
+  const [split, setSplit] = useState(50);
+  const frame = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
 
-  useGSAP(
-    () => {
-      const root = section.current;
-      if (!root) return;
-      const q = gsap.utils.selector(root);
-      const mm = gsap.matchMedia();
-      mm.add(MOTION_CONDITIONS, (ctx) => {
-        const { isDesktop, isReduced } = ctx.conditions as Record<string, boolean>;
-        if (!isDesktop || isReduced) return;
-        const stage = root.querySelector<HTMLElement>("[data-stage]");
-        if (!stage) return;
-        // The dive message is decorative (it repeats the next section); reveal its layer now.
-        gsap.set(q("[data-dive]"), { opacity: 1 });
-        gsap.set(q("[data-dive] .dive-word"), { yPercent: 110 });
-        const tl = gsap.timeline({
-          defaults: { ease: "none" },
-          scrollTrigger: {
-            trigger: stage,
-            start: "top top",
-            end: "+=140%",
-            scrub: 0.8,
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        });
-        tl.to(q("[data-arch]"), { scale: 4.8, duration: 0.65, ease: "power2.in" }, 0)
-          .to(q("[data-arch-dim]"), { opacity: 0.55, duration: 0.5 }, 0.15)
-          .to(q("[data-half='0']"), { xPercent: -60, opacity: 0, duration: 0.4 }, 0)
-          .to(q("[data-half='1']"), { xPercent: 60, opacity: 0, duration: 0.4 }, 0)
-          .to(q("[data-fadeout]"), { opacity: 0, y: -24, duration: 0.25 }, 0);
-        q("[data-orbit]").forEach((el, i) => {
-          const [x = 0, y = 0] = ORBIT[i]?.out ?? [];
-          tl.to(
-            el,
-            { xPercent: x * 12, yPercent: y * 12, scale: 1.6, opacity: 0, duration: 0.45 },
-            0,
-          );
-        });
-        tl.fromTo(
-          q("[data-dive] .dive-word"),
-          { yPercent: 110 },
-          { yPercent: 0, duration: 0.25, stagger: 0.03, ease: "power3.out" },
-          0.55,
-        ).to({}, { duration: 0.2 });
-      });
-      return () => mm.revert();
-    },
-    { scope: section },
-  );
+  // One sweep on load: 82% serum to 38% serum, after the intro loader when it shows.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const intro = document.documentElement.dataset["intro"];
+    const wait = intro === "desktop" ? 1500 : intro === "mobile" ? 950 : 350;
+    let raf = 0;
+    let stopped = false;
+    const from = 82;
+    const to = 38;
+    const ms = 2200;
+    const timer = window.setTimeout(() => {
+      const start = performance.now();
+      const step = (now: number) => {
+        if (stopped || dragging.current) return;
+        const t = Math.min(1, (now - start) / ms);
+        const eased = 1 - Math.pow(1 - t, 4);
+        setSplit(from + (to - from) * eased);
+        if (t < 1) raf = requestAnimationFrame(step);
+      };
+      setSplit(from);
+      raf = requestAnimationFrame(step);
+    }, wait);
+    return () => {
+      stopped = true;
+      window.clearTimeout(timer);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  const moveTo = (clientX: number) => {
+    const r = frame.current?.getBoundingClientRect();
+    if (!r) return;
+    setSplit(Math.min(96, Math.max(4, ((clientX - r.left) / r.width) * 100)));
+  };
 
   const price = money(featured.priceRange.minVariantPrice);
   const mrp = featured.compareAtPriceRange
     ? money(featured.compareAtPriceRange.minVariantPrice)
     : 0;
-  const diveWords = hero.dive.title.split(" ");
+  const c = hero.compare;
 
   return (
-    <section ref={section} aria-labelledby="hero-title" className="relative">
+    <section aria-labelledby="hero-title" className="px-4 pt-24 md:px-6 md:pt-28">
       <div
-        data-stage
-        data-paused={paused || undefined}
-        className="relative overflow-hidden px-4 pb-14 pt-24 lg:h-[100dvh] lg:min-h-[44rem] lg:p-0"
+        ref={frame}
+        onPointerDown={(e) => {
+          if ((e.target as HTMLElement).closest("a,button,input")) return;
+          dragging.current = true;
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+          moveTo(e.clientX);
+        }}
+        onPointerMove={(e) => dragging.current && moveTo(e.clientX)}
+        onPointerUp={() => (dragging.current = false)}
+        onPointerCancel={() => (dragging.current = false)}
+        className="relative mx-auto h-[min(calc(100dvh-7rem),46rem)] min-h-[34rem] max-w-[84rem] touch-pan-y select-none overflow-hidden rounded-card bg-ink text-cream"
       >
-        {/* Kicker */}
-        <p
-          data-fadeout
-          className="flex flex-col items-center gap-3 text-center lg:absolute lg:left-[4vw] lg:top-[16%] lg:items-start lg:text-left"
-        >
-          <span className="hero-ease label-caps text-muted-foreground" style={d(250)}>
-            {hero.kicker}
-          </span>
-          <span
-            aria-hidden="true"
-            className="hero-line block h-px w-14 origin-left bg-green/40"
-            style={d(400)}
-          />
-        </p>
-
-        {/* Headline, split around the arch on desktop. */}
-        <h1
-          id="hero-title"
-          aria-label={hero.title}
-          className="mt-5 text-center font-normal leading-[0.95] tracking-[-0.035em] text-green max-lg:text-[clamp(3rem,13vw,4.5rem)] lg:mt-0"
-        >
-          {hero.titleLines.map((lineText, li) => (
-            <span
-              key={lineText}
-              data-half={li}
-              aria-hidden="true"
-              className={`relative z-10 block lg:absolute lg:text-[6vw] ${li === 0 ? "lg:right-[66vw] lg:top-[30%] lg:text-right" : "lg:left-[66vw] lg:top-[50%] lg:text-left"}`}
-            >
-              {lineText.split(" ").map((w, wi) => (
-                <span key={wi} className="inline-block overflow-hidden pb-[0.1em] align-top">
-                  <span className="hero-word inline-block" style={d(550 + li * 260 + wi * 110)}>
-                    {w}
-                    {wi < lineText.split(" ").length - 1 ? " " : ""}
-                  </span>
-                </span>
-              ))}
-            </span>
-          ))}
-        </h1>
-
-        {/* The arch with the cup, and the ingredients around it. */}
-        <div className="relative mx-auto mt-8 w-[74%] max-w-[22rem] lg:static lg:mt-0 lg:w-auto lg:max-w-none">
-          <div
-            data-arch
-            className="relative aspect-[3/4] overflow-hidden rounded-t-full rounded-b-[1.75rem] bg-green lg:absolute lg:left-1/2 lg:top-1/2 lg:h-[64%] lg:w-auto lg:-translate-x-1/2 lg:-translate-y-[46%]"
-          >
-            <div className="hero-settle absolute inset-0" style={d(100)}>
-              <Img
-                media={media.hero.image}
-                priority
-                sizes="(min-width: 1024px) 100vw, 74vw"
-                className="h-full w-full object-[60%_60%]"
-              />
-              <Steam />
-            </div>
-            <div data-arch-dim aria-hidden="true" className="absolute inset-0 bg-ink opacity-0" />
+        {/* Tea (full frame, underneath). */}
+        <div className="absolute inset-0" aria-hidden="true">
+          <div className="hero-settle h-full w-full" style={d(0)}>
+            <Img
+              media={media.hero.image}
+              priority
+              sizes="(min-width: 1344px) 84rem, 100vw"
+              className="h-full w-full object-[60%_60%]"
+            />
           </div>
-          {ingredients.map((ing, i) => (
-            <div
-              key={ing.name}
-              data-orbit
-              aria-hidden="true"
-              className={`absolute ${MOBILE_ORBIT[i]} ${ORBIT[i]?.pos ?? ""} ${ORBIT[i]?.size ?? ""} lg:bottom-auto lg:right-auto`}
-            >
-              <div className="hero-pop" style={d(1100 + i * 140)}>
-                <div className="animate-float" style={{ animationDelay: `${-i * 2}s` }}>
-                  <Img
-                    media={media.ingredients[ing.image]}
-                    sizes="8rem"
-                    className="aspect-square w-full rounded-full border-4 border-background"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
 
-        {/* Copy and button (bottom left on desktop), proof (bottom right). */}
+        {/* Serums (on top, cut at the split). Wrapper moves left, photo moves back. */}
         <div
-          data-fadeout
-          className="mx-auto mt-10 max-w-sm text-center lg:absolute lg:bottom-[9%] lg:left-[4vw] lg:mt-0 lg:max-w-[22rem] lg:text-left"
+          className="absolute inset-0 overflow-hidden"
+          aria-hidden="true"
+          style={{ transform: `translateX(${split - 100}%)` }}
         >
+          <div className="h-full w-full" style={{ transform: `translateX(${100 - split}%)` }}>
+            <Img
+              media={media.hero.serum}
+              sizes="(min-width: 1344px) 84rem, 100vw"
+              className="h-full w-full object-[35%_60%] grayscale-[35%]"
+            />
+          </div>
+        </div>
+
+        {/* Shade for the copy. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/55 via-ink/25 to-ink/60"
+        />
+
+        {/* Side labels. */}
+        <p
+          className="hero-ease pointer-events-none absolute bottom-8 left-8 hidden max-w-[15rem] text-left sm:block"
+          style={d(1500)}
+        >
+          <span className="label-caps block text-cream/80">{c.left.tag}</span>
+          <span className="mt-1 block text-sm leading-snug sm:text-base">{c.left.text}</span>
+        </p>
+        <p
+          className="hero-ease pointer-events-none absolute bottom-8 right-8 hidden max-w-[15rem] text-right sm:block lg:right-32"
+          style={d(1650)}
+        >
+          <span className="label-caps block text-cream/80">{c.right.tag}</span>
+          <span className="mt-1 block text-sm leading-snug sm:text-base">{c.right.text}</span>
+        </p>
+
+        {/* The handle: a line and a round grip, driven by a real range input. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10"
+          style={{ transform: `translateX(${split}%)` }}
+        >
+          <span className="absolute inset-y-0 left-0 w-px bg-cream/80" />
+          <span className="absolute left-0 top-[93%] grid h-12 w-12 sm:top-[80%] sm:h-14 sm:w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-cream text-green shadow-[0_6px_24px_rgba(0,0,0,0.25)]">
+            <span className="flex">
+              <CaretLeft size={16} weight="bold" />
+              <CaretRight size={16} weight="bold" />
+            </span>
+          </span>
+        </div>
+        <label className="sr-only" htmlFor="hero-compare">
+          {c.label}
+        </label>
+        <input
+          id="hero-compare"
+          type="range"
+          min={4}
+          max={96}
+          step={1}
+          value={Math.round(split)}
+          onChange={(e) => setSplit(Number(e.target.value))}
+          className="peer absolute inset-x-0 top-[93%] z-20 h-14 -translate-y-1/2 cursor-ew-resize opacity-0 sm:top-[80%]"
+        />
+
+        {/* Headline and button, centred over the split. */}
+        <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-4xl flex-col items-center px-6 pt-12 text-center sm:pt-16 lg:pt-20">
+          <p className="hero-ease label-caps text-cream/85" style={d(250)}>
+            {hero.kicker}
+          </p>
+          <h1
+            id="hero-title"
+            aria-label={hero.title}
+            className="display mt-5 text-cream max-sm:text-[2.6rem] lg:text-[4.75rem]"
+          >
+            {hero.titleLines.map((lineText, li) => (
+              <span key={lineText} aria-hidden="true" className="block">
+                {lineText.split(" ").map((w, wi, arr) => (
+                  <span key={wi} className="inline-block overflow-hidden pb-[0.1em] align-top">
+                    <span className="hero-word inline-block" style={d(450 + li * 420 + wi * 90)}>
+                      {w}
+                      {wi < arr.length - 1 ? " " : ""}
+                    </span>
+                  </span>
+                ))}
+              </span>
+            ))}
+          </h1>
           <p
-            className="hero-ease text-[1.0625rem] leading-relaxed text-muted-foreground"
-            style={d(1300)}
+            className="hero-ease mt-4 max-w-md leading-relaxed text-cream/90 sm:text-lg"
+            style={d(1100)}
           >
             {hero.line}
           </p>
-          <div className="hero-ease mt-6 flex justify-center lg:justify-start" style={d(1450)}>
+          <div
+            className="hero-ease pointer-events-auto mt-7 flex flex-col items-center gap-3"
+            style={d(1250)}
+          >
             <a href={hero.shopCta.href} className="btn btn-primary">
               {hero.shopCta.label}
             </a>
-          </div>
-        </div>
-        <p
-          data-fadeout
-          className="hero-ease mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground lg:absolute lg:bottom-[9%] lg:right-[9vw] lg:mt-0 lg:flex-col lg:items-end"
-          style={d(1550)}
-        >
-          {featured.rating && (
-            <span className="flex items-center gap-2">
-              <Stars value={featured.rating.value} size={14} />
-              <span>
-                <span className="text-foreground">{featured.rating.value.toFixed(1)}</span> from{" "}
-                {featured.rating.count.toLocaleString("en-IN")} {hero.ratingLabel}
+            {featured.rating && (
+              <span className="hidden items-center gap-2 text-sm text-cream/85 sm:flex">
+                <Stars value={featured.rating.value} size={13} />
+                {featured.rating.value.toFixed(1)} from{" "}
+                {featured.rating.count.toLocaleString("en-IN")} {hero.ratingLabel},{" "}
+                {hero.from.toLowerCase()} {inr(price)}
+                {mrp > price && <span className="line-through">{inr(mrp)}</span>}
               </span>
-            </span>
-          )}
-          <span>
-            {hero.from} <span className="text-foreground">{inr(price)}</span>
-            {mrp > price && <span className="ml-1.5 line-through">{inr(mrp)}</span>}
-          </span>
-        </p>
-
-        {/* Desktop scroll moment: appears over the cup once it fills the screen. */}
-        {/* Decorative (repeats the next section), invisible until the desktop scroll reveals it. */}
-        <div
-          data-dive
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-20 hidden place-items-center px-8 text-center text-cream opacity-0 lg:grid"
-        >
-          <div>
-            <p className="display max-w-4xl text-cream lg:text-[5vw]">
-              {diveWords.map((w, i) => (
-                <span key={i} className="inline-block overflow-hidden pb-[0.1em] align-top">
-                  <span className="dive-word inline-block">
-                    {w}
-                    {i < diveWords.length - 1 ? " " : ""}
-                  </span>
-                </span>
-              ))}
-            </p>
+            )}
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            setPaused((p) => {
-              // Pauses every endless loop on the page (steam, floats, ingredient strip).
-              const next = !p;
-              if (next) document.documentElement.dataset["motionPaused"] = "";
-              else delete document.documentElement.dataset["motionPaused"];
-              return next;
-            })
-          }
-          aria-label={paused ? "Play page animation" : "Pause page animation"}
-          className="absolute bottom-5 left-1/2 z-30 hidden h-10 w-10 -translate-x-1/2 place-items-center rounded-full border border-green/20 text-green/70 transition-colors hover:bg-blush lg:grid"
-        >
-          {paused ? (
-            <Play size={14} weight="fill" aria-hidden="true" />
-          ) : (
-            <Pause size={14} weight="fill" aria-hidden="true" />
-          )}
-        </button>
       </div>
     </section>
-  );
-}
-
-/**
- * Soft steam rising from the cup: three blurred wisps on a slow, staggered loop. Desktop with
- * a mouse only; paused off-screen, in hidden tabs and by the pause button.
- */
-function Steam() {
-  const wisps = [
-    "M35 158 C20 128 50 110 35 80 C22 56 45 38 35 8",
-    "M60 158 C46 126 76 106 60 76 C48 52 70 34 60 4",
-    "M85 158 C70 128 100 110 85 80 C72 56 95 38 85 8",
-  ];
-  return (
-    <svg
-      viewBox="0 0 120 160"
-      aria-hidden="true"
-      className="hero-steam pointer-events-none absolute hidden blur-[6px]"
-    >
-      <g fill="none" stroke="currentColor" strokeWidth="9" strokeLinecap="round">
-        {wisps.map((p, i) => (
-          <path key={p} d={p} className="hero-wisp" style={{ animationDelay: `${-i * 2}s` }} />
-        ))}
-      </g>
-    </svg>
   );
 }

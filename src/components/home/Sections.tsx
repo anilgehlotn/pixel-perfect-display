@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "@phosphor-icons/react";
+import { ArrowRight, Pause, Play } from "@phosphor-icons/react";
 import { home, howItWorks, ingredientStrip } from "@/data/content";
 import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
@@ -17,6 +17,7 @@ import { SkinLayers } from "./SkinLayers";
    motion: still. The second copy is decorative. */
 export function IngredientStrip() {
   const ref = useRef<HTMLElement>(null);
+  const [paused, setPaused] = useState(false);
   usePauseWhenHidden(ref);
   const row = (hidden: boolean) => (
     <ul aria-hidden={hidden || undefined} className="flex shrink-0 items-center gap-10 pr-10">
@@ -32,12 +33,25 @@ export function IngredientStrip() {
     <section
       ref={ref}
       aria-label="What is in every cup"
-      className="overflow-hidden bg-green py-5 text-cream"
+      data-paused={paused || undefined}
+      className="relative overflow-hidden bg-green py-5 text-cream"
     >
       <div className="strip-move flex w-max text-lg tracking-[-0.01em] md:text-xl">
         {row(false)}
         {row(true)}
       </div>
+      <button
+        type="button"
+        onClick={() => setPaused((p) => !p)}
+        aria-label={paused ? "Play moving strip" : "Pause moving strip"}
+        className="absolute right-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-green text-cream/80 ring-1 ring-cream/25 hover:text-cream lg:grid"
+      >
+        {paused ? (
+          <Play size={12} weight="fill" aria-hidden="true" />
+        ) : (
+          <Pause size={12} weight="fill" aria-hidden="true" />
+        )}
+      </button>
     </section>
   );
 }
