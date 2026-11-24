@@ -354,6 +354,7 @@ export const home = {
   },
   stories: {
     title: "What our customers say",
+    swipe: "Swipe to see more",
     play: "Play",
     quotes: [
       {

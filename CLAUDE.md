@@ -250,7 +250,11 @@ order (`src/routes/index.tsx`):
 8. **Stories** (`#stories`, `Stories.tsx`): full-bleed strip of mixed shapes (half-visible circles
    at both edges, tall portraits, stadium above a quote, video cards with a "Play" pill, a green
    quote card). Desktop: drag to scroll with momentum, slow scroll-linked drift of the strip,
-   slight parallax between cards. Phones: native swipe with snap points, no drift.
+   slight parallax between cards. Phones: native swipe with gentle (proximity) snap points
+   and a 1rem start inset, no drift; the half-hidden edge circles show from `md` only (an
+   off-screen first snap point made iPhone Safari snap back and feel stuck); a "Swipe to see
+   more" hint with a nudging arrow (`story-nudge`, paused off-screen) and a progress bar
+   under the strip that fills with the swipe (scaleX).
 9. **Sourcing** (`#sourcing`): deep green block. The jujube photo (`media.sourcing`, right
    half on desktop, on top on phones) drifts with the scroll (`data-depth="-0.5"`), a round
    inset photo of the dates (`media.ingredients.jujube`) pops in and drifts at another speed
@@ -542,7 +546,7 @@ element: nest wrappers.
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
 | Product videos                        | Play on hover / keyboard focus                                             | Play while in view (max 2 videos at once)         |
-| Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards | Native swipe with snap points                     |
+| Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards | Native swipe, swipe hint, progress bar            |
 | Why edible drawing                    | Steps 1-3 follow the scroll (or a click); cream, food, cup, camera zoom    | Same (tap a step)                                 |
 | Counters                              | Count up once                                                              | Same                                              |
 | Nav                                   | Hides on scroll down, shows on scroll up                                   | Same                                              |

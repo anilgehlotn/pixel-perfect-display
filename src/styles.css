@@ -429,6 +429,21 @@
     animation: hero-scroll-cue 1.8s ease-in-out infinite;
   }
 }
+/* Stories: the "swipe" arrow nudges sideways (phones; paused off-screen with its section). */
+@keyframes story-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .story-nudge {
+    animation: story-nudge 1.6s ease-in-out infinite;
+  }
+}
 @keyframes hero-word {
   from {
     transform: translateY(110%);

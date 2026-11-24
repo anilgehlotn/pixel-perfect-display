@@ -4,13 +4,17 @@ import { media, type MediaImage, type MediaVideo } from "@/data/media";
 import { gsap, useGSAP } from "@/lib/animations/gsap";
 import { DESKTOP_QUERY } from "@/lib/animations/media";
 import { safely } from "@/lib/animations/safety";
+import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
+import { ArrowRight } from "@phosphor-icons/react";
 import { Img, LoopVideo, PlayPill, VideoDialog } from "./media";
 
 /*
  * 7. STORIES: a full-bleed strip of mixed shapes (circles at both edges, tall portraits, a
  * stadium above a quote, video cards, a green quote card).
  * Desktop with a mouse: drag to scroll with momentum, a slow drift while the page scrolls,
- * and slight parallax between cards (data-depth). Phones: native swipe with snap points.
+ * and slight parallax between cards (data-depth). Phones: native swipe with gentle
+ * (proximity) snap points, no half-hidden edge circles (a snap point off-screen made iPhone
+ * Safari snap back and feel stuck), a "Swipe to see more" hint and a progress bar.
  * The strip is a normal horizontal scroller, so keyboard (arrow keys) and trackpads work.
  */
 export function Stories() {
@@ -28,6 +32,32 @@ export function Stories() {
   };
 
   useDragScroll(viewport);
+  const sectionRef = useRef<HTMLElement>(null);
+  usePauseWhenHidden(sectionRef);
+
+  // Phones: the progress bar under the strip follows the swipe.
+  const bar = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = viewport.current;
+    const fill = bar.current;
+    if (!el || !fill) return;
+    let frame = 0;
+    const paint = () => {
+      frame = 0;
+      const max = el.scrollWidth - el.clientWidth;
+      const p = max > 0 ? el.scrollLeft / max : 1;
+      fill.style.transform = `scaleX(${0.15 + 0.85 * p})`;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+    paint();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
 
   // Slow drift of the whole strip while the page scrolls past (desktop only).
   useGSAP(
@@ -57,26 +87,36 @@ export function Stories() {
   );
 
   return (
-    <section id="stories" aria-labelledby="stories-title" className="section-y scroll-mt-20">
+    <section
+      ref={sectionRef}
+      id="stories"
+      aria-labelledby="stories-title"
+      className="section-y scroll-mt-20"
+    >
       <div className="container-x">
         <h2 id="stories-title" data-anim="lines" className="title max-w-3xl">
           {copy.title}
         </h2>
+        {/* Phones: say that the strip scrolls sideways. */}
+        <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground lg:hidden">
+          {copy.swipe}
+          <ArrowRight size={16} weight="light" aria-hidden="true" className="story-nudge" />
+        </p>
       </div>
       <div
         ref={viewport}
         role="region"
         aria-label="Customer stories"
         tabIndex={0}
-        className="no-scrollbar mt-10 snap-x snap-mandatory overflow-x-auto overscroll-x-contain py-10 md:mt-14 lg:cursor-grab lg:snap-none lg:select-none lg:py-16 lg:active:cursor-grabbing"
+        className="no-scrollbar mt-6 snap-x snap-proximity scroll-pl-4 overflow-x-auto overscroll-x-contain py-6 md:mt-14 md:scroll-pl-0 md:py-10 lg:cursor-grab lg:snap-none lg:select-none lg:py-16 lg:active:cursor-grabbing"
       >
         <ul
           ref={track}
           data-anim="cards"
-          className="flex w-max items-center gap-4 pl-0 pr-6 md:gap-6 lg:pr-48"
+          className="flex w-max items-center gap-4 pl-4 pr-6 md:gap-6 md:pl-0 lg:pr-48"
         >
           {/* Half-visible circle at the left edge */}
-          <Card className="-ml-24 w-48 md:-ml-36 md:w-72" depth={0.2}>
+          <Card className="hidden w-48 md:-ml-36 md:block md:w-72" depth={0.2}>
             <Photo media={s.edgeStart} className="aspect-square rounded-full" />
           </Card>
           <Card className="w-60 md:w-72" depth={-0.15}>
@@ -112,10 +152,21 @@ export function Stories() {
             <VideoCard video={s.videoC} caption={cap3} onPlay={play} label={copy.play} landscape />
           </Card>
           {/* Half-visible circle at the right edge (the strip ends past the screen) */}
-          <Card className="w-48 md:w-72" depth={0.2} snap="end">
+          <Card className="hidden w-48 md:block md:w-72" depth={0.2} snap="end">
             <Photo media={s.edgeEnd} className="aspect-square rounded-full" />
           </Card>
         </ul>
+      </div>
+      {/* Phones: how far along the strip you are (scaleX, follows the swipe). */}
+      <div
+        aria-hidden="true"
+        className="mx-auto h-1 w-24 overflow-hidden rounded-full bg-beige lg:hidden"
+      >
+        <span
+          ref={bar}
+          className="block h-full origin-left rounded-full bg-green"
+          style={{ transform: "scaleX(0.15)" }}
+        />
       </div>
       {active && (
         <VideoDialog video={active} title={active.alt} open={open} onClose={() => setOpen(false)} />
