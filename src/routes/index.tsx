@@ -8,7 +8,7 @@ import {
   IngredientStrip,
   WhyEdible,
   ProductRow,
-  Bundle,
+  Results,
   HowItWorks,
   Tcm101,
   Sourcing,
@@ -40,7 +40,7 @@ function Index() {
       <IngredientStrip />
       <ProductRow products={products} />
       <WhyEdible />
-      <Bundle product={featured} />
+      <Results />
       <HowItWorks />
       <ComparisonTable />
       <Tcm101 />

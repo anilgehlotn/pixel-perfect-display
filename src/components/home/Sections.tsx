@@ -22,10 +22,11 @@ import { home, howItWorks, ingredientStrip, ingredients } from "@/data/content";
 import { media } from "@/data/media";
 import { useCart } from "@/lib/cart/context";
 import { inr } from "@/lib/format";
-import { cornerLabel, hasTag, money, type Product, type ProductVariant } from "@/lib/catalog/types";
-import { pouches, savePercent } from "@/components/product/purchase";
+import { cornerLabel, hasTag, money, type Product } from "@/lib/catalog/types";
+import { savePercent } from "@/components/product/purchase";
 import { ProductImage } from "@/components/site/ProductImage";
 import { Stars } from "@/components/site/Stars";
+import { BeforeAfter } from "@/components/site/BeforeAfter";
 import { Img, LoopVideo, PlayPill, VideoDialog } from "./media";
 import { SkinLayers } from "./SkinLayers";
 import { useWhyEdibleStory } from "@/lib/animations/why-edible";
@@ -339,76 +340,71 @@ export function ProductCard({ p, sizes }: { p: Product; sizes?: string }) {
   );
 }
 
-/* 4. BUNDLE: a pack picker. One card per pack with price, saving, price per cup and its own
-   "Add to cart"; the biggest pack is highlighted. Stacked on phones, three columns from md. */
-export function Bundle({ product }: { product: Product }) {
-  const { add } = useCart();
-  const copy = home.bundle;
-  const bags = Number(/(\d+)\s*tea bags/.exec(product.subtitle ?? "")?.[1] ?? 0);
-  const best = product.variants.reduce<ProductVariant | undefined>(
-    (top, v) => (!top || pouches(v) > pouches(top) ? v : top),
-    undefined,
-  );
+/* 4. RESULTS: three customer cards in a blush block. Each card shows that customer's
+   before/after drag slider once their real photos are in media.results (shared with
+   permission, never stock); until then, their ritual photo. Then rating, quote, name and
+   how long they have been drinking it. Stacked on phones, three columns from md. */
+export function Results() {
+  const copy = home.results;
   return (
-    <section id="bundle" aria-labelledby="bundle-title" className="scroll-mt-20 px-4 md:px-6">
+    <section id="results" aria-labelledby="results-title" className="scroll-mt-20 px-4 md:px-6">
       <div className="mx-auto max-w-[84rem] rounded-card bg-blush p-5 sm:p-10 lg:p-14">
-        <div className="max-w-2xl">
-          <h2 id="bundle-title" data-anim="lines" className="title">
-            {copy.title}
-          </h2>
-          <p data-anim="fade" className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            {copy.text}
-          </p>
+        <div className="grid gap-4 lg:grid-cols-2 lg:items-end lg:gap-16">
+          <div>
+            <p data-anim="fade" className="mb-2 text-sm font-medium tracking-[0.06em] text-ink">
+              {copy.eyebrow}
+            </p>
+            <h2 id="results-title" data-anim="lines" className="title">
+              {copy.title}
+            </h2>
+          </div>
+          <div data-anim="fade" className="flex flex-col items-start gap-5 lg:pb-2">
+            <p className="max-w-md text-lg leading-relaxed text-muted-foreground">{copy.text}</p>
+            <Link
+              to={copy.cta.href}
+              className="group inline-flex items-center gap-2 text-green underline underline-offset-4"
+            >
+              {copy.cta.label}
+              <ArrowRight
+                aria-hidden="true"
+                weight="light"
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </Link>
+          </div>
         </div>
-        <ul data-anim="cards" className="mt-8 grid gap-3 sm:gap-4 md:mt-10 md:grid-cols-3">
-          {product.variants.map((v) => {
-            const n = pouches(v);
-            const price = money(v.price);
-            const off = savePercent(v);
-            const top = v.id === best?.id && product.variants.length > 1;
+        <ul data-anim="cards" className="mt-8 grid gap-4 md:mt-12 md:grid-cols-3">
+          {copy.items.map((item, i) => {
+            const m = media.results[i];
+            const name = `${item.name}, ${item.city}`;
             return (
               <li
-                key={v.id}
-                className={`relative flex flex-col rounded-[1.5rem] bg-surface p-4 sm:p-6 ${top ? "ring-2 ring-green" : ""}`}
+                key={item.name}
+                className="flex flex-col overflow-hidden rounded-[1.5rem] bg-surface"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-xl text-green sm:text-2xl">{v.title}</h3>
-                  {top && (
-                    <span className="rounded-full bg-green px-3 py-1 text-xs font-medium text-cream">
-                      {copy.best}
-                    </span>
-                  )}
-                </div>
-                {v.note && <p className="mt-1 text-sm text-muted-foreground">{v.note}</p>}
-                <p className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 sm:mt-5">
-                  <span className="text-2xl text-foreground tabular-nums sm:text-3xl">
-                    {inr(price)}
+                <div className="relative overflow-hidden">
+                  {m?.before && m.after ? (
+                    <BeforeAfter before={m.before.src} after={m.after.src} name={name} />
+                  ) : m ? (
+                    <div className="aspect-[4/3] md:aspect-[4/5]">
+                      <Img
+                        media={m.photo}
+                        sizes="(min-width: 768px) 30vw, 100vw"
+                        className="h-full w-full"
+                      />
+                    </div>
+                  ) : null}
+                  <span className="absolute bottom-3 left-3 rounded-full bg-background/85 px-3 py-1 text-xs text-green">
+                    {item.weeks} {copy.weeksLabel}
                   </span>
-                  {v.compareAtPrice && money(v.compareAtPrice) > price && (
-                    <span className="text-muted-foreground line-through tabular-nums">
-                      {inr(money(v.compareAtPrice))}
-                    </span>
-                  )}
-                  {off > 0 && (
-                    <span className="rounded-full bg-blush px-2 py-0.5 text-xs font-medium text-green">
-                      {copy.save} {off}%
-                    </span>
-                  )}
-                </p>
-                {bags > 0 && (
-                  <p className="mt-1 text-sm text-muted-foreground tabular-nums">
-                    {inr(price / (bags * n))} {copy.perCup}
-                  </p>
-                )}
-                <button
-                  type="button"
-                  onClick={() => add(product, v)}
-                  disabled={!v.availableForSale}
-                  aria-label={`${copy.cta}: ${product.title}, ${v.title}`}
-                  className={`btn mt-4 w-full sm:mt-6 ${top ? "btn-primary" : "btn-outline"}`}
-                >
-                  {copy.cta}
-                </button>
+                </div>
+                <figure className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
+                  <Stars value={item.rating} size={14} />
+                  <blockquote className="text-lg leading-snug text-green">
+                    &ldquo;{item.quote}&rdquo;
+                  </blockquote>
+                  <figcaption className="mt-auto text-sm text-muted-foreground">{name}</figcaption>
+                </figure>
               </li>
             );
           })}

@@ -46,7 +46,7 @@ each route's `head()` (per page).
 │   ├── assets/                Site images (JPG originals); web/ holds 400/800px WebP copies
 │   ├── components/home/       Homepage sections (see "Homepage" below)
 │   │   ├── Hero.tsx           Full-width photo hero with centred headline and one button
-│   │   ├── Sections.tsx       Product row, bundle, how it works, TCM 101, sourcing, closing CTA
+│   │   ├── Sections.tsx       Product row, results, how it works, TCM 101, sourcing, closing CTA
 │   │   ├── Stories.tsx        Stories scroller (drag, drift, video cards)
 │   │   ├── SkinLayers.tsx     Skin-layers drawing (animated by lib/animations/why-edible.ts)
 │   │   └── media.tsx          Img, LoopVideo, PlayPill, VideoDialog (all media goes through these)
@@ -113,7 +113,7 @@ each route's `head()` (per page).
 Product cards (photo and name), the hero's "Shop Skin Glow Tea", the closing CTA and the
 footer link open `/products/<handle>` (see "Product page"). Unknown handles show the 404 page.
 
-Homepage sections are reached with anchors: `/#how-it-works`, `/#shop`, `/#bundle`, `/#ingredients`, `/#learn`,
+Homepage sections are reached with anchors: `/#how-it-works`, `/#shop`, `/#results`, `/#ingredients`, `/#learn`,
 `/#stories`, `/#sourcing`.
 
 To add a page: create `src/routes/<name>.tsx` with `createFileRoute("/<name>")`. The dev server
@@ -197,11 +197,15 @@ order (`src/routes/index.tsx`):
    backward going up. Clicking or tapping a step plays that step (`goTo(i)`). The matching
    step button lights up. No pinning. Copy:
    `howItWorks`, `skinLayers`.
-4. **Bundle** (`#bundle`, "Buy more, pay less"): blush block with a pack picker. One white
-   card per variant of the featured product (1, 2, 4 pouches): price, MRP crossed out,
-   "Save x%", the variant `note`, price per cup (from the "20 tea bags" subtitle) and its own
-   "Add to cart". The biggest pack has a green ring, a "Best value" chip and the coral button;
-   the others use outline buttons. Stacked on phones, three columns from `md`.
+4. **Results** (`#results`, `Results` in Sections.tsx, `home.results` copy, `media.results`
+   photos): blush block, eyebrow "Real results", title, short line and "See all stories" to
+   `/real-results`. Three customer cards: photo (4:3 on phones, 4:5 from `md`) with a
+   "x weeks of daily cups" chip, star rating, quote, name and city. A card becomes the drag
+   before/after slider (`components/site/BeforeAfter.tsx`, shared with /real-results) only
+   when both `before` and `after` are set in `media.results`: real customer photos shared
+   with permission, NEVER stock (that would be an invented result). The quotes are demo
+   (`isDemo: true`). The old "Buy more, pay less" bundle block was removed; packs are
+   chosen on the product page, and the footer "Bundles" link goes there.
 5. **Ingredients** (`#ingredients`, `HowItWorks` in Sections.tsx): deep green block. Title with
    the intro beside it (desktop), then the four ingredients as cards: arch-shaped photo
    (`media.ingredients`, zooms slightly on hover), number 01-04, name, hanzi and pinyin, and a
@@ -424,7 +428,7 @@ Colors (Tailwind class names in brackets):
   nav text. Cream on green is 9:1
 - Coral `#e8807a`, hover `#d96e68` (`bg-primary`): the ONLY accent: primary buttons and small
   highlights. Text on coral is ink (`text-primary-foreground`, 6.1:1); never white (2.69:1)
-- Blush `#f3e4e0` (`bg-blush`): soft cards (bundle, closing CTA, quotes)
+- Blush `#f3e4e0` (`bg-blush`): soft cards (results, closing CTA, quotes)
 - Beige `#efe9e1` (`bg-beige`): image placeholders
 - Ink `#1f1f1f` (`text-foreground`): body text. Muted text `#6b635c` (`text-muted-foreground`)
 - Error text on green: `text-error-on-dark`
@@ -672,8 +676,10 @@ Demo copy to confirm:
       "Where our jujubes grow", the farm description and the three journey steps. Replace with
       the real origins
 - [ ] "How it fits your day": steeping time (about five minutes)
-- [ ] Bundle copy: "Save up to 15%, with free shipping on the four-pack" must match
-      the real prices and shipping rules
+- [ ] Results section (`home.results.items`, `isDemo: true`): three invented quotes (Ritika,
+      Sneha, Kavya), their weeks and ratings, and the lifestyle photos in `media.results`.
+      Replace with real customers; add their real before/after photos (with written
+      permission) to turn the cards into sliders
 - [ ] Delivery charge below ₹699 (`SHIPPING_FEE`, now ₹79)
 - [ ] One test order end to end with Razorpay test keys (see "Checkout and payments")
 - [ ] Order emails sent by the store backend use SkinFusion branding

@@ -288,14 +288,43 @@ export const home = {
     cta: "Add to cart",
     added: "Added",
   },
-  bundle: {
-    title: "Buy more, pay less",
-    text: "Get two or four pouches of Skin Glow Tea. Two pouches cost 10% less. Four pouches cost 15% less and ship free.",
-    cta: "Add to cart",
-    best: "Best value",
-    save: "Save",
-    perCup: "per cup",
-    handle: "skin-glow-tea",
+  // Results section (replaces the old bundle block). Each card shows a before/after slider
+  // once that customer's real photos are in media.results; until then, their ritual photo.
+  // isDemo quotes are invented for the preview: replace with real, permitted ones.
+  results: {
+    eyebrow: "Real results",
+    title: "In our customers' own words",
+    text: "How a daily cup of Skin Glow Tea fits into real days. Before and after photos appear here only when customers share their own.",
+    cta: { label: "See all stories", href: "/real-results" },
+    weeksLabel: "weeks of daily cups",
+    items: [
+      {
+        quote:
+          "Four weeks in, my evening cup is a habit I look forward to. It feels like looking after myself.",
+        name: "Ritika",
+        city: "Delhi",
+        weeks: 4,
+        rating: 5,
+        isDemo: true,
+      },
+      {
+        quote: "Naturally sweet, no sugar needed. I make it every morning before work now.",
+        name: "Sneha",
+        city: "Pune",
+        weeks: 6,
+        rating: 5,
+        isDemo: true,
+      },
+      {
+        quote:
+          "I love that I can see every whole ingredient in the bag. My skin routine finally includes my diet.",
+        name: "Kavya",
+        city: "Hyderabad",
+        weeks: 8,
+        rating: 5,
+        isDemo: true,
+      },
+    ],
   },
   howItWorks: {
     title: "Four whole ingredients. Nothing added.",
@@ -667,7 +696,7 @@ export const footer: {
       title: "Shop",
       links: [
         { label: "Skin Glow Tea", href: "/products/skin-glow-tea" },
-        { label: "Bundles", href: "/#bundle" },
+        { label: "Bundles", href: "/products/skin-glow-tea" },
         { label: "Skin quiz", href: "/quiz" },
       ],
     },

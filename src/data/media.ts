@@ -345,6 +345,14 @@ export const media = {
   },
   ritual: { image: site.ritual, video: videos.teaSteam },
   reviews: [photos.windowTea, photos.handsGlass, site.ritual],
+  // Homepage results section, one entry per card (same order as home.results.items).
+  // `photo` shows until `before` AND `after` are set; then the card becomes a drag slider.
+  // before/after: ONLY real customer photos shared with permission, never stock.
+  results: [
+    { photo: photos.handsCup, before: null, after: null },
+    { photo: photos.windowTea, before: null, after: null },
+    { photo: photos.handsGlass, before: null, after: null },
+  ] as { photo: MediaImage; before: MediaImage | null; after: MediaImage | null }[],
 } as const;
 
 /** Every demo item, for MEDIA_CREDITS.md and the launch checklist. */
