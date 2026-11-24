@@ -429,6 +429,21 @@
     animation: hero-scroll-cue 1.8s ease-in-out infinite;
   }
 }
+/* Comparison: the fact chips around the cup float gently (paused off-screen). */
+@keyframes cmp-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cmp-float {
+    animation: cmp-float 5s ease-in-out infinite;
+  }
+}
 @keyframes hero-word {
   from {
     transform: translateY(110%);

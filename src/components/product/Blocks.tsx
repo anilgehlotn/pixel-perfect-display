@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Check, Coffee, Leaf, Minus, Pill, Plus } from "@phosphor-icons/react";
 import {
   comparison,
@@ -11,7 +11,7 @@ import { media, type MediaImage } from "@/data/media";
 import { Stars } from "@/components/site/Stars";
 import { Img } from "@/components/home/media";
 import { Icon } from "./icons";
-import { gsap } from "@/lib/animations/gsap";
+import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { useComparisonReveal } from "@/lib/animations/comparison";
 
 /* Shared sections for the homepage and the product page. Copy comes from content.ts. */
@@ -68,278 +68,236 @@ export function SectionIntro({
  */
 const OTHER_ICONS = [Coffee, Pill];
 
+/**
+ * "SkinFusion vs. the rest", a dark spec-sheet panel (homepage, and the product page with
+ * `cta={false}`): headline, the cup in a ringed circle with three floating fact chips, four
+ * big counting numbers, then the comparison as cards: a bright raised SkinFusion card with
+ * coral ticks beside two muted glass cards (phones: SkinFusion first, the others in a
+ * sideways swipe). Animation: lib/animations/comparison.ts.
+ */
 export function ComparisonTable({ cta = true }: { cta?: boolean }) {
   const [ours, ...others] = comparison.columns;
-  const [vs, setVs] = useState(0);
   const scope = useRef<HTMLElement>(null);
+  usePauseWhenHidden(scope);
   useComparisonReveal(scope);
-  // Phones: switching the competitor cross-fades its answers.
-  const firstSwitch = useRef(true);
-  useEffect(() => {
-    if (firstSwitch.current) {
-      firstSwitch.current = false;
-      return;
-    }
-    const vals = scope.current?.querySelectorAll("[data-cmp-swap]");
-    if (!vals?.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.fromTo(
-      vals,
-      { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.45, stagger: 0.05, ease: "power2.out", clearProps: "all" },
-    );
-  }, [vs]);
-  const other = others[vs] ?? others[0] ?? "";
+  const chipPlace = [
+    "left-0 top-[12%] lg:-translate-x-[8%]",
+    "right-0 top-[44%] lg:translate-x-[6%]",
+    "bottom-[5%] left-[8%]",
+  ];
   return (
     <section ref={scope} aria-labelledby="compare-title" className="px-4 py-16 md:px-6 lg:py-24">
-      <div className="mx-auto max-w-[68rem]">
-        <SectionIntro
-          id="compare-title"
-          eyebrow={comparison.eyebrow}
-          title={comparison.title}
-          text={comparison.text}
+      <div className="relative mx-auto max-w-[84rem] overflow-hidden rounded-card bg-green px-5 py-14 text-cream sm:px-10 lg:px-16 lg:py-20">
+        {/* Soft coral glow behind the cup. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-[22rem] h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl lg:top-[20rem] lg:h-[40rem] lg:w-[40rem]"
         />
 
-        {/* Phones: one card per point, SkinFusion beside the chosen competitor. */}
-        <div className="md:hidden">
-          {others.length > 1 && (
-            <div className="mt-8 flex justify-center">
-              <div
-                role="group"
-                aria-label={comparison.compareWith}
-                className="inline-flex rounded-full bg-blush p-1"
-              >
-                {others.map((c, i) => (
-                  <button
-                    key={c}
-                    type="button"
-                    aria-pressed={vs === i}
-                    onClick={() => setVs(i)}
-                    className={`min-h-11 rounded-full px-4 text-sm transition-colors ${vs === i ? "bg-green text-cream" : "text-green"}`}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          <ul
-            className="mt-6 flex flex-col gap-3 pb-2"
-            aria-label={`${ours} compared with ${other}`}
+        <div className="relative mx-auto max-w-2xl text-center">
+          <p data-cmp-intro className="text-sm font-medium tracking-[0.06em] text-cream/70">
+            {comparison.eyebrow}
+          </p>
+          <h2
+            id="compare-title"
+            data-cmp-intro
+            className="mt-3 text-[clamp(2.25rem,1.4rem+3.6vw,4.25rem)] font-normal leading-[1.05] tracking-[-0.03em] text-cream"
           >
-            {comparison.rows.map((row, ri) => (
-              <li
-                key={row.label}
-                data-cmp-row
-                // Stacking deck: each card sticks a little lower than the one before.
-                style={{ top: `calc(5.5rem + ${ri * 0.7}rem)` }}
-                className="relative origin-top rounded-[1.5rem] bg-surface p-4 border border-ink/[0.06] motion-safe:sticky"
-              >
-                <span
-                  data-cmp-dim
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 rounded-[1.5rem] bg-ink opacity-0"
-                />
-                <p data-cmp-label className="text-lg leading-snug text-green">
-                  {row.label}
-                </p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="relative flex min-h-[5.5rem] flex-col justify-between overflow-hidden rounded-[1.1rem] bg-green p-3 text-cream">
-                    <span
-                      data-cmp-shine
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-cream/25 to-transparent opacity-0"
-                    />
-                    <span className="text-xs text-cream/70">{ours}</span>
-                    <span className="mt-2 flex items-center gap-2">
-                      <span data-cmp-mark className="inline-grid">
-                        <MarkBadge value={row.values[0] ?? false} />
-                      </span>
-                      <span className="text-sm">
-                        {typeof row.values[0] === "string" ? row.values[0] : comparison.yes}
-                      </span>
-                    </span>
-                  </div>
-                  <div className="flex min-h-[5.5rem] flex-col justify-between rounded-[1.1rem] bg-beige p-3 text-ink">
-                    <span className="text-xs text-muted-foreground">{other}</span>
-                    <span data-cmp-val className="mt-2 block">
-                      <span data-cmp-swap className="flex items-center gap-2 text-sm">
-                        <OtherValue value={row.values[vs + 1] ?? false} />
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {cta && (
-            <div data-cmp-cta className="mt-6">
-              <a href={comparison.cta.href} className="btn btn-primary w-full">
-                {comparison.cta.label}
-              </a>
-            </div>
-          )}
+            {comparison.title}
+          </h2>
+          <p data-cmp-intro className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-cream/75">
+            {comparison.text}
+          </p>
         </div>
 
-        {/* Tablet and desktop: the full table with the raised SkinFusion column. */}
-        <div className="mt-14 hidden min-w-0 md:block">
-          <table className="w-full table-fixed border-separate border-spacing-0 text-center">
-            <caption className="sr-only">
-              {ours} compared with {others.join(" and ")}
-            </caption>
-            <colgroup>
-              <col className="w-[34%]" />
-              <col className="w-[24%]" />
-              {others.map((c) => (
-                <col key={c} />
-              ))}
-            </colgroup>
-            <thead>
-              <tr>
-                <td />
-                <th
-                  scope="col"
-                  className="rounded-t-[1.75rem] bg-green px-4 pb-5 pt-8 align-bottom font-normal text-cream"
+        {/* The cup in its orbit, with floating fact chips. */}
+        <div className="relative mx-auto mt-12 aspect-square w-[min(86vw,26rem)] lg:mt-16 lg:w-[30rem]">
+          <div data-cmp-orbit className="absolute inset-0">
+            <svg
+              viewBox="0 0 200 200"
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full"
+            >
+              <circle
+                data-cmp-ring
+                cx="100"
+                cy="100"
+                r="98"
+                fill="none"
+                stroke="currentColor"
+                strokeOpacity="0.18"
+                strokeWidth="0.6"
+              />
+              <circle
+                data-cmp-ring
+                cx="100"
+                cy="100"
+                r="84"
+                fill="none"
+                stroke="currentColor"
+                strokeOpacity="0.28"
+                strokeWidth="0.6"
+                strokeDasharray="1.5 3"
+              />
+              <circle
+                data-cmp-ring
+                cx="100"
+                cy="100"
+                r="70"
+                fill="none"
+                stroke="currentColor"
+                strokeOpacity="0.4"
+                strokeWidth="0.6"
+              />
+            </svg>
+          </div>
+          <div data-cmp-photo className="absolute inset-[16%] overflow-hidden rounded-full">
+            <div data-cmp-depth className="absolute -inset-4">
+              <Img
+                media={media.comparison}
+                sizes="(min-width: 1024px) 22rem, 60vw"
+                className="h-full w-full"
+              />
+            </div>
+          </div>
+          {comparison.chips.map((chip, i) => (
+            <span key={chip} className={`absolute ${chipPlace[i] ?? ""}`}>
+              <span data-cmp-chip className="block">
+                <span
+                  className="cmp-float flex items-center gap-2 rounded-full bg-cream py-2 pl-2 pr-4 text-sm text-green"
+                  style={{ animationDelay: `${-i * 1.6}s` }}
                 >
-                  <span data-cmp-head className="block">
-                    <span
-                      data-cmp-badge
-                      className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full bg-primary text-primary-foreground"
-                    >
-                      <Leaf size={22} weight="light" aria-hidden="true" />
-                    </span>
-                    <span className="block text-xl">{ours}</span>
-                    <span className="mt-1 block text-xs text-cream/70">{comparison.ourTag}</span>
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-primary-foreground">
+                    <Check size={12} weight="bold" aria-hidden="true" />
                   </span>
-                </th>
-                {others.map((c, i) => {
-                  const ColIcon = OTHER_ICONS[i] ?? Coffee;
-                  return (
-                    <th key={c} scope="col" className="px-4 pb-5 align-bottom font-normal">
-                      <span data-cmp-other className="block">
-                        <span className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full bg-beige text-muted-foreground">
-                          <ColIcon size={22} weight="light" aria-hidden="true" />
-                        </span>
-                        <span className="block text-base leading-snug text-muted-foreground">
-                          {c}
-                        </span>
-                      </span>
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {comparison.rows.map((row) => (
-                <tr key={row.label} data-cmp-row>
-                  <th
-                    scope="row"
-                    className="border-t border-ink/10 py-5 pr-6 text-left text-lg font-normal leading-snug text-ink"
+                  {chip}
+                </span>
+              </span>
+            </span>
+          ))}
+        </div>
+
+        {/* Big numbers. */}
+        <dl className="relative mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-[1.5rem] bg-cream/15 lg:mt-16 lg:grid-cols-4">
+          {comparison.stats.map((st) => (
+            <div
+              key={st.label}
+              data-cmp-stat
+              className="flex flex-col-reverse gap-1 bg-green p-5 sm:p-7"
+            >
+              <dt className="text-sm leading-snug text-cream/70">{st.label}</dt>
+              <dd
+                data-cmp-count
+                className="text-[clamp(2.75rem,2rem+3vw,4.5rem)] leading-none tracking-[-0.03em] text-cream tabular-nums"
+              >
+                {st.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        {/* The comparison as cards. */}
+        <div className="relative mt-14 lg:mt-20">
+          <div className="flex items-end justify-between gap-4">
+            <h3 data-cmp-intro className="text-2xl font-normal text-cream sm:text-3xl">
+              {comparison.cardsTitle}
+            </h3>
+            <p className="text-sm text-cream/60 lg:hidden">{comparison.swipe}</p>
+          </div>
+          <div className="mt-6 grid gap-4 lg:grid-cols-3 lg:items-start">
+            {/* SkinFusion: bright and raised. */}
+            <div
+              data-cmp-ours
+              className="relative rounded-[1.75rem] bg-cream p-6 text-green ring-2 ring-primary sm:p-8 lg:-mt-4"
+            >
+              <div className="flex items-center gap-3">
+                <span className="grid h-11 w-11 place-items-center rounded-full bg-primary text-primary-foreground">
+                  <Leaf size={22} weight="light" aria-hidden="true" />
+                </span>
+                <span>
+                  <span className="block text-xl">{ours}</span>
+                  <span className="block text-sm text-muted-foreground">{comparison.ourTag}</span>
+                </span>
+              </div>
+              <ul className="mt-6 flex flex-col">
+                {comparison.rows.map((row) => (
+                  <li
+                    key={row.label}
+                    className="flex items-center gap-3 border-t border-green/10 py-3.5"
                   >
-                    <span data-cmp-label className="block">
-                      {row.label}
-                    </span>
-                  </th>
-                  {row.values.map((v, i) => (
-                    <td
-                      key={i}
-                      className={
-                        i === 0
-                          ? "border-t border-cream/10 bg-green px-2 py-5 text-cream"
-                          : "border-t border-ink/10 px-2 py-5 text-muted-foreground"
-                      }
+                    <span
+                      data-cmp-tick
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
                     >
-                      <span
-                        {...(i === 0 ? { "data-cmp-mark": "" } : { "data-cmp-val": "" })}
-                        className="block"
-                      >
-                        <Cell value={v} ours={i === 0} />
-                      </span>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td />
-                <td className="rounded-b-[1.75rem] bg-green px-4 pb-6 pt-3">
-                  {cta && (
-                    <span data-cmp-cta className="block">
-                      <a href={comparison.cta.href} className="btn btn-primary w-full px-3">
-                        {comparison.cta.label}
-                      </a>
+                      <Check size={14} weight="bold" aria-hidden="true" />
                     </span>
-                  )}
-                </td>
-                {others.map((c) => (
-                  <td key={c} />
+                    <span className="text-base leading-snug">
+                      {row.label}
+                      <span className="sr-only">: {answer(row.values[0] ?? false)}</span>
+                    </span>
+                  </li>
                 ))}
-              </tr>
-            </tfoot>
-          </table>
+              </ul>
+              {cta && (
+                <a href={comparison.cta.href} className="btn btn-primary mt-4 w-full">
+                  {comparison.cta.label}
+                </a>
+              )}
+            </div>
+
+            {/* The others: muted glass cards (phones: a sideways swipe). */}
+            <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 sm:-mx-10 sm:px-10 lg:col-span-2 lg:mx-0 lg:grid lg:grid-cols-2 lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden">
+              {others.map((name, ci) => {
+                const ColIcon = OTHER_ICONS[ci] ?? Coffee;
+                return (
+                  <div
+                    key={name}
+                    data-cmp-other
+                    className="w-[82%] shrink-0 snap-start rounded-[1.75rem] bg-cream/[0.06] p-6 ring-1 ring-cream/15 sm:w-[60%] sm:p-8 lg:w-auto"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="grid h-11 w-11 place-items-center rounded-full bg-cream/10 text-cream/80">
+                        <ColIcon size={22} weight="light" aria-hidden="true" />
+                      </span>
+                      <span className="text-xl text-cream/90">{name}</span>
+                    </div>
+                    <ul className="mt-6 flex flex-col">
+                      {comparison.rows.map((row) => {
+                        const v = row.values[ci + 1] ?? false;
+                        return (
+                          <li key={row.label} className="border-t border-cream/10 py-3.5">
+                            <span className="block text-xs text-cream/50">{row.label}</span>
+                            <span className="mt-1 flex items-center gap-2 text-base text-cream/85">
+                              {v === true ? (
+                                <Check size={16} weight="light" aria-hidden="true" />
+                              ) : v === false ? (
+                                <Minus
+                                  size={16}
+                                  weight="light"
+                                  className="text-cream/40"
+                                  aria-hidden="true"
+                                />
+                              ) : null}
+                              {answer(v)}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-/** Phones: SkinFusion's answer as a coral tick badge (or a dash). */
-function MarkBadge({ value }: { value: string | boolean }) {
-  if (value === false)
-    return (
-      <span className="grid h-8 w-8 place-items-center rounded-full bg-cream/15">
-        <Minus size={16} weight="light" aria-hidden="true" />
-      </span>
-    );
-  return (
-    <span className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground">
-      <Check size={16} weight="bold" aria-hidden="true" />
-    </span>
-  );
-}
-
-/** Phones: the competitor's answer: Yes / No with a light icon, or its short text. */
-function OtherValue({ value }: { value: string | boolean }) {
-  if (value === true)
-    return (
-      <>
-        <Check size={18} weight="light" className="shrink-0 text-green" aria-hidden="true" />
-        {comparison.yes}
-      </>
-    );
-  if (value === false)
-    return (
-      <>
-        <Minus size={18} weight="light" className="shrink-0 text-ink/40" aria-hidden="true" />
-        {comparison.no}
-      </>
-    );
-  return <>{value}</>;
-}
-
-function Cell({ value, ours }: { value: string | boolean; ours: boolean }) {
-  if (value === true)
-    return ours ? (
-      <>
-        <span className="mx-auto grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
-          <Check size={18} weight="bold" aria-hidden="true" />
-        </span>
-        <span className="sr-only">Yes</span>
-      </>
-    ) : (
-      <>
-        <Check size={22} weight="light" className="mx-auto text-green" aria-hidden="true" />
-        <span className="sr-only">Yes</span>
-      </>
-    );
-  if (value === false)
-    return (
-      <>
-        <Minus size={20} weight="light" className="mx-auto text-ink/35" aria-hidden="true" />
-        <span className="sr-only">No</span>
-      </>
-    );
-  return <span className="text-xs leading-snug md:text-sm">{value}</span>;
+/** A comparison answer as words: Yes / No, or its short text. */
+function answer(v: string | boolean) {
+  return v === true ? comparison.yes : v === false ? comparison.no : v;
 }
 
 /** "Our promise": gold line icons in cream circles. */

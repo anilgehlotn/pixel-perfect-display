@@ -218,24 +218,22 @@ order (`src/routes/index.tsx`):
    step cards with icons (Leaf, ThermometerHot, Timer), the TCM line and a "See Skin Glow Tea"
    button. 2 columns of cards on phones, 4 on desktop. Copy: `home.howItWorks`, `ingredients`.
 6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx, `comparison` in
-   content.ts): "SkinFusion vs. the rest".
-   - Phones: one white card per point (the point as a heading, then two tiles side by side:
-     a green SkinFusion tile with a coral tick and "Yes", and a beige tile with the chosen
-     competitor's answer). A pill switch picks the competitor; its answers cross-fade on
-     switch. Full-width "See Skin Glow Tea" button at the end.
-   - From `md`: a real table styled as a raised green SkinFusion column (coral leaf badge,
-     "Whole-food tea", coral tick badges, "See Skin Glow Tea" at its foot) beside quieter
-     columns with icons (Coffee, Pill).
-   - Phones, a stacking deck (`lib/animations/comparison.ts`): each card is `motion-safe:sticky`
-     a little lower than the one before (inline `top`), so the next card slides up over it
-     while the card underneath shrinks to 0.93 and dims (scrubbed). When a card arrives
-     (once): label rises, the coral tick pops with a spring, a sheen sweeps across the green
-     tile (`data-cmp-shine`), the competitor answer settles. Client-requested exception to
-     the mobile "no scrub" rule (transform and opacity only).
-   - From `md`, a scroll-driven reveal (scrub, reverses going up): the SkinFusion heading
-     rises and its badge pops, the other headings come in, then each row lights up in turn
-     (label slides in from faint, tick pops, competitor answers brighten), button last.
-   - Reduced motion: no sticking, no movement.
+   content.ts), a dark spec-sheet panel: deep green rounded block with a soft coral glow.
+   - Eyebrow "SkinFusion vs. the rest", cream headline "Made from food, not flavourings" and
+     the line; the cup (`media.comparison`, the brewed-cup photo) in a circle inside three
+     thin orbit rings, with three cream fact chips (`chips`) around it that float gently (CSS
+     `cmp-float`, paused off-screen); four big numbers (`stats`: 4 whole foods, 0 caffeine,
+     0 added sugar, 2,000 years) in a hairline grid; then "How it compares": a bright cream
+     SkinFusion card with a coral ring and five coral ticks (and "See Skin Glow Tea"),
+     beside two muted glass cards (Regular tea bags, Beauty supplements) listing each answer
+     under its point. Phones: SkinFusion card first, the other two in a sideways snap swipe
+     ("Swipe to compare"); from `lg` three columns.
+   - Animation (`lib/animations/comparison.ts`, each part once as it scrolls in): intro lines
+     rise; the rings draw themselves (stroke-dashoffset), the cup scales up into its circle,
+     the chips pop out with a spring; the numbers count up; the SkinFusion card rises, its
+     ticks pop one by one, the competitor cards glide in from the side. Desktop with a mouse
+     also: the cup drifts in its circle and the rings turn slowly with the scroll. Reduced
+     motion: nothing moves.
      The product page uses it with `cta={false}`.
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
    that opens the full-screen `VideoDialog`.

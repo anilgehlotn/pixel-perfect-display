@@ -356,6 +356,8 @@ export const media = {
     ginger: site.ginger,
   },
   ritual: { image: site.ritual, video: videos.teaSteam },
+  // "SkinFusion vs. the rest": the cup in the orbit circle.
+  comparison: site.brew,
   reviews: [photos.windowTea, photos.handsGlass, site.ritual],
   // Homepage results section: one before/after slider per card (same order as
   // home.results.items). These are DEMO stock photos for the design preview (isDemo: true,
