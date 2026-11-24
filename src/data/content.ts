@@ -482,6 +482,8 @@ export const comparison = {
   ourTag: "Whole-food tea",
   // Caption on the arch photo, and the small line under the board.
   photoCaption: "One cup a day",
+  // Circular text badge on the arch.
+  badge: "Whole-food tea · Nothing added · ",
   scoreTitle: "Ticks out of five",
   note: "Compared with typical products in each group. Labels vary by brand.",
   yes: "Yes",

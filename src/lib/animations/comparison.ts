@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { gsap, useGSAP } from "./gsap";
+import { gsap, SplitText, useGSAP } from "./gsap";
 import { afterInitialLoad, alreadySeen } from "./hydration";
 import { MOTION_CONDITIONS } from "./media";
 import { countUp } from "./presets";
@@ -7,9 +7,13 @@ import { CLEAR_PROPS, failsafe, safely } from "./safety";
 
 /**
  * "SkinFusion vs. the rest" scroll animation. Each part plays once as it scrolls in:
- * - intro: eyebrow, title and line rise one after another;
- * - the arch: rises while the cup photo inside settles from 1.18 to 1, then the caption pill
- *   pops (desktop with a mouse: the photo also drifts inside the arch with the scroll);
+ * - intro: the title's words rise out of a mask one by one, eyebrow and line rise;
+ * - the arch collage: the arch rises while the cup photo settles from 1.18 to 1, the jujube
+ *   circle and the circular text badge pop in, then the caption pill (desktop with a mouse:
+ *   the photo drifts inside the arch and the jujube circle at another speed, for depth);
+ * - focus (scrubbed, every device): only the row in the middle of the screen is fully lit;
+ *   rows above and below fade back to 30%, and a soft coral glow travels down the board
+ *   with the scroll;
  * - the board: rises; the green SkinFusion column grows down from the top (scaleY, from md);
  *   the three column heads come in; then the rows one by one: the row rises (phones), the
  *   label comes in, then its tiles cascade left to right: the SkinFusion tile settles with
@@ -54,20 +58,41 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
 
         const cancel = afterInitialLoad(() => {
           safely("comparison", root, () => {
-            // Intro.
+            // Intro: the title's words rise out of a mask; eyebrow and line rise.
             const intro = qa(root, "[data-cmp-intro]");
-            once(intro[0], intro, (tl) =>
-              tl.from(intro, { y: d ? 40 : 22, opacity: 0, duration: d ? 1 : 0.7, stagger: 0.1 }),
-            );
+            const title = qa(root, "[data-cmp-title]")[0];
+            if (title && !alreadySeen(title)) {
+              const split = SplitText.create(title, { type: "words", mask: "words", aria: "auto" });
+              const tl = gsap.timeline({
+                defaults: { ease: "power4.out" },
+                scrollTrigger: { trigger: title, start: "top 88%", once: true },
+                onComplete: () => {
+                  split.revert();
+                  gsap.set(intro, { clearProps: CLEAR_PROPS });
+                },
+              });
+              tl.from(
+                split.words,
+                { yPercent: 110, duration: d ? 1.1 : 0.9, stagger: 0.07 },
+                0,
+              ).from(
+                intro,
+                { y: d ? 30 : 18, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power3.out" },
+                0.1,
+              );
+              stops.push(failsafe(title, tl), () => split.revert());
+            }
 
             // The arch.
             const arch = qa(root, "[data-cmp-arch]")[0];
             const depth = qa(root, "[data-cmp-depth]");
             const chip = qa(root, "[data-cmp-chip]");
+            const inset = qa(root, "[data-cmp-inset]");
+            const ringBadge = qa(root, "[data-cmp-ring-badge]");
             if (arch) {
               once(
                 arch,
-                [arch, ...chip],
+                [arch, ...chip, ...inset, ...ringBadge],
                 (tl) =>
                   tl
                     .from(arch, { y: d ? 80 : 40, opacity: 0, duration: 1.2, ease: "expo.out" }, 0)
@@ -78,13 +103,37 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
                       0,
                     )
                     .from(
+                      inset,
+                      { scale: 0.4, opacity: 0, duration: 0.9, ease: "back.out(1.8)" },
+                      0.45,
+                    )
+                    .from(
+                      ringBadge,
+                      { scale: 0.5, opacity: 0, duration: 0.9, ease: "back.out(2)" },
+                      0.55,
+                    )
+                    .from(
                       chip,
                       { y: 16, scale: 0.85, opacity: 0, duration: 0.7, ease: "back.out(2)" },
-                      0.6,
+                      0.7,
                     ),
                 "top 88%",
               );
               if (d) {
+                gsap.fromTo(
+                  inset.map((el) => el.parentElement as HTMLElement),
+                  { y: 40 },
+                  {
+                    y: -40,
+                    ease: "none",
+                    scrollTrigger: {
+                      trigger: arch,
+                      start: "top bottom",
+                      end: "bottom top",
+                      scrub: true,
+                    },
+                  },
+                );
                 gsap.fromTo(
                   depth,
                   { yPercent: -5 },
@@ -117,7 +166,7 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
               ]);
               once(
                 board,
-                [board, ...col, ...line, ...heads, ...rows, ...parts, ...cta],
+                [board, ...col, ...line, ...heads, ...parts, ...cta],
                 (tl) => {
                   tl.from(board, { y: d ? 60 : 30, opacity: 0, duration: 1, ease: "expo.out" }, 0)
                     .from(col, { scaleY: 0, duration: 1.2, ease: "expo.inOut" }, 0.15)
@@ -129,8 +178,6 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
                     );
                   rows.forEach((r, i) => {
                     const at = 0.6 + i * 0.18;
-                    // Phones: the whole row rises in first.
-                    if (!d) tl.from(r, { y: 24, opacity: 0, duration: 0.7 }, at - 0.1);
                     tl.from(qa(r, "[data-cmp-label]"), { y: 14, opacity: 0, duration: 0.6 }, at)
                       .from(
                         qa(r, '[data-cmp-tile="ours"]'),
@@ -151,6 +198,38 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
                   tl.from(cta, { y: 18, opacity: 0, duration: 0.7 }, 0.7 + rows.length * 0.18);
                 },
                 "top 82%",
+              );
+            }
+
+            // Focus: the row in the middle of the screen is lit, the others fade back.
+            for (const row of qa(root, "[data-cmp-row]")) {
+              gsap
+                .timeline({
+                  defaults: { ease: "none" },
+                  scrollTrigger: { trigger: row, start: "top 88%", end: "bottom 12%", scrub: 0.5 },
+                })
+                .fromTo(row, { opacity: 0.3 }, { opacity: 1, duration: 1 })
+                .to(row, { opacity: 1, duration: 1.2 })
+                .to(row, { opacity: 0.3, duration: 1 });
+            }
+            // The coral glow travels down the board with the scroll.
+            const glow = qa(root, "[data-cmp-glow]")[0];
+            const glowBox = glow?.parentElement;
+            if (glow && glowBox) {
+              gsap.fromTo(
+                glow,
+                { y: 0 },
+                {
+                  y: () => Math.max(0, glowBox.offsetHeight - glow.offsetHeight),
+                  ease: "none",
+                  scrollTrigger: {
+                    trigger: glowBox,
+                    start: "top 60%",
+                    end: "bottom 40%",
+                    scrub: 0.6,
+                    invalidateOnRefresh: true,
+                  },
+                },
               );
             }
 

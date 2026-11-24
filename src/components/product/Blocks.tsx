@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from "react";
+import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Check, Coffee, Leaf, Minus, Pill, Plus } from "@phosphor-icons/react";
 import {
   comparison,
@@ -79,6 +80,7 @@ const OTHER_ICONS = [Coffee, Pill];
 export function ComparisonTable({ cta = true }: { cta?: boolean }) {
   const [ours, ...others] = comparison.columns;
   const scope = useRef<HTMLElement>(null);
+  usePauseWhenHidden(scope);
   useComparisonReveal(scope);
   const total = comparison.rows.length;
   const score = comparison.columns.map(
@@ -86,16 +88,16 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
   );
   // Phones: three tile columns (SkinFusion a little wider). md+: a label column first.
   const cols =
-    "grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)] md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]";
+    "grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)] md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]";
   return (
     <section ref={scope} aria-labelledby="compare-title" className="section-y px-4 md:px-6">
-      <div className="mx-auto max-w-[84rem]">
-        <div className="grid gap-5 lg:grid-cols-2 lg:items-end lg:gap-16">
+      <div className="relative mx-auto max-w-[84rem] overflow-hidden rounded-card bg-blush px-4 py-12 sm:px-10 sm:py-14 lg:p-16">
+        <div className="relative grid gap-5 lg:grid-cols-2 lg:items-end lg:gap-16">
           <div>
             <p data-cmp-intro className="mb-2 text-sm font-medium tracking-[0.06em] text-ink">
               {comparison.eyebrow}
             </p>
-            <h2 id="compare-title" data-cmp-intro className="title">
+            <h2 id="compare-title" data-cmp-title className="title">
               {comparison.title}
             </h2>
           </div>
@@ -119,6 +121,41 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
                 />
               </div>
             </div>
+            {/* Inset photo of whole jujubes, overlapping the arch's corner. */}
+            <div className="absolute -right-3 bottom-20 w-[40%] sm:-right-6">
+              <div
+                data-cmp-inset
+                className="aspect-square overflow-hidden rounded-full border-4 border-blush"
+              >
+                <Img
+                  media={media.ingredients.jujube}
+                  sizes="(min-width: 1024px) 12vw, 30vw"
+                  className="h-full w-full"
+                />
+              </div>
+            </div>
+            {/* A slowly turning circular text badge (desktop with a mouse turns it; CSS). */}
+            <div
+              data-cmp-ring-badge
+              aria-hidden="true"
+              className="absolute -left-4 top-6 w-[34%] sm:-left-8"
+            >
+              <svg viewBox="0 0 120 120" className="cmp-spin block h-auto w-full text-green">
+                <defs>
+                  <path id="cmp-circle" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
+                </defs>
+                <circle cx="60" cy="60" r="58" className="fill-cream" />
+                <text className="fill-current text-[10.5px] tracking-[0.18em]">
+                  <textPath href="#cmp-circle">{comparison.badge}</textPath>
+                </text>
+                <g transform="translate(48 48)" className="text-primary">
+                  <path
+                    d="M12 2C6 6 4 11 6 16c1.5 3.5 5 5 8 4 4-1.5 6-6 5-11-1-4-4-6-7-7Z"
+                    className="fill-current"
+                  />
+                </g>
+              </svg>
+            </div>
             <figcaption
               data-cmp-chip
               className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-cream py-2 pl-2 pr-4 text-sm text-green"
@@ -134,6 +171,12 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
           <div>
             <div data-cmp-board className="relative rounded-card bg-surface px-3 pb-4 pt-2 sm:px-6">
               <div className="relative">
+                {/* A soft coral glow that travels down the board with the row in focus. */}
+                <span
+                  data-cmp-glow
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-1/2 top-0 h-52 w-[70%] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl"
+                />
                 {/* A thin coral line that draws down the side as the rows reveal. */}
                 <span
                   data-cmp-line
@@ -146,7 +189,12 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
                   className={`pointer-events-none absolute inset-x-0 -bottom-2 top-0 hidden gap-3 md:grid ${cols}`}
                 >
                   <span />
-                  <span data-cmp-col className="origin-top rounded-[1.25rem] bg-green" />
+                  <span
+                    data-cmp-col
+                    className="relative origin-top overflow-hidden rounded-[1.25rem] bg-green"
+                  >
+                    <span className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-cream/[0.14] to-transparent" />
+                  </span>
                   <span />
                   <span />
                 </div>
@@ -207,7 +255,7 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
                             className="flex"
                           >
                             {ci === 0 ? (
-                              <span className="flex w-full items-center justify-center gap-2 rounded-[0.9rem] bg-green px-2 py-3 text-sm text-cream md:bg-transparent md:p-0">
+                              <span className="flex w-full items-center justify-center gap-2 rounded-[0.9rem] bg-green bg-gradient-to-b from-cream/[0.12] to-transparent px-2 py-3 text-sm text-cream md:bg-transparent md:bg-none md:p-0">
                                 <span
                                   data-cmp-mark
                                   className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground md:h-8 md:w-8"
@@ -246,8 +294,11 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
                 {cta && (
                   <div className={`relative grid gap-3 pt-3 ${cols}`}>
                     <span className="hidden md:block" />
-                    <span data-cmp-cta className="col-span-3 block md:col-span-1 md:px-3">
-                      <a href={comparison.cta.href} className="btn btn-primary w-full">
+                    <span data-cmp-cta className="col-span-3 block md:col-span-1 md:px-2">
+                      <a
+                        href={comparison.cta.href}
+                        className="btn btn-primary w-full md:px-3 md:text-sm"
+                      >
                         {comparison.cta.label}
                       </a>
                     </span>

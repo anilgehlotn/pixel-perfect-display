@@ -222,8 +222,11 @@ order (`src/routes/index.tsx`):
    alternates), in the same language: eyebrow "Why SkinFusion" and title "SkinFusion vs. the
    rest" on the left, the line on the right. No numbers or chips repeated from the
    ingredients block.
-   - Below: the cup (`media.comparison`) in a tall arch like the ingredient cards, with a
-     "One cup a day" pill (sticky on desktop), beside a white board that shows SkinFusion and
+   - Everything sits in a blush rounded panel. Below the intro: an arch collage (sticky on
+     desktop): the cup (`media.comparison`) in a tall arch like the ingredient cards, a round
+     inset of whole jujubes (`media.ingredients.jujube`) over its corner, a circular text
+     badge (`badge`, turns slowly on desktop, CSS `cmp-spin`, paused off-screen) and a "One
+     cup a day" pill; beside it a white board that shows SkinFusion and
      BOTH competitors at once (no switch). From `md`: a 4-column table with a raised green
      SkinFusion column (leaf badge, coral ticks, "See Skin Glow Tea" at its foot). Phones:
      three icon heads, then each point with three tiles under it (a slightly wider green
@@ -234,9 +237,13 @@ order (`src/routes/index.tsx`):
    - Arch shape: `rounded-t-[50%_40%]` (half the width, for a 4:5 box), not `rounded-t-full`:
      a 9999px radius makes the browser shrink every corner, so the bottom corners went
      square. The ingredient cards use the same fix.
-   - Scroll (`lib/animations/comparison.ts`, once per part): intro rises; the arch rises
-     while the photo settles from 1.18 to 1 and the pill pops (desktop: the photo drifts in
-     the arch with the scroll); the board rises, the green column grows down (scaleY), the
+   - The green SkinFusion column and the phone tiles carry a soft top light (cream gradient).
+   - Scroll (`lib/animations/comparison.ts`): the title's words rise out of a mask (SplitText)
+     with the intro; the arch rises while the photo settles from 1.18 to 1, the jujube circle
+     and the badge pop, then the pill (desktop: photo and jujube circle drift at different
+     speeds); a scrubbed focus on every device: only the row in the middle of the screen is
+     fully lit, the others fade to 30%, and a soft coral glow (`data-cmp-glow`) travels down
+     the board; once: the board rises, the green column grows down (scaleY), the
      heads come in, then each row: the row rises (phones), label in, the green tile settles
      with its tick popping, the two competitor tiles slide in from the right; a thin coral
      line draws down the side; the button rises; the score bars fill (scaleX) while the
