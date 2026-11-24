@@ -201,7 +201,9 @@ order (`src/routes/index.tsx`):
    photos): blush block, eyebrow "Real results", title, short line and "See all stories" to
    `/real-results`. Three customer cards, each a before/after drag slider
    (`components/site/BeforeAfter.tsx`, shared with /real-results: before on the left, after
-   on the right, drag or arrow keys) with a "x weeks of daily cups" chip, then star rating,
+   on the right; on touch screens ONLY the round handle (a 48px grab strip down the divider,
+   `touch-none`) moves it, and a swipe anywhere else on the photo scrolls the page
+   (`touch-pan-y`); a mouse can also click or drag anywhere; arrow keys work) with a "x weeks of daily cups" chip, then star rating,
    quote, name and city. Photos come from `media.results`. For the design preview they are
    DEMO stock photos from Pexels (`result-1..3-before/after.webp`, different models, the
    before copies in black and white; `isDemo: true`), and each slider shows a "Demo photos"

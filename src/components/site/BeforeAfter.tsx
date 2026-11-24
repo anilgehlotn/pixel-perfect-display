@@ -34,9 +34,13 @@ export function Placeholder({
 }
 
 /**
- * Before and after drag slider (pointer, touch and arrow keys). Used on /real-results and
- * in the homepage results section. Only ever with real customer photos shared with
- * permission: never stock photos (that would be an invented result).
+ * Before and after drag slider. Used on /real-results and in the homepage results section.
+ * - Touch: ONLY the round handle (a 48px grab strip down the divider) moves the slider; a
+ *   swipe anywhere else on the photo scrolls the page as normal (`touch-action: pan-y`).
+ * - Mouse: drag the handle, or click / drag anywhere on the photo.
+ * - Keyboard: arrow keys.
+ * Only ever with real customer photos shared with permission before launch (stock photos as
+ * a real before/after would be an invented result).
  */
 export function BeforeAfter({
   before,
@@ -57,12 +61,21 @@ export function BeforeAfter({
     const r = el.getBoundingClientRect();
     setPos(Math.min(96, Math.max(4, ((clientX - r.left) / r.width) * 100)));
   };
-  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+  // Handle: every pointer type. Captured, so the drag keeps going outside the handle.
+  const onHandleDown = (e: PointerEvent<HTMLElement>) => {
+    e.stopPropagation();
     dragging.current = true;
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    e.currentTarget.setPointerCapture?.(e.pointerId);
     setFromClientX(e.clientX);
   };
-  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+  // Photo: a mouse may click or drag anywhere; touch and pen are left to scroll the page.
+  const onPhotoDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return;
+    dragging.current = true;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    setFromClientX(e.clientX);
+  };
+  const onPointerMove = (e: PointerEvent<HTMLElement>) => {
     if (dragging.current) setFromClientX(e.clientX);
   };
   const stop = () => {
@@ -78,7 +91,7 @@ export function BeforeAfter({
       aria-valuemin={0}
       aria-valuemax={100}
       tabIndex={0}
-      onPointerDown={onPointerDown}
+      onPointerDown={onPhotoDown}
       onPointerMove={onPointerMove}
       onPointerUp={stop}
       onPointerCancel={stop}
@@ -92,7 +105,7 @@ export function BeforeAfter({
           setPos((p) => Math.min(96, p + 5));
         }
       }}
-      className="relative aspect-[4/5] cursor-ew-resize touch-none select-none overflow-hidden bg-beige outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="relative aspect-[4/5] touch-pan-y select-none overflow-hidden bg-beige outline-none focus-visible:ring-2 focus-visible:ring-primary [@media(pointer:fine)]:cursor-ew-resize"
     >
       {after ? (
         <img
@@ -130,9 +143,20 @@ export function BeforeAfter({
       </span>
       <div className="absolute inset-y-0" style={{ left: `${pos}%` }}>
         <div className="absolute inset-y-0 -ml-px w-0.5 bg-background" />
-        <span className="absolute top-1/2 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border bg-background">
-          <CaretLeft size={14} weight="light" />
-          <CaretRight size={14} weight="light" className="-ml-2" />
+        {/* The grab strip: the only place a finger moves the slider. */}
+        <span
+          data-ba-handle
+          aria-hidden="true"
+          onPointerDown={onHandleDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={stop}
+          onPointerCancel={stop}
+          className="absolute inset-y-0 -left-6 w-12 cursor-ew-resize touch-none"
+        >
+          <span className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-ink/10 bg-background text-green shadow-sm">
+            <CaretLeft size={14} weight="bold" />
+            <CaretRight size={14} weight="bold" className="-ml-2" />
+          </span>
         </span>
       </div>
     </div>
