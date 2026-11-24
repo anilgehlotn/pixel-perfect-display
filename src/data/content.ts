@@ -66,8 +66,6 @@ export const hero = {
       facts: ["4 whole foods", "0 sugar", "0 caffeine"],
       name: "SkinFusion",
     },
-    // The statement that lights up word by word mid-scroll (two lines).
-    statement: ["Serums stay on the surface.", "Skin care should go deeper."],
     // The small cue at the bottom of the hero at rest.
     scrollCue: "Scroll",
   },

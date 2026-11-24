@@ -145,25 +145,22 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): a short film in three chapters played by the scroll (GSAP scrub,
-   reversible), Apple-style restraint: no captions, chips or ratings in the hero.
+1. **Hero** (`Hero.tsx`): one continuous shot played by the scroll (GSAP scrub,
+   reversible), Apple-style restraint: no captions, chips, ratings or extra text in the hero.
    - At rest: the black and white serum world (`media.hero.serum`) fills the screen: kicker,
      "Skin care you apply." ("apply." as a thin outline), one button and "From" price, a
      small "Scroll" cue.
-   - Chapter 1 (to 0.34 of the track): the photo pulls back into a rounded frame on a black
-     stage (`data-card`, scale 1.06 to 0.86; at 1.06 its corners are off-screen) and dims,
-     the headline drifts away, and a statement lights up word by word
-     (`hero.compare.statement`, also in the h1's description for screen readers).
-   - Chapter 2: the statement leaves, a coral drop of tea falls onto the headline position,
-     two ripples spread, and colour blooms out from there in a growing circle with a soft
-     rim (`.hero-rim`) while the frame opens back to full bleed. "drink." rises letter by
-     letter, the headline, button and price return, and a spec line (`facts`, thin dividers)
-     sits underneath. Steam in the tea world on desktop.
-   - The hero sticks (CSS `position: sticky` in a 320svh track; `svh`, not `dvh`, so the
+   - As you scroll: the photo pulls back into a rounded frame on a black stage (`data-card`,
+     scale 1.06 to 0.86; at 1.06 its corners are off-screen) and dims; a coral drop of tea
+     falls onto the headline; "apply." lifts away letter by letter as it lands and two
+     ripples spread; colour blooms out from there in a growing circle with a soft rim
+     (`.hero-rim`) while the frame opens back to full bleed. "drink." rises letter by letter,
+     with a spec line (`facts`, thin dividers) underneath. Steam in the tea world on desktop.
+   - The hero sticks (CSS `position: sticky` in a 260svh track; `svh`, not `dvh`, so the
      phone address bar never resizes it).
-   - Phones (priority): scrub 0.5 and snap between chapters (`CHAPTERS` in Hero.tsx): each
-     swipe moves one chapter forward or back, so it never rests in between. Desktop: scrub
-     1.2, no snap, photos follow the pointer slightly. Nothing plays by itself.
+   - Phones (priority): scrub 0.5 and snap: one short swipe plays the whole shot, a short
+     swipe back returns to black and white, so it never rests half-way. Desktop: scrub 1.2,
+     no snap, photos follow the pointer slightly. Nothing plays by itself.
      Client-requested exception to the mobile "no scrub" rule (transform and opacity only).
    - Bloom technique: the circle scales up while its content scales down by the same factor,
      so only the round window grows. It starts at 2% of full size (hidden before that): never

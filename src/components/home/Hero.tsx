@@ -10,29 +10,25 @@ import { Img } from "./media";
 
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
-/** Scroll positions (0 to 1 of the track) of the three chapters; phones snap between them. */
-const CHAPTERS = [0, 0.34, 1] as const;
-
 /**
- * 1. HERO: a short film in three chapters, played by the scroll (scrubbed, reversible).
+ * 1. HERO: one continuous shot played by the scroll (scrubbed, reversible).
  *
  * At rest: the black and white serum world fills the screen. "Skin care you apply.", one
  * button and the price. Nothing else.
- * Chapter 1 (to 0.34): the photo pulls back into a rounded frame on a black stage and dims;
- *   the headline drifts away; a statement lights up word by word ("Serums stay on the
- *   surface. Skin care should go deeper.").
- * Chapter 2 (to 1): the statement leaves, a drop of tea falls onto the frame, ripples spread,
- *   and colour blooms out from the point of impact while the frame opens back to full bleed.
- *   "drink." rises letter by letter, the headline and button return, and a spec line
- *   (4 whole foods | 0 sugar | 0 caffeine) sits under it.
+ * As you scroll: the photo pulls back into a rounded frame on a black stage and dims; a drop
+ * of tea falls onto the headline; "apply." lifts away letter by letter as it lands and two
+ * ripples spread; colour blooms out from the point of impact while the frame opens back to
+ * full bleed, and "drink." rises letter by letter with a spec line
+ * (4 whole foods | 0 sugar | 0 caffeine) underneath.
  *
  * Transform and opacity only. The frame is a full-screen card with rounded corners at
  * scale 1.06 (corners off-screen) that scales to 0.86. The bloom is a circle that scales up
  * while its content scales down by the same factor, so only the round window grows.
- * The hero sticks (CSS `position: sticky` in a 320svh track; `svh` so the phone address bar
- * never resizes it). Phones: each swipe moves one chapter forward or back (snap), so it
- * never rests between chapters. Desktop: a slower scrub and slight pointer depth.
- * Reduced motion: no track, colour at once. No JavaScript: the black and white world.
+ * The hero sticks (CSS `position: sticky` in a 260svh track; `svh` so the phone address bar
+ * never resizes it). Phones: one short swipe plays the whole shot and a short swipe back
+ * returns to black and white (snap), so it never rests half-way. Desktop: a slower scrub and
+ * slight pointer depth. Reduced motion: no track, colour at once. No JavaScript: the black
+ * and white world.
  */
 export function Hero({ featured }: { featured: Product }) {
   const track = useRef<HTMLDivElement>(null);
@@ -55,9 +51,6 @@ export function Hero({ featured }: { featured: Product }) {
       const drop = q("[data-drop]");
       const ripples = qa("[data-ripple]");
       const cue = q("[data-cue]");
-      const shared = q("[data-shared]");
-      const statement = q("[data-statement]");
-      const words = qa("[data-statement] [data-sword]");
       const zoomOut = q('[data-world-zoom="left"]');
       const zoomIn = q('[data-world-zoom="right"]');
       const dim = q("[data-world-dim]");
@@ -136,10 +129,7 @@ export function Hero({ featured }: { featured: Product }) {
           zoomOut,
           zoomIn,
           drop,
-          shared,
-          statement,
           cue,
-          ...words,
           ...ripples,
           ...applyChars,
           ...drinkChars,
@@ -148,8 +138,6 @@ export function Hero({ featured }: { featured: Product }) {
         if (drop) gsap.set(drop, { xPercent: -50, yPercent: -100, opacity: 0 });
         if (ripples.length)
           gsap.set(ripples, { xPercent: -50, yPercent: -50, scale: 0.2, opacity: 0 });
-        if (statement) gsap.set(statement, { autoAlpha: 0 });
-        if (words.length) gsap.set(words, { opacity: 0.14 });
 
         const tl = gsap.timeline({
           defaults: { ease: "none" },
@@ -166,15 +154,14 @@ export function Hero({ featured }: { featured: Product }) {
             ...(isDesktop
               ? {}
               : {
-                  // Phones: each swipe moves one chapter forward or back.
+                  // Phones: a short swipe plays the whole shot, a short swipe back reverses it.
                   snap: {
                     snapTo: (v: number, self?: ScrollTrigger) => {
-                      if (CHAPTERS.some((c) => Math.abs(c - v) < 0.004)) return v;
+                      if (v <= 0.002 || v >= 0.998) return v;
                       const down = (self?.direction ?? 1) > 0;
-                      if (down) return CHAPTERS.find((c) => c > v) ?? 1;
-                      return [...CHAPTERS].reverse().find((c) => c < v) ?? 0;
+                      return down ? (v > 0.04 ? 1 : 0) : v < 0.96 ? 0 : 1;
                     },
-                    duration: { min: 0.8, max: 1.6 },
+                    duration: { min: 1, max: 1.8 },
                     delay: 0.08,
                     ease: "power3.inOut",
                   },
@@ -182,47 +169,38 @@ export function Hero({ featured }: { featured: Product }) {
           },
         });
 
-        const IMPACT = 0.5;
+        const IMPACT = 0.42;
         tl.to({}, { duration: 1 }, 0);
-        // Chapter 1: pull back into a frame, headline leaves, statement lights up.
-        tl.fromTo(
-          card,
-          { scale: 1.06 },
-          { scale: 0.86, duration: 0.26, ease: "power2.inOut" },
-          0.03,
-        )
-          .fromTo(zoomOut, { scale: 1 }, { scale: 1.08, duration: 0.45 }, 0.03)
-          .fromTo(dim, { opacity: 0 }, { opacity: 0.55, duration: 0.2 }, 0.05)
+        // Pull back into a frame on a black stage; the black and white photo dims.
+        tl.fromTo(card, { scale: 1.06 }, { scale: 0.86, duration: 0.3, ease: "power2.inOut" }, 0.02)
+          .fromTo(zoomOut, { scale: 1 }, { scale: 1.08, duration: 0.42 }, 0.02)
+          .fromTo(dim, { opacity: 0 }, { opacity: 0.45, duration: 0.3 }, 0.04)
           .to(cue, { autoAlpha: 0, duration: 0.04 }, 0.01)
-          .to(shared, { autoAlpha: 0, y: -24, duration: 0.1, ease: "power2.in" }, 0.03)
+          // "apply." lifts away as the drop lands.
           .to(
             applyChars,
             {
-              yPercent: -30,
+              yPercent: -35,
               opacity: 0,
-              duration: 0.1,
+              duration: 0.08,
               ease: "power2.in",
-              stagger: { each: 0.012, from: "center" },
+              stagger: { each: 0.01, from: "center" },
             },
-            0.04,
-          )
-          .to(statement, { autoAlpha: 1, duration: 0.04 }, 0.12)
-          .to(words, { opacity: 1, duration: 0.05, stagger: 0.016 }, 0.14)
-          // Chapter 2: statement leaves, the drop falls, colour blooms, frame opens.
-          .to(statement, { autoAlpha: 0, y: -28, duration: 0.07, ease: "power2.in" }, 0.37);
+            IMPACT - 0.05,
+          );
         if (drop) {
-          tl.to(drop, { opacity: 1, duration: 0.03 }, 0.38)
+          tl.to(drop, { opacity: 1, duration: 0.03 }, 0.2)
             .fromTo(
               drop,
               { y: () => -geo.cy - 40 },
-              { y: 0, duration: IMPACT - 0.38, ease: "power2.in" },
-              0.38,
+              { y: 0, duration: IMPACT - 0.2, ease: "power2.in" },
+              0.2,
             )
             .fromTo(
               drop,
               { scaleX: 1, scaleY: 1 },
-              { scaleX: 0.85, scaleY: 1.25, duration: IMPACT - 0.4, ease: "power1.in" },
-              0.4,
+              { scaleX: 0.85, scaleY: 1.25, duration: IMPACT - 0.24, ease: "power1.in" },
+              0.24,
             )
             .to(drop, { scale: 0.2, opacity: 0, duration: 0.02 }, IMPACT);
         }
@@ -243,10 +221,10 @@ export function Hero({ featured }: { featured: Product }) {
         tl.fromTo(
           state,
           { s: 0 },
-          { s: 1, duration: 0.34, ease: "power2.inOut", onUpdate: paint },
+          { s: 1, duration: 0.4, ease: "power2.inOut", onUpdate: paint },
           IMPACT,
         )
-          .to(card, { scale: 1.06, duration: 0.34, ease: "power2.inOut" }, IMPACT + 0.04)
+          .to(card, { scale: 1.06, duration: 0.4, ease: "power2.inOut" }, IMPACT + 0.04)
           .fromTo(zoomIn, { scale: 1.16 }, { scale: 1, duration: 0.4, ease: "power2.out" }, IMPACT)
           .fromTo(
             drinkChars,
@@ -259,12 +237,6 @@ export function Hero({ featured }: { featured: Product }) {
               stagger: { each: 0.018, from: "center" },
             },
             IMPACT + 0.06,
-          )
-          .fromTo(
-            shared,
-            { autoAlpha: 0, y: 24 },
-            { autoAlpha: 1, y: 0, duration: 0.1, ease: "power2.out", immediateRender: false },
-            IMPACT + 0.2,
           );
 
         // Desktop with a mouse: the photos follow the pointer a little (depth).
@@ -302,7 +274,7 @@ export function Hero({ featured }: { featured: Product }) {
 
   const c = hero.compare;
   return (
-    <div ref={track} data-hero-track className="relative bg-ink motion-safe:h-[320svh]">
+    <div ref={track} data-hero-track className="relative bg-ink motion-safe:h-[260svh]">
       <section
         data-hero-fill
         ref={section}
@@ -367,30 +339,6 @@ export function Hero({ featured }: { featured: Product }) {
           <Column layer="shared" featured={featured} />
         </div>
 
-        {/* The statement: lights up word by word in chapter 1 (decorative; the same words are
-            in the headline's description for screen readers). */}
-        <div
-          data-statement
-          aria-hidden="true"
-          className="pointer-events-none invisible absolute inset-0 z-[4] flex items-center justify-center px-6"
-        >
-          <p className="max-w-[12ch] text-balance text-center text-[clamp(2.1rem,1.1rem+4.2vw,5rem)] font-medium leading-[1.04] tracking-[-0.035em] text-cream sm:max-w-none">
-            {c.statement.map((line, li) => (
-              <span
-                key={line}
-                className={`block text-balance sm:whitespace-nowrap ${li === 1 ? "mt-[0.35em]" : ""}`}
-              >
-                {line.split(" ").map((w, wi) => (
-                  <span key={`${w}-${wi}`} data-sword className="inline-block">
-                    {w}
-                    {" "}
-                  </span>
-                ))}
-              </span>
-            ))}
-          </p>
-        </div>
-
         {/* Scroll cue at rest: a short line travelling down. */}
         <div
           data-cue
@@ -436,16 +384,13 @@ function Column({
   return (
     <div
       aria-hidden={shared ? undefined : true}
-      {...(shared ? { "data-shared": "" } : {})}
       className={`pointer-events-none absolute inset-0 flex flex-col items-center px-6 pb-[6.5rem] pt-28 text-center sm:pb-[9%] lg:pt-32 ${shared ? "z-[2]" : ""}`}
     >
       <p className={`hero-ease label-caps text-cream/75 ${ghost}`} style={d(200)}>
         {hero.kicker}
       </p>
       <Title
-        {...(shared
-          ? { id: "hero-title", "aria-label": hero.title, "aria-describedby": "hero-statement" }
-          : {})}
+        {...(shared ? { id: "hero-title", "aria-label": hero.title } : {})}
         className="mt-auto flex flex-col items-center"
       >
         <span
@@ -478,11 +423,6 @@ function Column({
           </span>
         </span>
       </Title>
-      {shared && (
-        <span id="hero-statement" className="sr-only">
-          {c.statement.join(" ")}
-        </span>
-      )}
       <div
         className={`hero-ease mt-6 flex flex-col items-center gap-2.5 ${shared ? "pointer-events-auto" : "invisible"}`}
         style={d(900)}
