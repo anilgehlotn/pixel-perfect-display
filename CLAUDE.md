@@ -145,29 +145,35 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): one continuous shot played by the scroll (GSAP scrub,
-   reversible), Apple-style restraint: no captions, chips, ratings or extra text in the hero.
+1. **Hero** (`Hero.tsx`), "steeping": one continuous shot played by the scroll (GSAP scrub,
+   reversible), Apple-style restraint: no captions, chips, ratings or extra text.
    - At rest: the black and white serum world (`media.hero.serum`) fills the screen: kicker,
      "Skin care you apply." ("apply." as a thin outline), one button and "From" price, a
      small "Scroll" cue.
    - As you scroll: the photo pulls back into a rounded frame on a black stage (`data-card`,
      scale 1.06 to 0.86; at 1.06 its corners are off-screen) and dims; a coral drop of tea
-     falls onto the headline; "apply." lifts away letter by letter as it lands and two
-     ripples spread; colour blooms out from there in a growing circle with a soft rim
-     (`.hero-rim`) while the frame opens back to full bleed. "drink." rises letter by letter,
-     with a spec line (`facts`, thin dividers) underneath. Steam in the tea world on desktop.
+     falls onto the headline; "apply." lifts away letter by letter; the photo ripples like a
+     liquid surface where it lands (real refraction) and the colour (`media.hero.image`)
+     steeps outward like tea spreading through water: an organic, slowly shifting edge with
+     a warm glowing rim and a slight colour split, and a warm stain creeping just ahead of
+     it. The frame opens back to full bleed, "drink." rises letter by letter (both words
+     share one grid cell), the spec line (`facts`) and the steam (desktop) arrive.
+   - Rendering: `lib/animations/hero-shader.ts`, a small WebGL 1 shader (one quad, the two
+     photos as textures, fractal noise for the edge). It draws only when something changes
+     (scroll, pointer, or the living edge while the colour is in between), pauses
+     off-screen, caps the pixel ratio (1.5 phones, 2 desktop) and fades in after the hero
+     entrance. The server HTML and the fallback (no WebGL, context lost, still loading) are
+     the two `<img>` layers with the same grading, crossfaded by the same scroll values.
+     Client-approved exception to "transform and opacity only" (the canvas is redrawn; the
+     DOM still only moves transform and opacity).
    - The hero sticks (CSS `position: sticky` in a 260svh track; `svh`, not `dvh`, so the
      phone address bar never resizes it).
    - Phones (priority): scrub 0.5 and snap: one short swipe plays the whole shot, a short
      swipe back returns to black and white, so it never rests half-way. Desktop: scrub 1.2,
-     no snap, photos follow the pointer slightly. Nothing plays by itself.
-     Client-requested exception to the mobile "no scrub" rule (transform and opacity only).
-   - Bloom technique: the circle scales up while its content scales down by the same factor,
-     so only the round window grows. It starts at 2% of full size (hidden before that): never
-     smaller, or the counter-scale makes the browser draw the photo at a huge zoom. Geometry
-     comes from layout offsets, so the card's scale does not affect it.
-   - Reduced motion: no track (`motion-safe:` height), colour at once. No JavaScript: the
-     black and white serum world. Fine film grain over both photos.
+     no snap, the scene tilts slightly with the pointer (shader uniform). Nothing plays by
+     itself. Client-requested exception to the mobile "no scrub" rule.
+   - Reduced motion: no track (`motion-safe:` height), no shader, colour at once. No
+     JavaScript: the black and white serum world.
      **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
      under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
      still on phones.
@@ -462,6 +468,7 @@ Built with GSAP (ScrollTrigger, SplitText, `useGSAP`) and Lenis. Everything live
 | `presets.ts`             | The reusable animations: `heading`, `fade`, `cards`, `tilt`, `draw`, `pop`, `countUp`, `footerReveal`                  |
 | `useScrollAnimations.ts` | Hook used by each page: runs the preset named in every `data-anim` (and every `data-count`) inside the page            |
 | `hero.ts`                | Homepage hero entrance timeline                                                                                        |
+| `hero-shader.ts`         | Homepage hero WebGL renderer: black and white to colour "steeping" with ripples, organic edge, glow                    |
 | `why-edible.ts`          | "Why edible" drawing: three-step story that plays once in view; step buttons replay a step (no pinning)                |
 | `intro.ts`               | Intro loader: timings, the inline `<head>` script and its CSS                                                          |
 | `smooth-scroll.ts`       | Lenis setup (desktop only) and stop/start for the scroll lock                                                          |

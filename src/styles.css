@@ -392,15 +392,6 @@
     animation: hero-wisp 6s ease-in-out infinite;
   }
 }
-/* Hero bloom rim: a soft bright edge on the growing colour circle. */
-.hero-rim {
-  background: radial-gradient(
-    closest-side,
-    transparent 93%,
-    rgb(253 250 247 / 0.35) 98.5%,
-    transparent 100%
-  );
-}
 /* Hero scroll cue: a short line travelling down. */
 @keyframes hero-scroll-cue {
   from {
