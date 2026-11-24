@@ -150,9 +150,12 @@ order (`src/routes/index.tsx`):
    caption "On your face" with fact chips). Colour then rises from the bottom like tea filling
    a cup, with a thin glowing edge: the tea world (`media.hero.image`, "drink." in solid
    letters, "In your cup" caption, steam on desktop) replaces it as the edge passes.
-   - Every device: the fill plays once (1.8s) on the first scroll or touch, or by itself
-     after 3s. No pinning or scrub (it is a shop: products must be one scroll away). Phones
-     show the captions centred above the headline; desktop shows a "Scroll to drink" cue.
+   - Every device: the hero sticks (CSS `position: sticky` in a 200dvh track) and the fill
+     follows the scroll (GSAP scrub 0.9), with a slow push-in on the black and white photo and
+     the colour photo settling from 1.12. Scrolling back up returns to black and white. Nothing
+     plays by itself. Client-requested exception to the mobile "no scrub" rule (transform
+     only). Phones show the captions centred above the headline; a "Scroll to drink" cue shows
+     until the fill starts. Reduced motion: no track (`motion-safe:` height).
    - Transform-only: the fill wrapper moves up while its content moves down by the same
      amount. `Column` keeps the shared copy (real h1 and button) and each world's word aligned.
      Fine film grain over both photos. Reduced motion: shown in colour at once. No JavaScript:
@@ -486,7 +489,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Black and white; pinned, colour fill rises with the scroll (scrub)         | Colour fill plays once on first scroll (or 3s)    |
+| Hero                                  | Black and white; sticky, colour fill rises with the scroll (scrub)         | Same (client-requested exception)                 |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |

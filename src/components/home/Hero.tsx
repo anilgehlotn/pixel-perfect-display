@@ -12,36 +12,41 @@ import { Img } from "./media";
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
 /**
- * 1. HERO: black and white to colour, like tea filling a cup.
+ * 1. HERO: black and white to colour, like tea filling a cup, driven by the scroll.
  *
  * The serum world fills the screen in greyscale ("Skin care you apply.", "apply." as an
  * outline). The tea world sits on top inside a "fill" that rises from the bottom: its wrapper
  * moves up while its content moves down by the same amount, so the colour climbs the screen
  * with a soft glowing edge, and "apply." turns into "drink." as the edge passes the word.
  *
- * - Every device: the fill plays once, 1.8s, as soon as the visitor starts scrolling, or by
- *   itself after 3s. No pinning or scrubbing.
- * - Reduced motion: shown straight away in colour. No JavaScript: black and white.
+ * - The hero sticks to the screen (CSS `position: sticky` inside a taller track) and the fill
+ *   follows the scroll position, smoothed (scrub), on every device. Scrolling back up brings
+ *   the black and white photo back. About one screen of scroll, then the page carries on.
+ * - Reduced motion: no track, shown straight away in colour. No JavaScript: black and white.
  * Transform-only.
  */
 export function Hero({ featured }: { featured: Product }) {
+  const track = useRef<HTMLDivElement>(null);
   const section = useRef<HTMLElement>(null);
   usePauseWhenHidden(section);
 
   useGSAP(
     () => {
       const root = section.current;
-      if (!root) return;
+      const trackEl = track.current;
+      if (!root || !trackEl) return;
       const outer = root.querySelector<HTMLElement>("[data-fill-outer]");
       const inner = root.querySelector<HTMLElement>("[data-fill-inner]");
       const hint = root.querySelector<HTMLElement>("[data-fill-hint]");
+      const zoomOut = root.querySelector<HTMLElement>('[data-world-zoom="left"]');
+      const zoomIn = root.querySelector<HTMLElement>('[data-world-zoom="right"]');
       if (!outer || !inner) return;
       const fill = { p: 0 };
       const paint = () => {
         const off = (1 - fill.p) * 100;
-        outer.style.transform = `translateY(${off}%)`;
-        inner.style.transform = `translateY(${-off}%)`;
-        if (hint) hint.style.opacity = String(Math.max(0, 1 - fill.p * 3));
+        outer.style.transform = `translate3d(0, ${off}%, 0)`;
+        inner.style.transform = `translate3d(0, ${-off}%, 0)`;
+        if (hint) hint.style.opacity = String(Math.max(0, 1 - fill.p * 4));
       };
       const mm = gsap.matchMedia();
       mm.add(MOTION_CONDITIONS, (ctx) => {
@@ -53,82 +58,88 @@ export function Hero({ featured }: { featured: Product }) {
         }
         fill.p = 0;
         paint();
-        // Every device: play once on the first scroll, or after 3s. No pinning: this is a
-        // shop, the products must be one scroll away.
-        let played = false;
-        const play = () => {
-          if (played) return;
-          played = true;
-          window.removeEventListener("scroll", play);
-          window.removeEventListener("touchmove", play);
-          gsap.to(fill, { p: 1, duration: 1.8, ease: "power2.inOut", onUpdate: paint });
-        };
-        const intro = document.documentElement.dataset["intro"] === "mobile" ? 800 : 0;
-        const timer = window.setTimeout(play, 3000 + intro);
-        window.addEventListener("scroll", play, { passive: true });
-        window.addEventListener("touchmove", play, { passive: true });
+        const zooms = [zoomOut, zoomIn].filter(Boolean) as HTMLElement[];
+        // Scroll-linked and reversible: a short hold, the fill (with a slow push-in on the
+        // black and white photo and the colour photo settling from 1.12), then a short hold.
+        const tl = gsap.timeline({
+          defaults: { ease: "none" },
+          scrollTrigger: {
+            trigger: trackEl,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 0.9,
+            onToggle: (self) => gsap.set(zooms, { willChange: self.isActive ? "transform" : "" }),
+          },
+        });
+        tl.to({}, { duration: 0.08 })
+          .to(fill, { p: 1, duration: 0.8, ease: "power1.inOut", onUpdate: paint }, 0.08)
+          .fromTo(zoomOut, { scale: 1 }, { scale: 1.08, duration: 0.8 }, 0.08)
+          .fromTo(zoomIn, { scale: 1.12 }, { scale: 1, duration: 0.8, ease: "power1.out" }, 0.08)
+          .to({}, { duration: 0.12 });
         return () => {
-          window.clearTimeout(timer);
-          window.removeEventListener("scroll", play);
-          window.removeEventListener("touchmove", play);
+          tl.scrollTrigger?.kill();
+          tl.kill();
+          gsap.set(zooms, { clearProps: "transform,willChange" });
         };
       });
       return () => mm.revert();
     },
-    { scope: section },
+    { scope: track },
   );
 
   return (
-    <section
-      data-hero-fill
-      ref={section}
-      aria-labelledby="hero-title"
-      className="relative h-[100dvh] min-h-[36rem] overflow-hidden bg-ink text-cream"
-    >
-      {/* Serum world: black and white, underneath. */}
-      <World side="left" media={media.hero.serum} featured={featured} />
-
-      {/* Tea world: rises from the bottom. Wrapper moves up, content moves down. */}
-      <div
-        data-fill-outer
-        className="absolute inset-0 z-[1] overflow-hidden"
-        style={{ transform: "translateY(100%)" }}
+    <div ref={track} data-hero-track className="relative motion-safe:h-[200dvh]">
+      <section
+        data-hero-fill
+        ref={section}
+        aria-labelledby="hero-title"
+        className="sticky top-0 h-[100dvh] min-h-[36rem] overflow-hidden bg-ink text-cream"
       >
+        {/* Serum world: black and white, underneath. */}
+        <World side="left" media={media.hero.serum} featured={featured} />
+
+        {/* Tea world: rises from the bottom. Wrapper moves up, content moves down. */}
         <div
-          data-fill-inner
-          className="absolute inset-0"
-          style={{ transform: "translateY(-100%)" }}
+          data-fill-outer
+          className="absolute inset-0 z-[1] overflow-hidden"
+          style={{ transform: "translateY(100%)" }}
         >
-          <World side="right" media={media.hero.image} featured={featured} />
+          <div
+            data-fill-inner
+            className="absolute inset-0"
+            style={{ transform: "translateY(-100%)" }}
+          >
+            <World side="right" media={media.hero.image} featured={featured} />
+          </div>
+          {/* The rising edge: a thin bright line with a soft glow below it. */}
+          <span aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-cream/80" />
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cream/30 to-transparent"
+          />
         </div>
-        {/* The rising edge: a thin bright line with a soft glow below it. */}
-        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-cream/80" />
-        <span
+
+        {/* Shared copy on top. */}
+        <Column layer="shared" featured={featured} />
+
+        {/* Scroll cue, fades as the colour rises. */}
+        <div
+          data-fill-hint
           aria-hidden="true"
-          className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cream/30 to-transparent"
-        />
-      </div>
-
-      {/* Shared copy on top. */}
-      <Column layer="shared" featured={featured} />
-
-      {/* Hint (desktop), fades as the colour rises. */}
-      <div
-        data-fill-hint
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-5 z-[3] hidden lg:block"
-      >
-        <p
-          className="hero-ease flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-cream/80"
-          style={d(1400)}
+          className="pointer-events-none absolute inset-x-0 bottom-5 z-[3] motion-reduce:hidden"
         >
-          {hero.compare.hint}
-          <span className="relative block h-8 w-px overflow-hidden bg-cream/25">
-            <span className="hero-scroll-cue absolute inset-x-0 top-0 h-1/2 bg-cream" />
-          </span>
-        </p>
-      </div>
-    </section>
+          <p
+            className="hero-ease flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-cream/80"
+            style={d(1400)}
+          >
+            {hero.compare.hint}
+            <span className="relative block h-8 w-px overflow-hidden bg-cream/25">
+              <span className="hero-scroll-cue absolute inset-x-0 top-0 h-1/2 bg-cream" />
+            </span>
+          </p>
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -222,12 +233,14 @@ function World({
   return (
     <div className="absolute inset-0">
       <div className="hero-settle absolute inset-0" style={d(0)}>
-        <Img
-          media={m}
-          priority={!left}
-          sizes="100vw"
-          className={`h-full w-full ${left ? "object-[35%_60%] grayscale brightness-[0.8] contrast-[1.08]" : "object-[60%_60%] saturate-[1.15]"}`}
-        />
+        <div data-world-zoom={side} className="absolute inset-0">
+          <Img
+            media={m}
+            priority
+            sizes="100vw"
+            className={`h-full w-full ${left ? "object-[35%_60%] grayscale brightness-[0.8] contrast-[1.08]" : "object-[60%_60%] saturate-[1.15]"}`}
+          />
+        </div>
       </div>
       <div
         aria-hidden="true"
