@@ -475,21 +475,14 @@ export const ingredients: Ingredient[] = [
 // Comparison table (homepage and product page). Claims about other products stay general
 // and factual; the client should confirm this table before launch.
 export const comparison = {
-  eyebrow: "SkinFusion vs. the rest",
-  title: "Made from food, not flavourings",
+  eyebrow: "Why SkinFusion",
+  title: "SkinFusion vs. the rest",
   text: "Most tea bags hold crushed leaf and flavourings. Ours hold four whole ingredients from a two-thousand-year-old tradition, and nothing else.",
   columns: ["SkinFusion", "Regular tea bags", "Beauty supplements"],
   ourTag: "Whole-food tea",
-  // Chips that float around the cup, and the big numbers (true facts only).
-  chips: ["Whole ingredients", "Caffeine free", "No added sugar"],
-  stats: [
-    { value: "4", label: "whole foods in every bag" },
-    { value: "0", label: "caffeine" },
-    { value: "0", label: "added sugar or flavourings" },
-    { value: "2,000", label: "years of tradition behind it" },
-  ],
-  cardsTitle: "How it compares",
-  swipe: "Swipe to compare",
+  // Caption on the arch photo, and the small line under the board.
+  photoCaption: "One cup a day",
+  note: "Compared with typical products in each group. Labels vary by brand.",
   compareWith: "Compare SkinFusion with",
   yes: "Yes",
   no: "No",

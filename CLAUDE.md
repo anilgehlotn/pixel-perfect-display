@@ -218,22 +218,22 @@ order (`src/routes/index.tsx`):
    step cards with icons (Leaf, ThermometerHot, Timer), the TCM line and a "See Skin Glow Tea"
    button. 2 columns of cards on phones, 4 on desktop. Copy: `home.howItWorks`, `ingredients`.
 6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx, `comparison` in
-   content.ts), a dark spec-sheet panel: deep green rounded block with a soft coral glow.
-   - Eyebrow "SkinFusion vs. the rest", cream headline "Made from food, not flavourings" and
-     the line; the cup (`media.comparison`, the brewed-cup photo) in a circle inside three
-     thin orbit rings, with three cream fact chips (`chips`) around it that float gently (CSS
-     `cmp-float`, paused off-screen); four big numbers (`stats`: 4 whole foods, 0 caffeine,
-     0 added sugar, 2,000 years) in a hairline grid; then "How it compares": a bright cream
-     SkinFusion card with a coral ring and five coral ticks (and "See Skin Glow Tea"),
-     beside two muted glass cards (Regular tea bags, Beauty supplements) listing each answer
-     under its point. Phones: SkinFusion card first, the other two in a sideways snap swipe
-     ("Swipe to compare"); from `lg` three columns.
-   - Animation (`lib/animations/comparison.ts`, each part once as it scrolls in): intro lines
-     rise; the rings draw themselves (stroke-dashoffset), the cup scales up into its circle,
-     the chips pop out with a spring; the numbers count up; the SkinFusion card rises, its
-     ticks pop one by one, the competitor cards glide in from the side. Desktop with a mouse
-     also: the cup drifts in its circle and the rings turn slowly with the scroll. Reduced
-     motion: nothing moves.
+   content.ts): a light section right after the green ingredients block (so the page
+   alternates), in the same language: eyebrow "Why SkinFusion" and title "SkinFusion vs. the
+   rest" on the left, the line and the competitor switch on the right. No numbers or chips
+   (the ingredients block already has the 4 / 0 / 0 counters).
+   - Below: the cup (`media.comparison`) in a tall arch like the ingredient cards, with a
+     "One cup a day" pill (sticky on desktop), beside a white comparison board: a raised green
+     SkinFusion column (leaf badge, coral ticks, "See Skin Glow Tea" at its foot) against one
+     competitor at a time. Phones: the arch on top, then each point with two tiles under it
+     (green SkinFusion tile, beige competitor tile). A small note under the board.
+   - Switch: a green pill slides to the chosen option (transform), and the competitor's
+     answers flip out and in row by row.
+   - Scroll (`lib/animations/comparison.ts`, once per part): intro rises; the arch rises
+     while the photo settles from 1.18 to 1 and the pill pops (desktop: the photo drifts in
+     the arch with the scroll); the board rises, the green column grows down (scaleY), the
+     rows reveal one by one (phones: the whole row first) with the ticks popping, a thin
+     coral line draws down the side, the button comes last. Reduced motion: nothing moves.
      The product page uses it with `cta={false}`.
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
    that opens the full-screen `VideoDialog`.

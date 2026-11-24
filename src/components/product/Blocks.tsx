@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Check, Coffee, Leaf, Minus, Pill, Plus } from "@phosphor-icons/react";
 import {
   comparison,
@@ -11,7 +11,7 @@ import { media, type MediaImage } from "@/data/media";
 import { Stars } from "@/components/site/Stars";
 import { Img } from "@/components/home/media";
 import { Icon } from "./icons";
-import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
+import { gsap } from "@/lib/animations/gsap";
 import { useComparisonReveal } from "@/lib/animations/comparison";
 
 /* Shared sections for the homepage and the product page. Copy comes from content.ts. */
@@ -69,225 +69,260 @@ export function SectionIntro({
 const OTHER_ICONS = [Coffee, Pill];
 
 /**
- * "SkinFusion vs. the rest", a dark spec-sheet panel (homepage, and the product page with
- * `cta={false}`): headline, the cup in a ringed circle with three floating fact chips, four
- * big counting numbers, then the comparison as cards: a bright raised SkinFusion card with
- * coral ticks beside two muted glass cards (phones: SkinFusion first, the others in a
- * sideways swipe). Animation: lib/animations/comparison.ts.
+ * "SkinFusion vs. the rest" (homepage, and the product page with `cta={false}`). A light
+ * section that follows the green ingredients block: title left and intro right (like the
+ * section above), then the cup in a tall arch (sticky on desktop) beside a comparison board.
+ * The board has a raised green SkinFusion column with coral ticks against one competitor at
+ * a time, chosen with a switch whose pill slides and whose answers flip over row by row.
+ * Phones: the arch on top, then each row as the point with two tiles under it.
+ * Animation: lib/animations/comparison.ts (scroll) and the switch below.
  */
 export function ComparisonTable({ cta = true }: { cta?: boolean }) {
   const [ours, ...others] = comparison.columns;
+  const [vs, setVs] = useState(0);
   const scope = useRef<HTMLElement>(null);
-  usePauseWhenHidden(scope);
+  const pill = useRef<HTMLSpanElement>(null);
+  const btns = useRef<(HTMLButtonElement | null)[]>([]);
+  const switching = useRef(false);
   useComparisonReveal(scope);
-  const chipPlace = [
-    "left-0 top-[12%] lg:-translate-x-[8%]",
-    "right-0 top-[44%] lg:translate-x-[6%]",
-    "bottom-[5%] left-[8%]",
-  ];
+
+  // The switch pill: sized to the active button, slid there (transform only).
+  useLayoutEffect(() => {
+    const el = pill.current;
+    const btn = btns.current[vs];
+    if (!el || !btn) return;
+    el.style.width = `${btn.offsetWidth}px`;
+    gsap.to(el, { x: btn.offsetLeft - 4, duration: 0.55, ease: "expo.out" });
+  }, [vs]);
+
+  // The competitor's answers flip in after a switch.
+  useEffect(() => {
+    if (!switching.current) return;
+    switching.current = false;
+    const swaps = scope.current?.querySelectorAll("[data-cmp-swap]");
+    if (!swaps?.length) return;
+    gsap.fromTo(
+      swaps,
+      { yPercent: 60, opacity: 0 },
+      {
+        yPercent: 0,
+        opacity: 1,
+        duration: 0.5,
+        ease: "expo.out",
+        stagger: 0.05,
+        clearProps: "transform,opacity",
+      },
+    );
+  }, [vs]);
+
+  const choose = (i: number) => {
+    if (i === vs) return;
+    const swaps = scope.current?.querySelectorAll("[data-cmp-swap]");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!swaps?.length || reduced) {
+      setVs(i);
+      return;
+    }
+    gsap.to(swaps, {
+      yPercent: -60,
+      opacity: 0,
+      duration: 0.2,
+      ease: "power2.in",
+      stagger: 0.03,
+      onComplete: () => {
+        switching.current = true;
+        setVs(i);
+      },
+    });
+  };
+
+  const other = others[vs] ?? others[0] ?? "";
+  const cols = "md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]";
   return (
-    <section ref={scope} aria-labelledby="compare-title" className="px-4 py-16 md:px-6 lg:py-24">
-      <div className="relative mx-auto max-w-[84rem] overflow-hidden rounded-card bg-green px-5 py-14 text-cream sm:px-10 lg:px-16 lg:py-20">
-        {/* Soft coral glow behind the cup. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-[22rem] h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl lg:top-[20rem] lg:h-[40rem] lg:w-[40rem]"
-        />
-
-        <div className="relative mx-auto max-w-2xl text-center">
-          <p data-cmp-intro className="text-sm font-medium tracking-[0.06em] text-cream/70">
-            {comparison.eyebrow}
-          </p>
-          <h2
-            id="compare-title"
-            data-cmp-intro
-            className="mt-3 text-[clamp(2.25rem,1.4rem+3.6vw,4.25rem)] font-normal leading-[1.05] tracking-[-0.03em] text-cream"
-          >
-            {comparison.title}
-          </h2>
-          <p data-cmp-intro className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-cream/75">
-            {comparison.text}
-          </p>
-        </div>
-
-        {/* The cup in its orbit, with floating fact chips. */}
-        <div className="relative mx-auto mt-12 aspect-square w-[min(86vw,26rem)] lg:mt-16 lg:w-[30rem]">
-          <div data-cmp-orbit className="absolute inset-0">
-            <svg
-              viewBox="0 0 200 200"
-              aria-hidden="true"
-              className="absolute inset-0 h-full w-full"
-            >
-              <circle
-                data-cmp-ring
-                cx="100"
-                cy="100"
-                r="98"
-                fill="none"
-                stroke="currentColor"
-                strokeOpacity="0.18"
-                strokeWidth="0.6"
-              />
-              <circle
-                data-cmp-ring
-                cx="100"
-                cy="100"
-                r="84"
-                fill="none"
-                stroke="currentColor"
-                strokeOpacity="0.28"
-                strokeWidth="0.6"
-                strokeDasharray="1.5 3"
-              />
-              <circle
-                data-cmp-ring
-                cx="100"
-                cy="100"
-                r="70"
-                fill="none"
-                stroke="currentColor"
-                strokeOpacity="0.4"
-                strokeWidth="0.6"
-              />
-            </svg>
+    <section ref={scope} aria-labelledby="compare-title" className="section-y px-4 md:px-6">
+      <div className="mx-auto max-w-[84rem]">
+        <div className="grid gap-5 lg:grid-cols-2 lg:items-end lg:gap-16">
+          <div>
+            <p data-cmp-intro className="mb-2 text-sm font-medium tracking-[0.06em] text-ink">
+              {comparison.eyebrow}
+            </p>
+            <h2 id="compare-title" data-cmp-intro className="title">
+              {comparison.title}
+            </h2>
           </div>
-          <div data-cmp-photo className="absolute inset-[16%] overflow-hidden rounded-full">
-            <div data-cmp-depth className="absolute -inset-4">
-              <Img
-                media={media.comparison}
-                sizes="(min-width: 1024px) 22rem, 60vw"
-                className="h-full w-full"
-              />
-            </div>
-          </div>
-          {comparison.chips.map((chip, i) => (
-            <span key={chip} className={`absolute ${chipPlace[i] ?? ""}`}>
-              <span data-cmp-chip className="block">
-                <span
-                  className="cmp-float flex items-center gap-2 rounded-full bg-cream py-2 pl-2 pr-4 text-sm text-green"
-                  style={{ animationDelay: `${-i * 1.6}s` }}
-                >
-                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-primary-foreground">
-                    <Check size={12} weight="bold" aria-hidden="true" />
-                  </span>
-                  {chip}
-                </span>
-              </span>
-            </span>
-          ))}
-        </div>
-
-        {/* Big numbers. */}
-        <dl className="relative mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-[1.5rem] bg-cream/15 lg:mt-16 lg:grid-cols-4">
-          {comparison.stats.map((st) => (
-            <div
-              key={st.label}
-              data-cmp-stat
-              className="flex flex-col-reverse gap-1 bg-green p-5 sm:p-7"
-            >
-              <dt className="text-sm leading-snug text-cream/70">{st.label}</dt>
-              <dd
-                data-cmp-count
-                className="text-[clamp(2.75rem,2rem+3vw,4.5rem)] leading-none tracking-[-0.03em] text-cream tabular-nums"
+          <div className="flex flex-col items-start gap-5">
+            <p data-cmp-intro className="max-w-xl text-lg leading-relaxed text-muted-foreground">
+              {comparison.text}
+            </p>
+            {others.length > 1 && (
+              <div
+                data-cmp-intro
+                role="group"
+                aria-label={comparison.compareWith}
+                className="relative inline-flex rounded-full bg-blush p-1"
               >
-                {st.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-
-        {/* The comparison as cards. */}
-        <div className="relative mt-14 lg:mt-20">
-          <div className="flex items-end justify-between gap-4">
-            <h3 data-cmp-intro className="text-2xl font-normal text-cream sm:text-3xl">
-              {comparison.cardsTitle}
-            </h3>
-            <p className="text-sm text-cream/60 lg:hidden">{comparison.swipe}</p>
+                <span
+                  ref={pill}
+                  aria-hidden="true"
+                  className="absolute bottom-1 left-1 top-1 rounded-full bg-green"
+                />
+                {others.map((c, i) => (
+                  <button
+                    key={c}
+                    ref={(el) => {
+                      btns.current[i] = el;
+                    }}
+                    type="button"
+                    aria-pressed={vs === i}
+                    onClick={() => choose(i)}
+                    className={`relative min-h-11 rounded-full px-4 text-sm transition-colors duration-300 sm:px-5 ${vs === i ? "text-cream" : "text-green hover:text-green/70"}`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="mt-6 grid gap-4 lg:grid-cols-3 lg:items-start">
-            {/* SkinFusion: bright and raised. */}
-            <div
-              data-cmp-ours
-              className="relative rounded-[1.75rem] bg-cream p-6 text-green ring-2 ring-primary sm:p-8 lg:-mt-4"
+        </div>
+
+        <div className="mt-10 grid gap-6 lg:mt-16 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-10">
+          {/* The cup in an arch (like the ingredient cards above); sticky on desktop. */}
+          <figure
+            data-cmp-arch
+            className="relative mx-auto w-full max-w-[17rem] sm:max-w-xs lg:sticky lg:top-28 lg:max-w-none"
+          >
+            <div className="relative aspect-[4/5] overflow-hidden rounded-b-[1.75rem] rounded-t-full bg-beige">
+              <div data-cmp-depth className="absolute -inset-6">
+                <Img
+                  media={media.comparison}
+                  sizes="(min-width: 1024px) 34vw, 70vw"
+                  className="h-full w-full"
+                />
+              </div>
+            </div>
+            <figcaption
+              data-cmp-chip
+              className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-cream py-2 pl-2 pr-4 text-sm text-green"
             >
-              <div className="flex items-center gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-full bg-primary text-primary-foreground">
-                  <Leaf size={22} weight="light" aria-hidden="true" />
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground">
+                <Leaf size={14} weight="light" aria-hidden="true" />
+              </span>
+              {comparison.photoCaption}
+            </figcaption>
+          </figure>
+
+          {/* The board. */}
+          <div>
+            <div data-cmp-board className="relative rounded-card bg-surface px-4 pb-4 pt-2 sm:px-6">
+              {/* A thin coral line that draws down the side as the rows reveal. */}
+              <span
+                data-cmp-line
+                aria-hidden="true"
+                className="absolute bottom-10 left-0 top-10 w-[2px] origin-top rounded-full bg-primary"
+              />
+              {/* The raised green SkinFusion column (tablet and up). */}
+              <div
+                aria-hidden="true"
+                className={`pointer-events-none absolute inset-x-4 bottom-4 top-2 hidden gap-3 sm:inset-x-6 md:grid ${cols}`}
+              >
+                <span />
+                <span data-cmp-col className="origin-top rounded-[1.25rem] bg-green" />
+                <span />
+              </div>
+
+              <div className={`relative grid grid-cols-2 items-end gap-3 pb-4 pt-5 ${cols}`}>
+                <span className="hidden md:block" />
+                <span
+                  data-cmp-head
+                  className="flex flex-col items-center text-center md:text-cream"
+                >
+                  <span className="mb-2 hidden h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground md:grid">
+                    <Leaf size={20} weight="light" aria-hidden="true" />
+                  </span>
+                  <span className="text-base text-green md:text-lg md:text-cream">{ours}</span>
+                  <span className="text-xs text-muted-foreground md:text-cream/70">
+                    {comparison.ourTag}
+                  </span>
                 </span>
-                <span>
-                  <span className="block text-xl">{ours}</span>
-                  <span className="block text-sm text-muted-foreground">{comparison.ourTag}</span>
+                <span data-cmp-head className="flex flex-col items-center text-center">
+                  <span className="mb-2 hidden h-10 w-10 place-items-center rounded-full bg-beige text-muted-foreground md:grid">
+                    {(() => {
+                      const ColIcon = OTHER_ICONS[vs] ?? Coffee;
+                      return <ColIcon size={20} weight="light" aria-hidden="true" />;
+                    })()}
+                  </span>
+                  <span className="overflow-hidden">
+                    <span
+                      data-cmp-swap
+                      className="block text-base text-muted-foreground md:text-lg"
+                    >
+                      {other}
+                    </span>
+                  </span>
                 </span>
               </div>
-              <ul className="mt-6 flex flex-col">
-                {comparison.rows.map((row) => (
-                  <li
-                    key={row.label}
-                    className="flex items-center gap-3 border-t border-green/10 py-3.5"
-                  >
-                    <span
-                      data-cmp-tick
-                      className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
+
+              <ul className="relative" aria-label={`${ours} compared with ${other}`}>
+                {comparison.rows.map((row) => {
+                  const v = row.values[vs + 1] ?? false;
+                  return (
+                    <li
+                      key={row.label}
+                      data-cmp-row
+                      className={`grid grid-cols-2 gap-3 border-t border-ink/[0.06] py-4 md:items-center md:py-5 ${cols}`}
                     >
-                      <Check size={14} weight="bold" aria-hidden="true" />
-                    </span>
-                    <span className="text-base leading-snug">
-                      {row.label}
-                      <span className="sr-only">: {answer(row.values[0] ?? false)}</span>
-                    </span>
-                  </li>
-                ))}
+                      <span
+                        data-cmp-label
+                        className="col-span-2 text-lg leading-snug text-green md:col-span-1"
+                      >
+                        {row.label}
+                      </span>
+                      <span className="flex items-center gap-2 rounded-[1rem] bg-green p-3 text-sm text-cream md:justify-center md:bg-transparent md:p-0">
+                        <span
+                          data-cmp-mark
+                          className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
+                        >
+                          <Check size={15} weight="bold" aria-hidden="true" />
+                        </span>
+                        {answer(row.values[0] ?? false)}
+                      </span>
+                      <span className="flex items-center overflow-hidden rounded-[1rem] bg-beige p-3 text-sm text-ink md:justify-center md:bg-transparent md:p-0 md:text-muted-foreground">
+                        <span data-cmp-swap className="flex items-center gap-2">
+                          {v === true ? (
+                            <Check
+                              size={17}
+                              weight="light"
+                              className="shrink-0 text-green"
+                              aria-hidden="true"
+                            />
+                          ) : v === false ? (
+                            <Minus
+                              size={17}
+                              weight="light"
+                              className="shrink-0 text-ink/40"
+                              aria-hidden="true"
+                            />
+                          ) : null}
+                          {answer(v)}
+                        </span>
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
+
               {cta && (
-                <a href={comparison.cta.href} className="btn btn-primary mt-4 w-full">
-                  {comparison.cta.label}
-                </a>
+                <div className={`relative grid gap-3 pt-3 ${cols}`}>
+                  <span className="hidden md:block" />
+                  <span data-cmp-cta className="block md:px-3">
+                    <a href={comparison.cta.href} className="btn btn-primary w-full">
+                      {comparison.cta.label}
+                    </a>
+                  </span>
+                </div>
               )}
             </div>
-
-            {/* The others: muted glass cards (phones: a sideways swipe). */}
-            <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 sm:-mx-10 sm:px-10 lg:col-span-2 lg:mx-0 lg:grid lg:grid-cols-2 lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden">
-              {others.map((name, ci) => {
-                const ColIcon = OTHER_ICONS[ci] ?? Coffee;
-                return (
-                  <div
-                    key={name}
-                    data-cmp-other
-                    className="w-[82%] shrink-0 snap-start rounded-[1.75rem] bg-cream/[0.06] p-6 ring-1 ring-cream/15 sm:w-[60%] sm:p-8 lg:w-auto"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="grid h-11 w-11 place-items-center rounded-full bg-cream/10 text-cream/80">
-                        <ColIcon size={22} weight="light" aria-hidden="true" />
-                      </span>
-                      <span className="text-xl text-cream/90">{name}</span>
-                    </div>
-                    <ul className="mt-6 flex flex-col">
-                      {comparison.rows.map((row) => {
-                        const v = row.values[ci + 1] ?? false;
-                        return (
-                          <li key={row.label} className="border-t border-cream/10 py-3.5">
-                            <span className="block text-xs text-cream/50">{row.label}</span>
-                            <span className="mt-1 flex items-center gap-2 text-base text-cream/85">
-                              {v === true ? (
-                                <Check size={16} weight="light" aria-hidden="true" />
-                              ) : v === false ? (
-                                <Minus
-                                  size={16}
-                                  weight="light"
-                                  className="text-cream/40"
-                                  aria-hidden="true"
-                                />
-                              ) : null}
-                              {answer(v)}
-                            </span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                );
-              })}
-            </div>
+            <p className="mt-4 text-sm text-muted-foreground">{comparison.note}</p>
           </div>
         </div>
       </div>

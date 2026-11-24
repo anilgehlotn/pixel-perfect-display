@@ -2,23 +2,21 @@ import type { RefObject } from "react";
 import { gsap, useGSAP } from "./gsap";
 import { afterInitialLoad, alreadySeen } from "./hydration";
 import { MOTION_CONDITIONS } from "./media";
-import { countUp } from "./presets";
 import { CLEAR_PROPS, failsafe, safely } from "./safety";
 
 /**
- * "SkinFusion vs. the rest" (dark spec-sheet panel). Each part plays once as it scrolls in:
- * - intro: eyebrow, headline and line rise one after another;
- * - the orbit: the three rings draw themselves, the cup scales up into its circle, and the
- *   three fact chips pop out around it with a spring (they then float, CSS, paused
- *   off-screen);
- * - the four big numbers count up from 0;
- * - the cards: the SkinFusion card rises, its five ticks pop one by one, then the two
- *   competitor cards glide in from the side.
- * Desktop with a mouse also gets two scroll-linked touches: the cup drifts inside its circle
- * and the rings turn slowly.
- * Hooks: data-cmp-intro, -orbit, -ring, -photo, -depth, -chip, -count, -ours, -tick, -other.
- * Transform and opacity only (plus SVG stroke-dashoffset for the rings, play once).
- * Reduced motion: nothing moves. Anything already on screen at first load is left alone.
+ * "SkinFusion vs. the rest" scroll animation. Each part plays once as it scrolls in:
+ * - intro: eyebrow, title, line and the switch rise one after another;
+ * - the arch: rises while the cup photo inside settles from 1.18 to 1, then the caption pill
+ *   pops (desktop with a mouse: the photo also drifts inside the arch with the scroll);
+ * - the board: rises; the green SkinFusion column grows down from the top (scaleY); the
+ *   column headings come in; the rows reveal one by one (label rises, the coral tick pops
+ *   with a spring, the competitor answer settles) while a thin coral line draws down the
+ *   side; the button rises last.
+ * The competitor switch (pill slide, answers flipping) lives in the component.
+ * Hooks: data-cmp-intro, -arch, -depth, -chip, -board, -col, -line, -head, -row, -label,
+ * -mark, -swap, -cta. Transform and opacity only. Reduced motion: nothing moves. Anything
+ * already on screen at first load is left alone; every part has a failsafe.
  */
 export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
   useGSAP(
@@ -26,16 +24,15 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
       const found = scope.current;
       if (!found) return;
       const root: HTMLElement = found;
-      const qa = (sel: string) =>
-        Array.from(root.querySelectorAll<HTMLElement>(sel)).filter((e) => e.offsetParent !== null);
+      const qa = (el: ParentNode, sel: string) =>
+        Array.from(el.querySelectorAll<HTMLElement>(sel)).filter((e) => e.offsetParent !== null);
       const mm = gsap.matchMedia();
       mm.add(MOTION_CONDITIONS, (ctx) => {
         const { isReduced, isDesktop } = ctx.conditions as Record<string, boolean>;
         if (isReduced) return;
-        const stops: (() => void)[] = [];
         const d = isDesktop;
+        const stops: (() => void)[] = [];
 
-        /** Builds a play-once timeline on `trigger` and cleans its targets when done. */
         const once = (
           trigger: Element | undefined,
           targets: Element[],
@@ -56,84 +53,44 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
         const cancel = afterInitialLoad(() => {
           safely("comparison", root, () => {
             // Intro.
-            const intro = qa("[data-cmp-intro]").filter((e) => e.tagName !== "H3");
+            const intro = qa(root, "[data-cmp-intro]");
             once(intro[0], intro, (tl) =>
-              tl.from(intro, { y: d ? 40 : 24, opacity: 0, duration: d ? 1 : 0.7, stagger: 0.12 }),
+              tl.from(intro, { y: d ? 40 : 22, opacity: 0, duration: d ? 1 : 0.7, stagger: 0.1 }),
             );
 
-            // The orbit.
-            const orbit = root.querySelector<HTMLElement>("[data-cmp-orbit]");
-            const rings = Array.from(root.querySelectorAll<SVGCircleElement>("[data-cmp-ring]"));
-            const photo = qa("[data-cmp-photo]");
-            const chips = qa("[data-cmp-chip]");
-            if (orbit) {
+            // The arch.
+            const arch = qa(root, "[data-cmp-arch]")[0];
+            const depth = qa(root, "[data-cmp-depth]");
+            const chip = qa(root, "[data-cmp-chip]");
+            if (arch) {
               once(
-                orbit,
-                [...photo, ...chips],
-                (tl) => {
-                  rings.forEach((r, i) => {
-                    const len = 2 * Math.PI * Number(r.getAttribute("r"));
-                    const dash = r.getAttribute("stroke-dasharray");
-                    tl.fromTo(
-                      r,
-                      { strokeDasharray: `${len} ${len}`, strokeDashoffset: len },
-                      {
-                        strokeDashoffset: 0,
-                        duration: 1.6,
-                        ease: "power2.inOut",
-                        onComplete: () => {
-                          if (dash) r.style.strokeDasharray = dash;
-                          else r.style.removeProperty("stroke-dasharray");
-                          r.style.removeProperty("stroke-dashoffset");
-                        },
-                      },
-                      i * 0.15,
-                    );
-                  });
-                  tl.from(
-                    photo,
-                    { scale: 0.6, opacity: 0, duration: 1.2, ease: "expo.out" },
-                    0.25,
-                  ).from(
-                    chips,
-                    {
-                      scale: 0.4,
-                      opacity: 0,
-                      y: 20,
-                      duration: 0.8,
-                      ease: "back.out(2.2)",
-                      stagger: 0.14,
-                    },
-                    0.7,
-                  );
-                },
-                "top 80%",
+                arch,
+                [arch, ...chip],
+                (tl) =>
+                  tl
+                    .from(arch, { y: d ? 80 : 40, opacity: 0, duration: 1.2, ease: "expo.out" }, 0)
+                    .fromTo(
+                      depth,
+                      { scale: 1.18 },
+                      { scale: 1, duration: 1.8, ease: "expo.out", clearProps: "scale" },
+                      0,
+                    )
+                    .from(
+                      chip,
+                      { y: 16, scale: 0.85, opacity: 0, duration: 0.7, ease: "back.out(2)" },
+                      0.6,
+                    ),
+                "top 88%",
               );
-              // Desktop: the cup drifts in its circle and the rings turn with the scroll.
               if (d) {
-                const depth = qa("[data-cmp-depth]");
                 gsap.fromTo(
                   depth,
-                  { yPercent: -6 },
+                  { yPercent: -5 },
                   {
-                    yPercent: 6,
+                    yPercent: 5,
                     ease: "none",
                     scrollTrigger: {
-                      trigger: orbit,
-                      start: "top bottom",
-                      end: "bottom top",
-                      scrub: true,
-                    },
-                  },
-                );
-                gsap.fromTo(
-                  orbit,
-                  { rotate: -12 },
-                  {
-                    rotate: 12,
-                    ease: "none",
-                    scrollTrigger: {
-                      trigger: orbit,
+                      trigger: arch,
                       start: "top bottom",
                       end: "bottom top",
                       scrub: true,
@@ -143,34 +100,52 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
               }
             }
 
-            // Big numbers.
-            for (const el of qa("[data-cmp-count]"))
-              stops.push(countUp(el, d ? "desktop" : "mobile"));
-            const stats = qa("[data-cmp-stat]");
-            once(stats[0], stats, (tl) =>
-              tl.from(stats, { y: 24, opacity: 0, duration: 0.8, stagger: 0.08 }),
-            );
-
-            // The cards.
-            const ours = qa("[data-cmp-ours]");
-            const ticks = qa("[data-cmp-tick]");
-            const others = qa("[data-cmp-other]");
-            const title = qa("h3[data-cmp-intro]");
-            once(ours[0], [...title, ...ours, ...ticks, ...others], (tl) =>
-              tl
-                .from(title, { y: 20, opacity: 0, duration: 0.7 }, 0)
-                .from(ours, { y: d ? 70 : 40, opacity: 0, duration: 1, ease: "expo.out" }, 0.1)
-                .from(
-                  ticks,
-                  { scale: 0.2, opacity: 0, duration: 0.6, ease: "back.out(3)", stagger: 0.09 },
-                  0.45,
-                )
-                .from(
-                  others,
-                  { x: d ? 80 : 60, opacity: 0, duration: 1, ease: "expo.out", stagger: 0.15 },
-                  0.6,
-                ),
-            );
+            // The board.
+            const board = qa(root, "[data-cmp-board]")[0];
+            if (board) {
+              const col = qa(board, "[data-cmp-col]");
+              const line = qa(board, "[data-cmp-line]");
+              const heads = qa(board, "[data-cmp-head]");
+              const rows = qa(board, "[data-cmp-row]");
+              const cta = qa(board, "[data-cmp-cta]");
+              const parts = rows.flatMap((r) => [
+                ...qa(r, "[data-cmp-label]"),
+                ...qa(r, "[data-cmp-mark]"),
+                ...qa(r, "[data-cmp-swap]"),
+              ]);
+              once(
+                board,
+                [board, ...col, ...line, ...heads, ...rows, ...parts, ...cta],
+                (tl) => {
+                  tl.from(board, { y: d ? 60 : 30, opacity: 0, duration: 1, ease: "expo.out" }, 0)
+                    .from(col, { scaleY: 0, duration: 1.2, ease: "expo.inOut" }, 0.15)
+                    .from(heads, { y: 14, opacity: 0, duration: 0.6, stagger: 0.1 }, 0.5)
+                    .from(
+                      line,
+                      { scaleY: 0, duration: 0.4 + rows.length * 0.18, ease: "power1.inOut" },
+                      0.55,
+                    );
+                  rows.forEach((r, i) => {
+                    const at = 0.6 + i * 0.16;
+                    // Phones: the whole row (point and both tiles) rises in first.
+                    if (!d) tl.from(r, { y: 24, opacity: 0, duration: 0.7 }, at - 0.1);
+                    tl.from(qa(r, "[data-cmp-label]"), { y: 14, opacity: 0, duration: 0.6 }, at)
+                      .from(
+                        qa(r, "[data-cmp-mark]"),
+                        { scale: 0.2, opacity: 0, duration: 0.6, ease: "back.out(3)" },
+                        at + 0.1,
+                      )
+                      .from(
+                        qa(r, "[data-cmp-swap]"),
+                        { y: 12, opacity: 0, duration: 0.6 },
+                        at + 0.16,
+                      );
+                  });
+                  tl.from(cta, { y: 18, opacity: 0, duration: 0.7 }, 0.7 + rows.length * 0.16);
+                },
+                "top 82%",
+              );
+            }
           });
         });
         return () => {
