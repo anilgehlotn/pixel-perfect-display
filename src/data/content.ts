@@ -294,9 +294,11 @@ export const home = {
   results: {
     eyebrow: "Real results",
     title: "In our customers' own words",
-    text: "Drag each photo to compare before and after. Every photo is shared by the customer, with permission.",
+    text: "Drag each photo to compare before and after.",
     cta: { label: "See all stories", href: "/real-results" },
     weeksLabel: "weeks of daily cups",
+    // Shown on a slider while its photos are demo stock (media.results, isDemo: true).
+    demoTag: "Demo photos",
     items: [
       {
         quote:

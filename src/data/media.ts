@@ -266,6 +266,18 @@ const pair = (small: string, large: string): [string, number][] => [
   [small, 400],
   [large, 800],
 ];
+// Homepage results sliders: DESIGN-PREVIEW stock photos (different models, not real customers
+// and not real results). Before = black and white copy, after = colour. Replace with real
+// customer photos shared with written permission before launch.
+const resultPhoto = (n: number, side: "before" | "after", alt: string, id: string) =>
+  photo(
+    `result-${n}-${side}`,
+    alt,
+    [800, 1000],
+    `Pexels photographer (photo ${id})`,
+    `https://www.pexels.com/photo/${id}/`,
+  );
+
 const site = {
   brew: own(
     pair(brew400, brew800),
@@ -346,12 +358,42 @@ export const media = {
   ritual: { image: site.ritual, video: videos.teaSteam },
   reviews: [photos.windowTea, photos.handsGlass, site.ritual],
   // Homepage results section: one before/after slider per card (same order as
-  // home.results.items). ONLY real customer photos shared with written permission, never
-  // stock: until a photo is set, that side shows a "coming soon" panel.
+  // home.results.items). These are DEMO stock photos for the design preview (isDemo: true,
+  // shown with a "Demo photos" tag). Before launch: real customer photos shared with written
+  // permission, or null (that side then shows a "coming soon" panel).
   results: [
-    { before: null, after: null },
-    { before: null, after: null },
-    { before: null, after: null },
+    {
+      before: resultPhoto(
+        1,
+        "before",
+        "Demo before photo: a woman with blemishes, in black and white",
+        "6476076",
+      ),
+      after: resultPhoto(1, "after", "Demo after photo: a woman with clear skin", "3373721"),
+    },
+    {
+      before: resultPhoto(
+        2,
+        "before",
+        "Demo before photo: a woman with blemishes on her cheek, in black and white",
+        "6476074",
+      ),
+      after: resultPhoto(
+        2,
+        "after",
+        "Demo after photo: a woman with clear skin and warm lights",
+        "3764118",
+      ),
+    },
+    {
+      before: resultPhoto(
+        3,
+        "before",
+        "Demo before photo: a close-up of blemishes on a cheek, in black and white",
+        "6476077",
+      ),
+      after: resultPhoto(3, "after", "Demo after photo: a close-up of clear skin", "3373732"),
+    },
   ] as { before: MediaImage | null; after: MediaImage | null }[],
 } as const;
 

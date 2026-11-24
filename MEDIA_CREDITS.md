@@ -42,19 +42,25 @@ Each video has a matching poster: `posters/<same name>.webp`.
 
 ## Photos (Pexels)
 
-| File                         | Used in                 | Photographer           | Source                                                                                                      |
-| ---------------------------- | ----------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `photos/window-tea.webp`     | Product row, Stories    | Вальдемар              | https://www.pexels.com/photo/cross-legged-sitting-woman-holding-cup-of-tea-looking-through-window-11012771/ |
-| `photos/red-dates.webp`      | Not used (was sourcing) | Towfiqu barbhuiya      | https://www.pexels.com/photo/full-frame-of-drying-red-dates-12625117/                                       |
-| `photos/ginger-lemon.webp`   | Product row             | Angele J               | https://www.pexels.com/photo/ginger-and-2-lemon-fruit-128403/                                               |
-| `photos/glass-teapot.webp`   | Product gallery         | Teejay                 | https://www.pexels.com/photo/clear-glass-teapot-set-1362537/                                                |
-| `photos/teacup-mint.webp`    | Stories                 | Mareefe                | https://www.pexels.com/photo/peppermint-tea-on-teacup-1417945/                                              |
-| `photos/herbal-flatlay.webp` | Product row             | Olena Bohovyk          | https://www.pexels.com/photo/clear-glass-bowl-with-herbs-and-tea-3604314/                                   |
-| `photos/bathroom-shelf.webp` | Hero (serum side)       | Karola G               | https://www.pexels.com/photo/set-of-skin-care-products-in-contemporary-bathroom-4239013/                    |
-| `photos/bathroom-sink.webp`  | Closing CTA             | Monstera Production    | https://www.pexels.com/photo/sink-with-skincare-products-in-bathroom-6781117/                               |
-| `photos/hands-glass.webp`    | Stories                 | Vlada Karpovich        | https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/                                         |
-| `photos/hands-cup.webp`      | Product gallery         | Teona Swift            | https://www.pexels.com/photo/anonymous-woman-drinking-cup-of-hot-tea-at-home-6874185/                       |
-| `photos/jasmine-cup.webp`    | Hero (mirrored)         | To confirm on the page | https://www.pexels.com/photo/cup-of-aromatic-jasmine-tea-served-on-table-in-garden-7138780/                 |
+| File                          | Used in                                 | Photographer                        | Source                                                                                                      |
+| ----------------------------- | --------------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `photos/window-tea.webp`      | Product row, Stories                    | Вальдемар                           | https://www.pexels.com/photo/cross-legged-sitting-woman-holding-cup-of-tea-looking-through-window-11012771/ |
+| `photos/red-dates.webp`       | Not used (was sourcing)                 | Towfiqu barbhuiya                   | https://www.pexels.com/photo/full-frame-of-drying-red-dates-12625117/                                       |
+| `photos/ginger-lemon.webp`    | Product row                             | Angele J                            | https://www.pexels.com/photo/ginger-and-2-lemon-fruit-128403/                                               |
+| `photos/glass-teapot.webp`    | Product gallery                         | Teejay                              | https://www.pexels.com/photo/clear-glass-teapot-set-1362537/                                                |
+| `photos/teacup-mint.webp`     | Stories                                 | Mareefe                             | https://www.pexels.com/photo/peppermint-tea-on-teacup-1417945/                                              |
+| `photos/herbal-flatlay.webp`  | Product row                             | Olena Bohovyk                       | https://www.pexels.com/photo/clear-glass-bowl-with-herbs-and-tea-3604314/                                   |
+| `photos/bathroom-shelf.webp`  | Hero (serum side)                       | Karola G                            | https://www.pexels.com/photo/set-of-skin-care-products-in-contemporary-bathroom-4239013/                    |
+| `photos/bathroom-sink.webp`   | Closing CTA                             | Monstera Production                 | https://www.pexels.com/photo/sink-with-skincare-products-in-bathroom-6781117/                               |
+| `photos/hands-glass.webp`     | Stories                                 | Vlada Karpovich                     | https://www.pexels.com/photo/a-person-holding-a-cup-of-tea-6802967/                                         |
+| `photos/hands-cup.webp`       | Product gallery                         | Teona Swift                         | https://www.pexels.com/photo/anonymous-woman-drinking-cup-of-hot-tea-at-home-6874185/                       |
+| `photos/jasmine-cup.webp`     | Hero (mirrored)                         | To confirm on the page              | https://www.pexels.com/photo/cup-of-aromatic-jasmine-tea-served-on-table-in-garden-7138780/                 |
+| `photos/result-1-before.webp` | Results slider 1 (black and white copy) | Pexels photographer (photo 6476076) | https://www.pexels.com/photo/6476076/                                                                       |
+| `photos/result-1-after.webp`  | Results slider 1                        | Pexels photographer (photo 3373721) | https://www.pexels.com/photo/3373721/                                                                       |
+| `photos/result-2-before.webp` | Results slider 2 (black and white copy) | Pexels photographer (photo 6476074) | https://www.pexels.com/photo/6476074/                                                                       |
+| `photos/result-2-after.webp`  | Results slider 2                        | Pexels photographer (photo 3764118) | https://www.pexels.com/photo/3764118/                                                                       |
+| `photos/result-3-before.webp` | Results slider 3 (black and white copy) | Pexels photographer (photo 6476077) | https://www.pexels.com/photo/6476077/                                                                       |
+| `photos/result-3-after.webp`  | Results slider 3                        | Pexels photographer (photo 3373732) | https://www.pexels.com/photo/3373732/                                                                       |
 
 ## Still missing (download by hand if wanted)
 

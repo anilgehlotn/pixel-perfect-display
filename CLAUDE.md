@@ -202,10 +202,13 @@ order (`src/routes/index.tsx`):
    `/real-results`. Three customer cards, each a before/after drag slider
    (`components/site/BeforeAfter.tsx`, shared with /real-results: before on the left, after
    on the right, drag or arrow keys) with a "x weeks of daily cups" chip, then star rating,
-   quote, name and city. Photos come from `media.results`: real customer photos shared with
-   written permission, NEVER stock (that would be an invented result). Until a photo is
-   set, that side shows a "photo coming soon" panel (beige before, blush after). The quotes
-   are demo (`isDemo: true`). The old "Buy more, pay less" bundle block was removed; packs
+   quote, name and city. Photos come from `media.results`. For the design preview they are
+   DEMO stock photos from Pexels (`result-1..3-before/after.webp`, different models, the
+   before copies in black and white; `isDemo: true`), and each slider shows a "Demo photos"
+   tag (`home.results.demoTag`). Before launch they must become real customer photos shared
+   with written permission (stock as a real before/after is an invented result), or `null`:
+   that side then shows a "photo coming soon" panel (beige before, blush after). The quotes
+   are demo too (`isDemo: true`). The old "Buy more, pay less" bundle block was removed; packs
    are chosen on the product page, and the footer "Bundles" link goes there.
 5. **Ingredients** (`#ingredients`, `HowItWorks` in Sections.tsx): deep green block. Title with
    the intro beside it (desktop), then the four ingredients as cards: arch-shaped photo
@@ -678,8 +681,10 @@ Demo copy to confirm:
       the real origins
 - [ ] "How it fits your day": steeping time (about five minutes)
 - [ ] Results section (`home.results.items`, `isDemo: true`): three invented quotes (Ritika,
-      Sneha, Kavya), their weeks and ratings. Replace with real customers and add their real
-      before/after photos (with written permission) in `media.results`
+      Sneha, Kavya), their weeks and ratings, and the six DEMO before/after photos
+      (`photos/result-*.webp`, stock models, not real results). Replace with real customers
+      and their real before/after photos (with written permission) in `media.results`, or set
+      them to `null`. Never launch with the stock pairs
 - [ ] Delivery charge below ₹699 (`SHIPPING_FEE`, now ₹79)
 - [ ] One test order end to end with Razorpay test keys (see "Checkout and payments")
 - [ ] Order emails sent by the store backend use SkinFusion branding

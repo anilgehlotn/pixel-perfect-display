@@ -389,6 +389,11 @@ export function Results() {
                     after={m?.after?.src ?? null}
                     name={name}
                   />
+                  {(m?.before?.isDemo || m?.after?.isDemo) && (
+                    <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-ink/60 px-3 py-1 text-xs text-cream">
+                      {copy.demoTag}
+                    </span>
+                  )}
                   <span className="absolute bottom-3 left-3 rounded-full bg-background/85 px-3 py-1 text-xs text-green">
                     {item.weeks} {copy.weeksLabel}
                   </span>
