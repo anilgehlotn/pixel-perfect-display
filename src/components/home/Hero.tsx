@@ -12,23 +12,24 @@ import { Img } from "./media";
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
 /**
- * 1. HERO: black and white to colour, like tea filling a cup, driven by the scroll.
+ * 1. HERO: "the drop". Black and white until a drop of tea turns it into colour, on scroll.
  *
- * The serum world fills the screen in greyscale ("Skin care you apply.", "apply." as an
- * outline). The tea world sits on top inside a "fill" that rises from the bottom: its wrapper
- * moves up while its content moves down by the same amount, so the colour climbs the screen.
+ * At rest the serum world fills the screen in greyscale ("Skin care you apply.", "apply." as
+ * an outline). Scrolling plays a story (scrubbed, so it follows the finger and reverses):
+ * 1. The black and white photo pushes in and dims; its caption lifts away.
+ * 2. A drop of tea falls from the top and lands on the headline; "apply." lifts away letter
+ *    by letter as it lands, and ripples spread from the point of impact.
+ * 3. Colour blooms out from that point in a growing circle (with a soft bright rim) until the
+ *    tea world fills the screen; "drink." rises letter by letter out of the bloom, the colour
+ *    photo settles from 1.14 and the tea caption parts arrive one by one.
+ * A small "Apply / Drink" pill at the bottom fills with the scroll.
  *
- * Scroll story (scrubbed, reversible, transform and opacity only):
- * - The black and white photo pushes in and dims; its caption lifts away.
- * - A liquid surface (a glowing, gently moving wave line with a warm bloom under it) rises.
- * - "apply." lifts away letter by letter just before the surface reaches it; "drink." rises
- *   in letter by letter behind it while the colour photo settles from 1.14.
- * - The tea caption and its chips arrive one by one.
- * - Desktop with a mouse: both photos follow the pointer slightly (depth).
- * The hero sticks (CSS `position: sticky` in a 220svh track; `svh` so the phone address bar
- * never resizes it mid-scroll). Phones: a short scroll commits, the story then finishes on
- * its own (snap), so it never rests half-way. Reduced motion: no track,
- * colour at once. No JavaScript: black and white.
+ * Transform and opacity only. The bloom is a circle that scales up while its content scales
+ * down by the same factor (so the photo stays put and only the circular window grows).
+ * The hero sticks (CSS `position: sticky` in a 240svh track; `svh` so the phone address bar
+ * never resizes it). Phones: a short scroll commits and the story finishes by itself (snap),
+ * a short scroll back returns to black and white. Desktop: smoother scrub, photos follow the
+ * pointer slightly. Reduced motion: no track, colour at once. No JavaScript: black and white.
  */
 export function Hero({ featured }: { featured: Product }) {
   const track = useRef<HTMLDivElement>(null);
@@ -40,16 +41,19 @@ export function Hero({ featured }: { featured: Product }) {
       const root = section.current;
       const trackEl = track.current;
       if (!root || !trackEl) return;
-      const q = <T extends HTMLElement = HTMLElement>(sel: string) => root.querySelector<T>(sel);
+      const q = (sel: string) => root.querySelector<HTMLElement>(sel);
       const qa = (sel: string) => Array.from(root.querySelectorAll<HTMLElement>(sel));
-      const outer = q("[data-fill-outer]");
-      const inner = q("[data-fill-inner]");
-      const edge = q("[data-fill-edge]");
+      const bloom = q("[data-bloom]");
+      const bloomInner = q("[data-bloom-inner]");
+      const rim = q("[data-bloom-rim]");
+      const anchor = q("[data-word-anchor]");
+      const drop = q("[data-drop]");
+      const ripples = qa("[data-ripple]");
       const hint = q("[data-fill-hint]");
       const bar = q("[data-fill-bar]");
       const fromLabel = q("[data-fill-from]");
       const toLabel = q("[data-fill-to]");
-      if (!outer || !inner) return;
+      if (!bloom || !bloomInner || !anchor) return;
       const zoomOut = q('[data-world-zoom="left"]');
       const zoomIn = q('[data-world-zoom="right"]');
       const dim = q("[data-world-dim]");
@@ -59,37 +63,90 @@ export function Hero({ featured }: { featured: Product }) {
       const capIn = qa('[data-caption="right"] [data-cap-part]');
       const parallax = qa("[data-world-parallax]");
 
-      const fill = { p: 0 };
-      const paint = () => {
-        const off = (1 - fill.p) * 100;
-        outer.style.transform = `translate3d(0, ${off}%, 0)`;
-        inner.style.transform = `translate3d(0, ${-off}%, 0)`;
-        if (edge) {
-          edge.style.transform = `translate3d(0, ${off}%, 0)`;
-          // The surface fades as it reaches the top of the screen.
-          edge.style.opacity = String(Math.min(1, fill.p * 12, (1 - fill.p) * 6));
+      // Geometry: the impact point is the centre of the headline word; the bloom circle is
+      // just big enough to cover the screen from there. Measured, never animated.
+      const geo = { cx: 0, cy: 0, r: 1 };
+      const measure = () => {
+        const box = root.getBoundingClientRect();
+        const a = anchor.getBoundingClientRect();
+        const w = box.width;
+        const h = box.height;
+        geo.cx = a.left - box.left + a.width / 2;
+        geo.cy = a.top - box.top + a.height / 2;
+        geo.r =
+          Math.ceil(Math.hypot(Math.max(geo.cx, w - geo.cx), Math.max(geo.cy, h - geo.cy))) + 2;
+        const size = `${geo.r * 2}px`;
+        for (const el of [bloom, rim]) {
+          if (!el) continue;
+          el.style.left = `${geo.cx - geo.r}px`;
+          el.style.top = `${geo.cy - geo.r}px`;
+          el.style.width = size;
+          el.style.height = size;
         }
-        if (bar) bar.style.transform = `scaleX(${fill.p})`;
-        if (fromLabel) fromLabel.style.opacity = String(1 - fill.p * 0.55);
-        if (toLabel) toLabel.style.opacity = String(0.45 + fill.p * 0.55);
-        // The control fades out as the colour completes.
-        if (hint) hint.style.opacity = String(Math.min(1, (1 - fill.p) * 5));
+        bloomInner.style.left = `${geo.r - geo.cx}px`;
+        bloomInner.style.top = `${geo.r - geo.cy}px`;
+        bloomInner.style.width = `${w}px`;
+        bloomInner.style.height = `${h}px`;
+        bloomInner.style.transformOrigin = `${geo.cx}px ${geo.cy}px`;
+        for (const el of [drop, ...ripples]) {
+          if (!el) continue;
+          el.style.left = `${geo.cx}px`;
+          el.style.top = `${geo.cy}px`;
+        }
+      };
+
+      const state = { s: 0, p: 0 };
+      // The circle starts as a small splash (2% of full size), never smaller: below that the
+      // counter-scale would ask the browser to draw the photo at a huge zoom. Until then it
+      // is hidden (not painted at all).
+      const MIN = 0.02;
+      const paint = () => {
+        const on = state.s > MIN;
+        const s = Math.max(state.s, MIN);
+        bloom.style.visibility = on ? "visible" : "hidden";
+        bloom.style.transform = `scale(${s})`;
+        bloomInner.style.transform = `scale(${1 / s})`;
+        if (rim) {
+          rim.style.visibility = on ? "visible" : "hidden";
+          rim.style.transform = `scale(${s})`;
+          rim.style.opacity = String(Math.min(1, (1 - state.s) * 4));
+        }
+        if (bar) bar.style.transform = `scaleX(${state.p})`;
+        if (fromLabel) fromLabel.style.opacity = String(1 - state.p * 0.55);
+        if (toLabel) toLabel.style.opacity = String(0.45 + state.p * 0.55);
+        if (hint) hint.style.opacity = String(Math.min(1, (1 - state.p) * 5));
+      };
+      const showColour = () => {
+        state.s = 1;
+        state.p = 1;
+        paint();
       };
 
       const mm = gsap.matchMedia();
       mm.add(MOTION_CONDITIONS, (ctx) => {
         const { isReduced, isDesktop } = ctx.conditions as Record<string, boolean>;
+        measure();
         if (isReduced) {
-          fill.p = 1;
-          paint();
+          showColour();
           return;
         }
-        fill.p = 0;
+        state.s = 0;
+        state.p = 0;
         paint();
-        const moving = [zoomOut, zoomIn, ...applyChars, ...drinkChars, ...capOut, ...capIn].filter(
-          Boolean,
-        ) as HTMLElement[];
+        const moving = [
+          zoomOut,
+          zoomIn,
+          drop,
+          ...ripples,
+          ...applyChars,
+          ...drinkChars,
+          ...capOut,
+          ...capIn,
+        ].filter(Boolean) as HTMLElement[];
         gsap.set(moving, { transition: "none" });
+        if (drop) gsap.set(drop, { xPercent: -50, yPercent: -100, opacity: 0 });
+        if (ripples.length)
+          gsap.set(ripples, { xPercent: -50, yPercent: -50, scale: 0.2, opacity: 0 });
 
         const tl = gsap.timeline({
           defaults: { ease: "none" },
@@ -97,8 +154,12 @@ export function Hero({ featured }: { featured: Product }) {
             trigger: trackEl,
             start: "top top",
             end: "bottom bottom",
-            scrub: isDesktop ? 1.1 : 0.6,
-            // Phones: never rest half-way. A short scroll commits and the story finishes.
+            scrub: isDesktop ? 1.2 : 0.6,
+            invalidateOnRefresh: true,
+            onRefreshInit: measure,
+            onRefresh: paint,
+            onToggle: (self) =>
+              gsap.set(moving, { willChange: self.isActive ? "transform, opacity" : "" }),
             ...(isDesktop
               ? {}
               : {
@@ -106,52 +167,82 @@ export function Hero({ featured }: { featured: Product }) {
                     snapTo: (v: number, self?: ScrollTrigger) => {
                       if (v <= 0.001 || v >= 0.999) return v;
                       const down = (self?.direction ?? 1) > 0;
-                      return down ? (v > 0.1 ? 1 : 0) : v < 0.9 ? 0 : 1;
+                      return down ? (v > 0.08 ? 1 : 0) : v < 0.92 ? 0 : 1;
                     },
-                    duration: { min: 0.5, max: 1.1 },
-                    delay: 0.12,
+                    duration: { min: 0.7, max: 1.4 },
+                    delay: 0.1,
                     ease: "power2.inOut",
                   },
                 }),
-            onToggle: (self) =>
-              gsap.set(moving, { willChange: self.isActive ? "transform, opacity" : "" }),
           },
         });
-        // Timeline runs 0 to 1: a short hold, the fill from 0.06 to 0.86, a short hold.
+
+        // 0 to 1: hold, fall (0.05 to 0.27), impact at 0.27, bloom (0.27 to 0.85), hold.
+        const IMPACT = 0.27;
         tl.to({}, { duration: 1 }, 0)
-          .to(fill, { p: 1, duration: 0.8, ease: "power1.inOut", onUpdate: paint }, 0.06)
-          .fromTo(zoomOut, { scale: 1 }, { scale: 1.12, duration: 0.8 }, 0.06)
-          .fromTo(dim, { opacity: 0 }, { opacity: 0.55, duration: 0.6 }, 0.06)
-          .to(capOut, { y: -40, opacity: 0, duration: 0.22, ease: "power2.in" }, 0.08)
-          .to(
-            applyChars,
-            {
-              yPercent: -45,
-              opacity: 0,
-              duration: 0.16,
-              ease: "power2.in",
-              stagger: { each: 0.025, from: "start" },
-            },
-            0.2,
-          )
-          .fromTo(zoomIn, { scale: 1.14 }, { scale: 1, duration: 0.8, ease: "power2.out" }, 0.06)
+          .to(state, { p: 1, duration: 0.85, onUpdate: paint }, 0.05)
+          .fromTo(zoomOut, { scale: 1 }, { scale: 1.1, duration: 0.8 }, 0.05)
+          .fromTo(dim, { opacity: 0 }, { opacity: 0.5, duration: 0.25 }, 0.05)
+          .to(capOut, { y: -36, opacity: 0, duration: 0.16, ease: "power2.in" }, 0.06);
+        if (drop) {
+          tl.to(drop, { opacity: 1, duration: 0.04 }, 0.05)
+            .fromTo(
+              drop,
+              { y: () => -geo.cy - 40 },
+              { y: 0, duration: IMPACT - 0.05, ease: "power2.in" },
+              0.05,
+            )
+            .fromTo(
+              drop,
+              { scaleY: 1, scaleX: 1 },
+              { scaleY: 1.25, scaleX: 0.85, duration: IMPACT - 0.09, ease: "power1.in" },
+              0.07,
+            )
+            .to(drop, { scale: 0.2, opacity: 0, duration: 0.03, ease: "power1.out" }, IMPACT);
+        }
+        tl.to(
+          applyChars,
+          {
+            yPercent: -40,
+            opacity: 0,
+            duration: 0.12,
+            ease: "power2.in",
+            stagger: { each: 0.018, from: "center" },
+          },
+          IMPACT - 0.05,
+        );
+        ripples.forEach((el, i) => {
+          tl.fromTo(
+            el,
+            { scale: 0.2, opacity: 0.9 },
+            { scale: 2.6 + i * 1.2, opacity: 0, duration: 0.3, ease: "power2.out" },
+            IMPACT + i * 0.05,
+          );
+        });
+        tl.fromTo(
+          state,
+          { s: 0 },
+          { s: 1, duration: 0.58, ease: "power2.inOut", onUpdate: paint },
+          IMPACT,
+        )
+          .fromTo(zoomIn, { scale: 1.14 }, { scale: 1, duration: 0.6, ease: "power2.out" }, IMPACT)
           .fromTo(
             drinkChars,
             { yPercent: 70, opacity: 0 },
             {
               yPercent: 0,
               opacity: 1,
-              duration: 0.22,
+              duration: 0.18,
               ease: "power3.out",
-              stagger: { each: 0.035, from: "start" },
+              stagger: { each: 0.025, from: "center" },
             },
-            0.32,
+            IMPACT + 0.04,
           )
           .fromTo(
             capIn,
             { y: 24, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.16, ease: "power2.out", stagger: 0.04 },
-            0.5,
+            { y: 0, opacity: 1, duration: 0.14, ease: "power2.out", stagger: 0.035 },
+            0.6,
           );
 
         // Desktop with a mouse: the photos follow the pointer a little (depth).
@@ -188,7 +279,7 @@ export function Hero({ featured }: { featured: Product }) {
   );
 
   return (
-    <div ref={track} data-hero-track className="relative motion-safe:h-[220svh]">
+    <div ref={track} data-hero-track className="relative motion-safe:h-[240svh]">
       <section
         data-hero-fill
         ref={section}
@@ -198,35 +289,56 @@ export function Hero({ featured }: { featured: Product }) {
         {/* Serum world: black and white, underneath. */}
         <World side="left" media={media.hero.serum} featured={featured} />
 
-        {/* Tea world: rises from the bottom. Wrapper moves up, content moves down. */}
+        {/* Ripples where the drop lands. */}
+        {[0, 1].map((i) => (
+          <span
+            key={i}
+            data-ripple
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[1] block h-40 w-40 rounded-full border border-cream/70 opacity-0"
+          />
+        ))}
+
+        {/* Tea world: a circle that grows from the point of impact (content counter-scaled). */}
         <div
-          data-fill-outer
-          className="absolute inset-0 z-[1] overflow-hidden"
-          style={{ transform: "translateY(100%)" }}
+          data-bloom
+          className="absolute left-1/2 top-1/2 z-[1] h-0 w-0 overflow-hidden rounded-full"
+          style={{ visibility: "hidden" }}
         >
-          <div
-            data-fill-inner
-            className="absolute inset-0"
-            style={{ transform: "translateY(-100%)" }}
-          >
+          <div data-bloom-inner className="absolute">
             <World side="right" media={media.hero.image} featured={featured} />
           </div>
         </div>
-
-        {/* The liquid surface: moves with the fill, not clipped by it. */}
+        {/* A soft bright rim on the edge of the bloom. */}
         <div
-          data-fill-edge
+          data-bloom-rim
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-[1]"
-          style={{ transform: "translateY(100%)", opacity: 0 }}
+          className="hero-rim pointer-events-none absolute left-1/2 top-1/2 z-[1] h-0 w-0 rounded-full"
+          style={{ visibility: "hidden" }}
+        />
+
+        {/* The drop of tea. */}
+        <span
+          data-drop
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-[2] block w-6 opacity-0"
         >
-          <Meniscus />
-        </div>
+          <svg
+            viewBox="0 0 20 28"
+            className="block w-full drop-shadow-[0_0_10px_var(--color-primary)]"
+          >
+            <path
+              d="M10 0 C 10 0, 20 13, 20 18 A 10 10 0 0 1 0 18 C 0 13, 10 0, 10 0 Z"
+              className="fill-primary"
+            />
+            <ellipse cx="6.5" cy="17" rx="2" ry="3.2" className="fill-cream/70" />
+          </svg>
+        </span>
 
         {/* Shared copy on top. */}
         <Column layer="shared" featured={featured} />
 
-        {/* Progress control: "Apply" -> "Drink" with a line that fills with the scroll. */}
+        {/* Progress pill: "Apply" -> "Drink" with a line that fills with the scroll. */}
         <div
           data-fill-hint
           aria-hidden="true"
@@ -250,37 +362,6 @@ export function Hero({ featured }: { featured: Product }) {
           </p>
         </div>
       </section>
-    </div>
-  );
-}
-
-/**
- * The surface of the tea: a soft amber bloom under a thin glowing wave line that drifts
- * sideways (CSS loop, paused off-screen). Sits exactly on the top edge of the colour.
- */
-function Meniscus() {
-  const wave = "M0 10 C 100 2, 200 18, 300 10 S 500 2, 600 10 S 800 18, 900 10 S 1100 2, 1200 10";
-  return (
-    <div className="absolute inset-x-0 top-0">
-      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/30 via-primary/[0.08] to-transparent" />
-      <div className="absolute inset-x-0 -top-10 h-10 bg-gradient-to-t from-cream/15 to-transparent" />
-      <div className="absolute -top-[10px] left-0 h-5 w-full overflow-hidden">
-        <svg
-          viewBox="0 0 1200 20"
-          preserveAspectRatio="none"
-          className="hero-meniscus absolute left-0 top-0 h-full w-[200%] text-cream"
-        >
-          <path
-            d={wave}
-            fill="none"
-            stroke="currentColor"
-            strokeOpacity="0.35"
-            strokeWidth="6"
-            className="blur-[3px]"
-          />
-          <path d={wave} fill="none" stroke="currentColor" strokeOpacity="0.9" strokeWidth="1.2" />
-        </svg>
-      </div>
     </div>
   );
 }
@@ -328,7 +409,11 @@ function Column({
         >
           {c.prefix}
         </span>
-        <span aria-hidden="true" className="block overflow-hidden pb-[0.06em]">
+        <span
+          aria-hidden="true"
+          {...(shared ? { "data-word-anchor": "" } : {})}
+          className="block overflow-hidden pb-[0.06em]"
+        >
           <span
             className={`hero-word block text-[clamp(5rem,2.5rem+15vw,15rem)] leading-[0.95] tracking-[-0.05em] ${shared ? "invisible font-normal" : outline ? "hero-outline font-light" : "font-normal text-cream"}`}
             style={d(550)}

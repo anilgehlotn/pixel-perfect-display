@@ -392,19 +392,14 @@
     animation: hero-wisp 6s ease-in-out infinite;
   }
 }
-/* Hero liquid surface: the wave line drifts sideways (twice as wide, moves half its width). */
-@keyframes hero-meniscus {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .hero-meniscus {
-    animation: hero-meniscus 9s linear infinite;
-  }
+/* Hero bloom rim: a soft bright edge on the growing colour circle. */
+.hero-rim {
+  background: radial-gradient(
+    closest-side,
+    transparent 93%,
+    rgb(253 250 247 / 0.35) 98.5%,
+    transparent 100%
+  );
 }
 @keyframes hero-word {
   from {

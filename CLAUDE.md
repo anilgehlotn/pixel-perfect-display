@@ -145,29 +145,31 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`): starts in black and white. The serum world fills the screen
-   (`media.hero.serum`, greyscale, "Skin care you apply." with "apply." as a thin outline,
-   caption "On your face" with fact chips). Colour then rises from the bottom like tea filling
-   a cup, with a thin glowing edge: the tea world (`media.hero.image`, "drink." in solid
-   letters, "In your cup" caption, steam on desktop) replaces it as the edge passes.
-   - Every device: the hero sticks (CSS `position: sticky` in a 220svh track; `svh`, not
-     `dvh`, so the phone address bar never resizes it mid-scroll) and a scroll story follows
-     the scroll (GSAP scrub, reversible): the black and white photo pushes in and dims, its
-     caption lifts away, a liquid surface (`Meniscus`: glowing wave line, coral bloom) rises
-     with the colour, "apply." lifts away letter by letter while "drink." rises in letter by
-     letter, the colour photo settles from 1.14 and the tea caption parts arrive one by one.
-     A small "Apply / Drink" progress pill at the bottom fills with the scroll
+1. **Hero** (`Hero.tsx`), "the drop": starts in black and white (`media.hero.serum`,
+   greyscale, "Skin care you apply." with "apply." as a thin outline, caption "On your face"
+   with fact chips). Scrolling plays a story that follows the scroll (GSAP scrub) and
+   reverses on the way back:
+   - The black and white photo pushes in and dims; its caption lifts away.
+   - A coral drop of tea falls from the top and lands on the headline word; "apply." lifts
+     away letter by letter and two ripples spread from the point of impact.
+   - Colour blooms out from that point in a growing circle with a soft bright rim
+     (`.hero-rim`) until the tea world (`media.hero.image`, "drink.", "In your cup", steam on
+     desktop) fills the screen; "drink." rises letter by letter, the colour photo settles from
+     1.14 and the tea caption parts arrive one by one.
+   - An "Apply / Drink" progress pill at the bottom fills with the scroll
      (`hero.compare.progress`).
-   - Phones (priority): scrub 0.6 and snap: a short scroll (10% of the track) commits and the
+   - The hero sticks (CSS `position: sticky` in a 240svh track; `svh`, not `dvh`, so the
+     phone address bar never resizes it).
+   - Phones (priority): scrub 0.6 and snap: a short scroll (8% of the track) commits and the
      story finishes by itself, a short scroll back returns to black and white, so it never
-     rests half-way. A deeper top shade keeps the captions readable. Desktop: scrub 1.1, no
+     rests half-way. A deeper top shade keeps the captions readable. Desktop: scrub 1.2, no
      snap, photos follow the pointer slightly. Nothing plays by itself. Client-requested
      exception to the mobile "no scrub" rule (transform and opacity only).
-   - Reduced motion: no track (`motion-safe:` height), colour at once.
-   - Transform-only: the fill wrapper moves up while its content moves down by the same
-     amount. `Column` keeps the shared copy (real h1 and button) and each world's word aligned.
-     Fine film grain over both photos. Reduced motion: shown in colour at once. No JavaScript:
-     the black and white serum world.
+   - Bloom technique: the circle scales up while its content scales down by the same factor,
+     so only the round window grows. It starts at 2% of full size (hidden before that): never
+     smaller, or the counter-scale makes the browser draw the photo at a huge zoom.
+   - Reduced motion: no track (`motion-safe:` height), colour at once. No JavaScript: the
+     black and white serum world. Fine film grain over both photos.
      **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
      under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
      still on phones.
