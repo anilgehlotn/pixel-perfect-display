@@ -1,11 +1,32 @@
 import { useRef, useState, type PointerEvent } from "react";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 
-/** Beige box with a small label, shown where real customer media will go. */
-export function Placeholder({ label, className = "" }: { label: string; className?: string }) {
+/**
+ * Box with a small label, shown where real customer media will go. In the before/after
+ * slider the two sides get different tints (beige before, blush after) and each label sits
+ * in its own half, so the two empty sides still read as before and after.
+ */
+export function Placeholder({
+  label,
+  className = "",
+  side,
+}: {
+  label: string;
+  className?: string;
+  side?: "before" | "after";
+}) {
+  const tone = side === "after" ? "bg-blush" : "bg-beige";
+  const place =
+    side === "after" ? "justify-end" : side === "before" ? "justify-start" : "justify-center";
   return (
-    <div role="img" aria-label={label} className={`grid place-items-center bg-beige ${className}`}>
-      <span className="label-caps px-4 text-center text-[0.65rem] text-muted-foreground">
+    <div
+      role="img"
+      aria-label={label}
+      className={`flex items-center ${place} ${tone} ${className}`}
+    >
+      <span
+        className={`label-caps px-4 text-center text-[0.65rem] text-muted-foreground ${side ? "w-1/2" : ""}`}
+      >
         {label}
       </span>
     </div>
@@ -80,19 +101,24 @@ export function BeforeAfter({
           className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (
-        <Placeholder label="Customer photo coming soon" className="absolute inset-0" />
+        <Placeholder label="After photo coming soon" side="after" className="absolute inset-0" />
       )}
-      <div className="absolute inset-0 overflow-hidden" style={{ width: `${pos}%` }}>
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{ width: `${pos}%`, ["--ba-w" as string]: `${(100 / pos) * 100}%` }}
+      >
         {before ? (
           <img
             src={before}
             alt={`${name} before`}
-            className="absolute inset-0 h-full w-full object-cover"
+            // Full slider width (not the clipped width), so it lines up with the after photo.
+            className="absolute inset-y-0 left-0 h-full w-[var(--ba-w)] max-w-none object-cover"
           />
         ) : (
           <Placeholder
-            label="Customer photo coming soon"
-            className="absolute inset-0 h-full w-full"
+            label="Before photo coming soon"
+            side="before"
+            className="absolute inset-y-0 left-0 w-[var(--ba-w)]"
           />
         )}
       </div>

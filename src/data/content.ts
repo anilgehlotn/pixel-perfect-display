@@ -288,13 +288,13 @@ export const home = {
     cta: "Add to cart",
     added: "Added",
   },
-  // Results section (replaces the old bundle block). Each card shows a before/after slider
-  // once that customer's real photos are in media.results; until then, their ritual photo.
+  // Results section (replaces the old bundle block): one before/after slider per customer,
+  // with their real photos from media.results.
   // isDemo quotes are invented for the preview: replace with real, permitted ones.
   results: {
     eyebrow: "Real results",
     title: "In our customers' own words",
-    text: "How a daily cup of Skin Glow Tea fits into real days. Before and after photos appear here only when customers share their own.",
+    text: "Drag each photo to compare before and after. Every photo is shared by the customer, with permission.",
     cta: { label: "See all stories", href: "/real-results" },
     weeksLabel: "weeks of daily cups",
     items: [

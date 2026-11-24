@@ -199,13 +199,14 @@ order (`src/routes/index.tsx`):
    `howItWorks`, `skinLayers`.
 4. **Results** (`#results`, `Results` in Sections.tsx, `home.results` copy, `media.results`
    photos): blush block, eyebrow "Real results", title, short line and "See all stories" to
-   `/real-results`. Three customer cards: photo (4:3 on phones, 4:5 from `md`) with a
-   "x weeks of daily cups" chip, star rating, quote, name and city. A card becomes the drag
-   before/after slider (`components/site/BeforeAfter.tsx`, shared with /real-results) only
-   when both `before` and `after` are set in `media.results`: real customer photos shared
-   with permission, NEVER stock (that would be an invented result). The quotes are demo
-   (`isDemo: true`). The old "Buy more, pay less" bundle block was removed; packs are
-   chosen on the product page, and the footer "Bundles" link goes there.
+   `/real-results`. Three customer cards, each a before/after drag slider
+   (`components/site/BeforeAfter.tsx`, shared with /real-results: before on the left, after
+   on the right, drag or arrow keys) with a "x weeks of daily cups" chip, then star rating,
+   quote, name and city. Photos come from `media.results`: real customer photos shared with
+   written permission, NEVER stock (that would be an invented result). Until a photo is
+   set, that side shows a "photo coming soon" panel (beige before, blush after). The quotes
+   are demo (`isDemo: true`). The old "Buy more, pay less" bundle block was removed; packs
+   are chosen on the product page, and the footer "Bundles" link goes there.
 5. **Ingredients** (`#ingredients`, `HowItWorks` in Sections.tsx): deep green block. Title with
    the intro beside it (desktop), then the four ingredients as cards: arch-shaped photo
    (`media.ingredients`, zooms slightly on hover), number 01-04, name, hanzi and pinyin, and a
@@ -677,9 +678,8 @@ Demo copy to confirm:
       the real origins
 - [ ] "How it fits your day": steeping time (about five minutes)
 - [ ] Results section (`home.results.items`, `isDemo: true`): three invented quotes (Ritika,
-      Sneha, Kavya), their weeks and ratings, and the lifestyle photos in `media.results`.
-      Replace with real customers; add their real before/after photos (with written
-      permission) to turn the cards into sliders
+      Sneha, Kavya), their weeks and ratings. Replace with real customers and add their real
+      before/after photos (with written permission) in `media.results`
 - [ ] Delivery charge below ₹699 (`SHIPPING_FEE`, now ₹79)
 - [ ] One test order end to end with Razorpay test keys (see "Checkout and payments")
 - [ ] Order emails sent by the store backend use SkinFusion branding

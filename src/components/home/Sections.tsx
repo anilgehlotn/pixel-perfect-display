@@ -340,10 +340,11 @@ export function ProductCard({ p, sizes }: { p: Product; sizes?: string }) {
   );
 }
 
-/* 4. RESULTS: three customer cards in a blush block. Each card shows that customer's
-   before/after drag slider once their real photos are in media.results (shared with
-   permission, never stock); until then, their ritual photo. Then rating, quote, name and
-   how long they have been drinking it. Stacked on phones, three columns from md. */
+/* 4. RESULTS: three customer cards in a blush block. Each card is a before/after drag
+   slider (before on the left, after on the right) with that customer's real photos from
+   media.results (shared with permission, never stock); a side without a photo yet shows a
+   "coming soon" panel. Then rating, quote, name and how long they have been drinking it.
+   Stacked on phones, three columns from md. */
 export function Results() {
   const copy = home.results;
   return (
@@ -383,17 +384,11 @@ export function Results() {
                 className="flex flex-col overflow-hidden rounded-[1.5rem] bg-surface"
               >
                 <div className="relative overflow-hidden">
-                  {m?.before && m.after ? (
-                    <BeforeAfter before={m.before.src} after={m.after.src} name={name} />
-                  ) : m ? (
-                    <div className="aspect-[4/3] md:aspect-[4/5]">
-                      <Img
-                        media={m.photo}
-                        sizes="(min-width: 768px) 30vw, 100vw"
-                        className="h-full w-full"
-                      />
-                    </div>
-                  ) : null}
+                  <BeforeAfter
+                    before={m?.before?.src ?? null}
+                    after={m?.after?.src ?? null}
+                    name={name}
+                  />
                   <span className="absolute bottom-3 left-3 rounded-full bg-background/85 px-3 py-1 text-xs text-green">
                     {item.weeks} {copy.weeksLabel}
                   </span>

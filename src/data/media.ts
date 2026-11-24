@@ -345,14 +345,14 @@ export const media = {
   },
   ritual: { image: site.ritual, video: videos.teaSteam },
   reviews: [photos.windowTea, photos.handsGlass, site.ritual],
-  // Homepage results section, one entry per card (same order as home.results.items).
-  // `photo` shows until `before` AND `after` are set; then the card becomes a drag slider.
-  // before/after: ONLY real customer photos shared with permission, never stock.
+  // Homepage results section: one before/after slider per card (same order as
+  // home.results.items). ONLY real customer photos shared with written permission, never
+  // stock: until a photo is set, that side shows a "coming soon" panel.
   results: [
-    { photo: photos.handsCup, before: null, after: null },
-    { photo: photos.windowTea, before: null, after: null },
-    { photo: photos.handsGlass, before: null, after: null },
-  ] as { photo: MediaImage; before: MediaImage | null; after: MediaImage | null }[],
+    { before: null, after: null },
+    { before: null, after: null },
+    { before: null, after: null },
+  ] as { before: MediaImage | null; after: MediaImage | null }[],
 } as const;
 
 /** Every demo item, for MEDIA_CREDITS.md and the launch checklist. */
