@@ -2,21 +2,23 @@ import type { RefObject } from "react";
 import { gsap, useGSAP } from "./gsap";
 import { afterInitialLoad, alreadySeen } from "./hydration";
 import { MOTION_CONDITIONS } from "./media";
+import { countUp } from "./presets";
 import { CLEAR_PROPS, failsafe, safely } from "./safety";
 
 /**
  * "SkinFusion vs. the rest" scroll animation. Each part plays once as it scrolls in:
- * - intro: eyebrow, title, line and the switch rise one after another;
+ * - intro: eyebrow, title and line rise one after another;
  * - the arch: rises while the cup photo inside settles from 1.18 to 1, then the caption pill
  *   pops (desktop with a mouse: the photo also drifts inside the arch with the scroll);
- * - the board: rises; the green SkinFusion column grows down from the top (scaleY); the
- *   column headings come in; the rows reveal one by one (label rises, the coral tick pops
- *   with a spring, the competitor answer settles) while a thin coral line draws down the
- *   side; the button rises last.
- * The competitor switch (pill slide, answers flipping) lives in the component.
+ * - the board: rises; the green SkinFusion column grows down from the top (scaleY, from md);
+ *   the three column heads come in; then the rows one by one: the row rises (phones), the
+ *   label comes in, then its tiles cascade left to right: the SkinFusion tile settles with
+ *   its coral tick popping, the two competitor answers slide in after it; a thin coral line
+ *   draws down the side; the button rises;
+ * - "Ticks out of five": the three bars fill from zero (scaleX) while the numbers count up.
  * Hooks: data-cmp-intro, -arch, -depth, -chip, -board, -col, -line, -head, -row, -label,
- * -mark, -swap, -cta. Transform and opacity only. Reduced motion: nothing moves. Anything
- * already on screen at first load is left alone; every part has a failsafe.
+ * -tile, -mark, -cta, -score, -bar, -count. Transform and opacity only. Reduced motion:
+ * nothing moves. Anything already on screen at first load is left alone; failsafes.
  */
 export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
   useGSAP(
@@ -110,8 +112,8 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
               const cta = qa(board, "[data-cmp-cta]");
               const parts = rows.flatMap((r) => [
                 ...qa(r, "[data-cmp-label]"),
+                ...qa(r, "[data-cmp-tile]"),
                 ...qa(r, "[data-cmp-mark]"),
-                ...qa(r, "[data-cmp-swap]"),
               ]);
               once(
                 board,
@@ -126,26 +128,49 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
                       0.55,
                     );
                   rows.forEach((r, i) => {
-                    const at = 0.6 + i * 0.16;
-                    // Phones: the whole row (point and both tiles) rises in first.
+                    const at = 0.6 + i * 0.18;
+                    // Phones: the whole row rises in first.
                     if (!d) tl.from(r, { y: 24, opacity: 0, duration: 0.7 }, at - 0.1);
                     tl.from(qa(r, "[data-cmp-label]"), { y: 14, opacity: 0, duration: 0.6 }, at)
                       .from(
-                        qa(r, "[data-cmp-mark]"),
-                        { scale: 0.2, opacity: 0, duration: 0.6, ease: "back.out(3)" },
-                        at + 0.1,
+                        qa(r, '[data-cmp-tile="ours"]'),
+                        { scale: 0.9, opacity: 0, duration: 0.6, ease: "expo.out" },
+                        at + 0.08,
                       )
                       .from(
-                        qa(r, "[data-cmp-swap]"),
-                        { y: 12, opacity: 0, duration: 0.6 },
+                        qa(r, "[data-cmp-mark]"),
+                        { scale: 0.2, opacity: 0, duration: 0.6, ease: "back.out(3)" },
                         at + 0.16,
+                      )
+                      .from(
+                        qa(r, '[data-cmp-tile="other"]'),
+                        { x: 18, opacity: 0, duration: 0.6, stagger: 0.08 },
+                        at + 0.22,
                       );
                   });
-                  tl.from(cta, { y: 18, opacity: 0, duration: 0.7 }, 0.7 + rows.length * 0.16);
+                  tl.from(cta, { y: 18, opacity: 0, duration: 0.7 }, 0.7 + rows.length * 0.18);
                 },
                 "top 82%",
               );
             }
+
+            // Ticks out of five: bars fill while the numbers count.
+            const scoreEl = qa(root, "[data-cmp-score]")[0];
+            const bars = qa(root, "[data-cmp-bar]");
+            once(
+              scoreEl,
+              bars,
+              (tl) =>
+                tl.from(bars, {
+                  scaleX: 0,
+                  duration: 1.4,
+                  ease: "expo.out",
+                  stagger: 0.15,
+                }),
+              "top 88%",
+            );
+            for (const el of qa(root, "[data-cmp-count]"))
+              stops.push(countUp(el, d ? "desktop" : "mobile"));
           });
         });
         return () => {

@@ -220,20 +220,27 @@ order (`src/routes/index.tsx`):
 6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx, `comparison` in
    content.ts): a light section right after the green ingredients block (so the page
    alternates), in the same language: eyebrow "Why SkinFusion" and title "SkinFusion vs. the
-   rest" on the left, the line and the competitor switch on the right. No numbers or chips
-   (the ingredients block already has the 4 / 0 / 0 counters).
+   rest" on the left, the line on the right. No numbers or chips repeated from the
+   ingredients block.
    - Below: the cup (`media.comparison`) in a tall arch like the ingredient cards, with a
-     "One cup a day" pill (sticky on desktop), beside a white comparison board: a raised green
-     SkinFusion column (leaf badge, coral ticks, "See Skin Glow Tea" at its foot) against one
-     competitor at a time. Phones: the arch on top, then each point with two tiles under it
-     (green SkinFusion tile, beige competitor tile). A small note under the board.
-   - Switch: a green pill slides to the chosen option (transform), and the competitor's
-     answers flip out and in row by row.
+     "One cup a day" pill (sticky on desktop), beside a white board that shows SkinFusion and
+     BOTH competitors at once (no switch). From `md`: a 4-column table with a raised green
+     SkinFusion column (leaf badge, coral ticks, "See Skin Glow Tea" at its foot). Phones:
+     three icon heads, then each point with three tiles under it (a slightly wider green
+     SkinFusion tile with the tick, two beige competitor tiles). Under the rows, "Ticks out
+     of five" (`scoreTitle`): three bars counted from the table's `true` values (5/5, 1/5,
+     0/5). A small note under the board. The table keeps explicit ARIA roles because its
+     rows are laid out as grids.
+   - Arch shape: `rounded-t-[50%_40%]` (half the width, for a 4:5 box), not `rounded-t-full`:
+     a 9999px radius makes the browser shrink every corner, so the bottom corners went
+     square. The ingredient cards use the same fix.
    - Scroll (`lib/animations/comparison.ts`, once per part): intro rises; the arch rises
      while the photo settles from 1.18 to 1 and the pill pops (desktop: the photo drifts in
      the arch with the scroll); the board rises, the green column grows down (scaleY), the
-     rows reveal one by one (phones: the whole row first) with the ticks popping, a thin
-     coral line draws down the side, the button comes last. Reduced motion: nothing moves.
+     heads come in, then each row: the row rises (phones), label in, the green tile settles
+     with its tick popping, the two competitor tiles slide in from the right; a thin coral
+     line draws down the side; the button rises; the score bars fill (scaleX) while the
+     numbers count up. Reduced motion: nothing moves.
      The product page uses it with `cta={false}`.
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
    that opens the full-screen `VideoDialog`.

@@ -482,8 +482,8 @@ export const comparison = {
   ourTag: "Whole-food tea",
   // Caption on the arch photo, and the small line under the board.
   photoCaption: "One cup a day",
+  scoreTitle: "Ticks out of five",
   note: "Compared with typical products in each group. Labels vary by brand.",
-  compareWith: "Compare SkinFusion with",
   yes: "Yes",
   no: "No",
   cta: { label: "See Skin Glow Tea", href: "/products/skin-glow-tea" },

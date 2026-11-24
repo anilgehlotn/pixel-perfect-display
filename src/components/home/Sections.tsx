@@ -446,7 +446,7 @@ export function HowItWorks() {
               key={ing.name}
               className="group flex flex-col rounded-[1.5rem] border border-cream/10 bg-cream/[0.06] p-2.5 sm:p-4"
             >
-              <div className="aspect-[4/5] overflow-hidden rounded-b-[1rem] rounded-t-full bg-green-soft">
+              <div className="aspect-[4/5] overflow-hidden rounded-b-[1rem] rounded-t-[50%_40%] bg-green-soft">
                 <Img
                   media={media.ingredients[ing.image]}
                   sizes="(min-width: 1024px) 18rem, 45vw"
