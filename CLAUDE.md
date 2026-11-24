@@ -150,13 +150,13 @@ order (`src/routes/index.tsx`):
    - At rest: the black and white serum world (`media.hero.serum`) fills the screen: kicker,
      "Skin care you apply." ("apply." as a thin outline), one button and "From" price, a
      small "Scroll" cue.
-   - As you scroll: the photo pulls back into a rounded frame on a black stage (`data-card`,
-     scale 1.06 to 0.86; at 1.06 its corners are off-screen) and dims; a small amber glass
-     bead of tea (`.hero-drop-bead`, faint trail) falls onto the headline; "apply." lifts away
+   - As you scroll: the photo stays full screen the whole time; it dims slightly and pushes
+     in while a small amber glass bead of tea (`.hero-drop-bead`, faint trail) falls onto the
+     headline; "apply." lifts away
      letter by letter; two fine ripples gently refract the photo where it lands
      and the colour (`media.hero.image`) spreads out from there in one clean, round wave
      with a soft feathered edge (grey rising to full colour inside the edge; no glow, no
-     distortion). The frame opens back to full bleed, "drink." rises letter by letter (both words
+     distortion). "drink." rises letter by letter (both words
      share one grid cell), the spec line (`facts`) and the steam (desktop) arrive.
    - Rendering: `lib/animations/hero-shader.ts`, a small WebGL 1 shader (one quad, the two
      photos as textures). It draws only when something changes (scroll, pointer, or the
@@ -166,7 +166,7 @@ order (`src/routes/index.tsx`):
      the two `<img>` layers with the same grading, crossfaded by the same scroll values.
      Client-approved exception to "transform and opacity only" (the canvas is redrawn; the
      DOM still only moves transform and opacity).
-   - The hero sticks (CSS `position: sticky` in a 260svh track; `svh`, not `dvh`, so the
+   - The hero sticks (CSS `position: sticky` in a 220svh track; `svh`, not `dvh`, so the
      phone address bar never resizes it).
    - Phones (priority): scrub 0.5 and snap: one short swipe plays the whole shot, a short
      swipe back returns to black and white, so it never rests half-way. Desktop: scrub 1.2,
@@ -504,7 +504,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Black and white; frame pulls back, a drop lands, colour blooms (scrub)     | Same, one swipe plays it all (snap)               |
+| Hero                                  | Black and white; a drop lands, colour spreads out in a soft wave (scrub)   | Same, one swipe plays it all (snap)               |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |

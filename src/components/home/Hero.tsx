@@ -21,18 +21,17 @@ const FOCUS = { a: [0.35, 0.6], b: [0.6, 0.6] } as const;
  *
  * At rest: the black and white serum world. "Skin care you apply.", one button and the price.
  * As you scroll:
- * - the photo pulls back into a rounded frame on a black stage and dims;
+ * - the black and white photo dims slightly and pushes in;
  * - a small amber bead of tea falls onto the headline; "apply." lifts away letter by letter;
  * - two fine ripples gently bend the photo where it lands, and the colour spreads out from
  *   there in one clean, round wave with a soft feathered edge (no glow or distortion);
- * - the frame opens back to full bleed, "drink." rises letter by letter and the spec line
- *   (4 whole foods | 0 sugar | 0 caffeine) arrives.
+ * - "drink." rises letter by letter and the spec line (4 whole foods | 0 sugar | 0 caffeine)
+ *   arrives. The photo stays full screen the whole time.
  *
  * The photos are drawn by a small WebGL shader (`lib/animations/hero-shader.ts`) that only
  * renders when something changes. The server HTML and the fallback (no WebGL, context lost,
  * not loaded yet) are plain <img> layers with the same grading, crossfaded by the same scroll.
- * The frame is a full-screen card with rounded corners at scale 1.06 (corners off-screen)
- * that scales to 0.86. The hero sticks (CSS `position: sticky` in a 260svh track; `svh` so
+ * The hero sticks (CSS `position: sticky` in a 220svh track; `svh` so
  * the phone address bar never resizes it). Phones: one short swipe plays the whole shot, a
  * short swipe back returns to black and white (snap). Desktop: a slower scrub and the scene
  * tilts slightly with the pointer. Reduced motion: no track, no shader, colour at once.
@@ -74,7 +73,7 @@ export function Hero({ featured }: { featured: Product }) {
       let visible = true;
       let disposed = false;
 
-      // Layout offsets (not affected by the card's scale).
+      // Layout offsets inside the stage.
       const measure = () => {
         let x = 0;
         let y = 0;
@@ -179,7 +178,7 @@ export function Hero({ featured }: { featured: Product }) {
         };
         void start();
 
-        const moving = [card, drop, cue, spec, steam, ...applyChars, ...drinkChars].filter(
+        const moving = [drop, cue, spec, steam, ...applyChars, ...drinkChars].filter(
           Boolean,
         ) as HTMLElement[];
         gsap.set(moving, { transition: "none" });
@@ -219,11 +218,10 @@ export function Hero({ featured }: { featured: Product }) {
           },
         });
 
-        const IMPACT = 0.42;
+        const IMPACT = 0.3;
         tl.to({}, { duration: 1 }, 0)
-          // Pull back into a frame on a black stage; the black and white photo dims.
-          .fromTo(card, { scale: 1.06 }, { scale: 0.86, duration: 0.3, ease: "power2.inOut" }, 0.02)
-          .to(u, { dim: 0.4, zoomA: 1.08, duration: 0.4, onUpdate: update }, 0.02)
+          // The black and white photo dims slightly and pushes in while the drop falls.
+          .to(u, { dim: 0.3, zoomA: 1.06, duration: 0.36, onUpdate: update }, 0.02)
           .to(cue, { autoAlpha: 0, duration: 0.04 }, 0.01)
           // "apply." lifts away as the drop lands.
           .to(
@@ -238,22 +236,22 @@ export function Hero({ featured }: { featured: Product }) {
             IMPACT - 0.05,
           );
         if (drop) {
-          tl.to(drop, { opacity: 1, duration: 0.03 }, 0.2)
+          tl.to(drop, { opacity: 1, duration: 0.03 }, 0.05)
             .fromTo(
               drop,
               { y: () => -geo.cy - 40 },
-              { y: 0, duration: IMPACT - 0.2, ease: "power2.in" },
-              0.2,
+              { y: 0, duration: IMPACT - 0.05, ease: "power2.in" },
+              0.05,
             )
             .fromTo(
               drop,
               { scaleX: 1, scaleY: 1 },
-              { scaleX: 0.85, scaleY: 1.25, duration: IMPACT - 0.24, ease: "power1.in" },
-              0.24,
+              { scaleX: 0.85, scaleY: 1.25, duration: IMPACT - 0.09, ease: "power1.in" },
+              0.09,
             )
             .to(drop, { scale: 0.2, opacity: 0, duration: 0.02 }, IMPACT);
         }
-        // Impact: the surface ripples, the colour steeps out, the frame opens again.
+        // Impact: the surface ripples and the colour spreads out.
         tl.fromTo(
           u,
           { ripple: 0 },
@@ -263,16 +261,15 @@ export function Hero({ featured }: { featured: Product }) {
           .fromTo(
             u,
             { bloom: 0 },
-            { bloom: 1, duration: 0.5, ease: "sine.inOut", onUpdate: update },
+            { bloom: 1, duration: 0.56, ease: "sine.inOut", onUpdate: update },
             IMPACT + 0.01,
           )
           .fromTo(
             u,
             { zoomB: 1.15 },
-            { zoomB: 1, duration: 0.5, ease: "power2.out", onUpdate: update },
+            { zoomB: 1, duration: 0.6, ease: "power2.out", onUpdate: update },
             IMPACT,
           )
-          .to(card, { scale: 1.06, duration: 0.42, ease: "power2.inOut" }, IMPACT + 0.06)
           .fromTo(
             drinkChars,
             { y: 0, yPercent: 70, opacity: 0 },
@@ -284,11 +281,11 @@ export function Hero({ featured }: { featured: Product }) {
               ease: "power3.out",
               stagger: { each: 0.018, from: "center" },
             },
-            IMPACT + 0.1,
+            IMPACT + 0.12,
           );
-        if (steam) tl.to(steam, { opacity: 1, duration: 0.2 }, IMPACT + 0.25);
+        if (steam) tl.to(steam, { opacity: 1, duration: 0.2 }, IMPACT + 0.3);
         if (spec)
-          tl.to(spec, { opacity: 1, y: 0, duration: 0.1, ease: "power2.out" }, IMPACT + 0.32);
+          tl.to(spec, { opacity: 1, y: 0, duration: 0.1, ease: "power2.out" }, IMPACT + 0.42);
 
         // Desktop with a mouse: the scene tilts slightly with the pointer.
         let onMove: ((e: PointerEvent) => void) | null = null;
@@ -325,19 +322,15 @@ export function Hero({ featured }: { featured: Product }) {
   const c = hero.compare;
   const price = money(featured.priceRange.minVariantPrice);
   return (
-    <div ref={track} data-hero-track className="relative bg-ink motion-safe:h-[260svh]">
+    <div ref={track} data-hero-track className="relative bg-ink motion-safe:h-[220svh]">
       <section
         data-hero-fill
         ref={section}
         aria-labelledby="hero-title"
         className="sticky top-0 h-[100svh] min-h-[36rem] overflow-hidden bg-ink text-cream"
       >
-        {/* The frame: full screen at rest (corners off-screen at 1.06), pulls back mid-shot. */}
-        <div
-          data-card
-          className="absolute inset-0 overflow-hidden rounded-[1.75rem] lg:rounded-[2.25rem]"
-          style={{ transform: "scale(1.06)" }}
-        >
+        {/* The stage: full screen the whole time. */}
+        <div data-card className="absolute inset-0 overflow-hidden">
           {/* Server HTML and fallback: the black and white photo... */}
           <div data-photo="a" aria-hidden="true" className="absolute inset-0">
             <div className="hero-settle absolute inset-0" style={d(0)}>
