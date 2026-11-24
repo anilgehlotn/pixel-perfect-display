@@ -122,14 +122,33 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
               </div>
             </div>
           )}
-          <ul className="mt-6 flex flex-col gap-3" aria-label={`${ours} compared with ${other}`}>
-            {comparison.rows.map((row) => (
-              <li key={row.label} data-cmp-row className="rounded-[1.5rem] bg-surface p-4">
+          <ul
+            className="mt-6 flex flex-col gap-3 pb-2"
+            aria-label={`${ours} compared with ${other}`}
+          >
+            {comparison.rows.map((row, ri) => (
+              <li
+                key={row.label}
+                data-cmp-row
+                // Stacking deck: each card sticks a little lower than the one before.
+                style={{ top: `calc(5.5rem + ${ri * 0.7}rem)` }}
+                className="relative origin-top rounded-[1.5rem] bg-surface p-4 border border-ink/[0.06] motion-safe:sticky"
+              >
+                <span
+                  data-cmp-dim
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 rounded-[1.5rem] bg-ink opacity-0"
+                />
                 <p data-cmp-label className="text-lg leading-snug text-green">
                   {row.label}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="flex min-h-[5.5rem] flex-col justify-between rounded-[1.1rem] bg-green p-3 text-cream">
+                  <div className="relative flex min-h-[5.5rem] flex-col justify-between overflow-hidden rounded-[1.1rem] bg-green p-3 text-cream">
+                    <span
+                      data-cmp-shine
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-cream/25 to-transparent opacity-0"
+                    />
                     <span className="text-xs text-cream/70">{ours}</span>
                     <span className="mt-2 flex items-center gap-2">
                       <span data-cmp-mark className="inline-grid">

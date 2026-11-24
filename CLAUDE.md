@@ -226,10 +226,16 @@ order (`src/routes/index.tsx`):
    - From `md`: a real table styled as a raised green SkinFusion column (coral leaf badge,
      "Whole-food tea", coral tick badges, "See Skin Glow Tea" at its foot) beside quieter
      columns with icons (Coffee, Pill).
-   - Reveal (`lib/animations/comparison.ts`, play once per part as it scrolls in): the
-     SkinFusion heading rises and its badge pops, the other headings fade in; each row/card:
-     label slides in, the tick pops with a spring, the competitor answer settles; the button
-     rises last. Transform and opacity only, failsafe per part, still with reduced motion.
+   - Phones, a stacking deck (`lib/animations/comparison.ts`): each card is `motion-safe:sticky`
+     a little lower than the one before (inline `top`), so the next card slides up over it
+     while the card underneath shrinks to 0.93 and dims (scrubbed). When a card arrives
+     (once): label rises, the coral tick pops with a spring, a sheen sweeps across the green
+     tile (`data-cmp-shine`), the competitor answer settles. Client-requested exception to
+     the mobile "no scrub" rule (transform and opacity only).
+   - From `md`, a scroll-driven reveal (scrub, reverses going up): the SkinFusion heading
+     rises and its badge pops, the other headings come in, then each row lights up in turn
+     (label slides in from faint, tick pops, competitor answers brighten), button last.
+   - Reduced motion: no sticking, no movement.
      The product page uses it with `cta={false}`.
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
    that opens the full-screen `VideoDialog`.
@@ -487,7 +493,7 @@ Built with GSAP (ScrollTrigger, SplitText, `useGSAP`) and Lenis. Everything live
 | `useScrollAnimations.ts` | Hook used by each page: runs the preset named in every `data-anim` (and every `data-count`) inside the page            |
 | `hero.ts`                | Homepage hero entrance timeline                                                                                        |
 | `hero-shader.ts`         | Homepage hero WebGL renderer: soft ripples, then a clean round colour wave with a feathered edge                       |
-| `comparison.ts`          | "SkinFusion vs. the rest": staged reveal of heading, rows/cards (tick pops) and button, once each                      |
+| `comparison.ts`          | "SkinFusion vs. the rest": phones stacking card deck (sticky + scrub), desktop scroll-driven row-by-row reveal         |
 | `why-edible.ts`          | "Why edible" drawing: three steps driven by the scroll or the step buttons, never on a timer (no pinning)              |
 | `intro.ts`               | Intro loader: timings, the inline `<head>` script and its CSS                                                          |
 | `smooth-scroll.ts`       | Lenis setup (desktop only) and stop/start for the scroll lock                                                          |
