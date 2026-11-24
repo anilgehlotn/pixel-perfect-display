@@ -135,7 +135,8 @@ regenerates `routeTree.gen.ts` automatically.
 - `Footer`: deep green, cream text: logo, mission line, newsletter with consent text, five link
   columns (`footer.columns` in content.ts), legal line and wellness disclaimer.
 - `CartDrawer`: slides in from the right, free-shipping progress bar, quantity controls, subtotal,
-  Checkout button.
+  Checkout button. The "Added to cart" toast stays hidden while the drawer is open (on phones
+  it sat over the subtotal and Checkout); screen readers still hear it.
 - Scroll animations: add a `data-anim` attribute in the markup (see "Animations").
 - Any overlay (drawer, menu, modal) calls `useScrollLock(open)`. Never set `body.style.overflow`
   directly.
@@ -192,7 +193,8 @@ order (`src/routes/index.tsx`):
    three points as numbered step buttons with icons (Drop, ForkKnife, Coffee) plus "Shop our
    teas". The drawing never plays by itself (`lib/animations/why-edible.ts`: cream lands on
    the outer layer, food rises through the blood, the cup comes forward, with a camera
-   zooming along). Scroll drives it: while the drawing passes through the screen (its top at
+   zooming along; the camera framing keeps the layer names on the left in view on every
+   step). Scroll drives it: while the drawing passes through the screen (its top at
    75% down to its bottom at 25%), each third is one step, played forward going down and
    backward going up. Clicking or tapping a step plays that step (`goTo(i)`). The matching
    step button lights up. No pinning. Copy:

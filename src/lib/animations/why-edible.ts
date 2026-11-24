@@ -64,8 +64,9 @@ export function useWhyEdibleStory(
             { x: 160 - s * fx, y: 150 - s * fy, scale: s, duration: 0.6, ease: "power2.inOut" },
             at,
           );
-        focus(150, 85, 1.3, 0);
-        focus(200, 190, 1.25, 0.95);
+        // Framed so the layer names on the left always stay in view.
+        focus(135, 90, 1.22, 0);
+        focus(150, 190, 1.15, 0.95);
         focus(160, 150, 1, 1.95);
 
         // Step 1: cream lands on the outer layer and stays there.

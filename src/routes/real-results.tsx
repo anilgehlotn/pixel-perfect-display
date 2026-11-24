@@ -91,7 +91,7 @@ function Gallery() {
               role="tab"
               aria-selected={filter === f}
               onClick={() => setFilter(f)}
-              className={`label-caps border px-4 py-2 text-[0.68rem] transition-colors ${filter === f ? "border-primary bg-primary text-primary-foreground" : "border-input hover:border-foreground"}`}
+              className={`label-caps min-h-11 border px-4 py-2 text-[0.68rem] transition-colors ${filter === f ? "border-primary bg-primary text-primary-foreground" : "border-input hover:border-foreground"}`}
             >
               {f}
             </button>
