@@ -218,11 +218,19 @@ order (`src/routes/index.tsx`):
    step cards with icons (Leaf, ThermometerHot, Timer), the TCM line and a "See Skin Glow Tea"
    button. 2 columns of cards on phones, 4 on desktop. Copy: `home.howItWorks`, `ingredients`.
 6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx, `comparison` in
-   content.ts): "SkinFusion vs. the rest". A real table styled as a raised green SkinFusion
-   column (coral leaf badge, "Whole-food tea", coral tick badges, "See Skin Glow Tea" at its
-   foot) beside quieter columns with icons (Coffee, Pill). Phones show SkinFusion against one
-   other column, chosen with a pill switch; from `md` all show. The product page uses it with
-   `cta={false}`.
+   content.ts): "SkinFusion vs. the rest".
+   - Phones: one white card per point (the point as a heading, then two tiles side by side:
+     a green SkinFusion tile with a coral tick and "Yes", and a beige tile with the chosen
+     competitor's answer). A pill switch picks the competitor; its answers cross-fade on
+     switch. Full-width "See Skin Glow Tea" button at the end.
+   - From `md`: a real table styled as a raised green SkinFusion column (coral leaf badge,
+     "Whole-food tea", coral tick badges, "See Skin Glow Tea" at its foot) beside quieter
+     columns with icons (Coffee, Pill).
+   - Reveal (`lib/animations/comparison.ts`, play once per part as it scrolls in): the
+     SkinFusion heading rises and its badge pops, the other headings fade in; each row/card:
+     label slides in, the tick pops with a spring, the competitor answer settles; the button
+     rises last. Transform and opacity only, failsafe per part, still with reduced motion.
+     The product page uses it with `cta={false}`.
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
    that opens the full-screen `VideoDialog`.
 8. **Stories** (`#stories`, `Stories.tsx`): full-bleed strip of mixed shapes (half-visible circles
@@ -479,6 +487,7 @@ Built with GSAP (ScrollTrigger, SplitText, `useGSAP`) and Lenis. Everything live
 | `useScrollAnimations.ts` | Hook used by each page: runs the preset named in every `data-anim` (and every `data-count`) inside the page            |
 | `hero.ts`                | Homepage hero entrance timeline                                                                                        |
 | `hero-shader.ts`         | Homepage hero WebGL renderer: soft ripples, then a clean round colour wave with a feathered edge                       |
+| `comparison.ts`          | "SkinFusion vs. the rest": staged reveal of heading, rows/cards (tick pops) and button, once each                      |
 | `why-edible.ts`          | "Why edible" drawing: three steps driven by the scroll or the step buttons, never on a timer (no pinning)              |
 | `intro.ts`               | Intro loader: timings, the inline `<head>` script and its CSS                                                          |
 | `smooth-scroll.ts`       | Lenis setup (desktop only) and stop/start for the scroll lock                                                          |
