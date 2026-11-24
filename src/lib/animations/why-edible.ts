@@ -1,18 +1,20 @@
 import { useCallback, useRef, type RefObject } from "react";
-import { gsap, useGSAP } from "./gsap";
+import { gsap, ScrollTrigger, useGSAP } from "./gsap";
 import { MOTION_CONDITIONS } from "./media";
-import { failsafe, safely } from "./safety";
+import { safely } from "./safety";
 
 /**
- * "Why we make skin care you eat": the skin-layers drawing plays a short story once (about
- * 2s) when it comes into view, on every device:
+ * "Why we make skin care you eat": the skin-layers drawing tells a three-step story, and it
+ * only moves when the visitor does something (it never plays by itself on a timer):
  *   1. a cream drop lands and stays on the outer layer, which lights up;
  *   2. the blood vessel appears and food rises from the cup into the deeper layers;
  *   3. the cup comes forward.
  * A camera inside the drawing zooms on the cream, pans down with the food and pulls back.
- * No pinning or scroll-jacking: this is a shop, people must reach the products quickly.
- * `onStep(i)` reports the step being shown (0-2) so the matching step button can light up, and
- * the returned `goTo(i)` replays just that step (the step buttons call it).
+ * - Scroll: while the drawing passes through the screen (its top at 75% of the screen down to
+ *   its bottom at 25%), each third of that distance is one step; crossing into a step plays it
+ *   (forward going down, backward going up). No pinning: the page scrolls normally.
+ * - Click / tap: `goTo(i)` (the step buttons) replays just that step.
+ * `onStep(i)` reports the step being shown (0-2) so the matching step button lights up.
  * Reduced motion and no JavaScript: the finished picture. Transform and opacity only.
  */
 export function useWhyEdibleStory(
@@ -99,14 +101,15 @@ export function useWhyEdibleStory(
         if (isReduced) return;
         let cleanup: (() => void) | undefined;
         safely("why-edible", all, () => {
-          // Every device: the drawing plays its short story once when it comes into view.
-          // The text is never hidden or held back: shoppers can read on and scroll past.
+          // The drawing moves only with the scroll or a click, never on a timer.
           const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.out" } });
           drawing(tl);
           tl.timeScale(1.4);
           let shown = -1;
           tl.eventCallback("onUpdate", () => {
-            const s = Math.min(2, Math.floor(tl.time() + 0.001));
+            // Step i runs from time i to i + 1, and a step rests at its end, so time 1 still
+            // belongs to step 0.
+            const s = Math.max(0, Math.min(2, Math.ceil(tl.time() - 0.001) - 1));
             if (s !== shown) {
               shown = s;
               stepRef.current?.(s);
@@ -115,19 +118,29 @@ export function useWhyEdibleStory(
           // Show the start state now (the drawing is usually still below the screen).
           tl.progress(1).progress(0);
           tlRef.current = tl;
-          const io = new IntersectionObserver(
-            ([entry]) => {
-              if (!entry?.isIntersecting) return;
-              tl.play();
-              io.disconnect();
+
+          // Scroll: each third of the drawing's pass through the screen is one step. Play to
+          // the end of the step it enters (backwards when scrolling up); before the first
+          // step, go back to the empty start.
+          let scrollStep = -1;
+          const playTo = (step: number) => {
+            if (step === scrollStep) return;
+            scrollStep = step;
+            replay.current?.kill();
+            replay.current = tl.tweenTo(step < 0 ? 0 : step + 1, { ease: "power1.inOut" });
+          };
+          const st = ScrollTrigger.create({
+            trigger: art,
+            start: "top 75%",
+            end: "bottom 25%",
+            onUpdate: (self) => playTo(Math.min(2, Math.floor(self.progress * 3))),
+            onLeaveBack: () => playTo(-1),
+            onRefresh: (self) => {
+              if (self.progress > 0) playTo(Math.min(2, Math.floor(self.progress * 3)));
             },
-            { threshold: 0.4 },
-          );
-          io.observe(art);
-          const stop = failsafe(art, tl, 5000);
+          });
           cleanup = () => {
-            io.disconnect();
-            stop();
+            st.kill();
             replay.current?.kill();
             tlRef.current = null;
           };

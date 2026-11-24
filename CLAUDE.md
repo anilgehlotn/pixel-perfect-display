@@ -190,10 +190,12 @@ order (`src/routes/index.tsx`):
    title, with the paragraph beside them on desktop. Below, a blush card: the skin-layers
    drawing (`SkinLayers.tsx`) in a white panel (right on desktop, on top on phones) and the
    three points as numbered step buttons with icons (Drop, ForkKnife, Coffee) plus "Shop our
-   teas". The drawing plays its story once in view (`lib/animations/why-edible.ts`: cream
-   lands on the outer layer, food rises through the blood, the cup comes forward, with a
-   camera zooming along) and the matching step button lights up as it plays; clicking or
-   tapping a step replays that part (`goTo(i)` from the hook). No pinning. Copy:
+   teas". The drawing never plays by itself (`lib/animations/why-edible.ts`: cream lands on
+   the outer layer, food rises through the blood, the cup comes forward, with a camera
+   zooming along). Scroll drives it: while the drawing passes through the screen (its top at
+   75% down to its bottom at 25%), each third is one step, played forward going down and
+   backward going up. Clicking or tapping a step plays that step (`goTo(i)`). The matching
+   step button lights up. No pinning. Copy:
    `howItWorks`, `skinLayers`.
 4. **Bundle** (`#bundle`, "Buy more, pay less"): blush block with a pack picker. One white
    card per variant of the featured product (1, 2, 4 pouches): price, MRP crossed out,
@@ -469,7 +471,7 @@ Built with GSAP (ScrollTrigger, SplitText, `useGSAP`) and Lenis. Everything live
 | `useScrollAnimations.ts` | Hook used by each page: runs the preset named in every `data-anim` (and every `data-count`) inside the page            |
 | `hero.ts`                | Homepage hero entrance timeline                                                                                        |
 | `hero-shader.ts`         | Homepage hero WebGL renderer: soft ripples, then a clean round colour wave with a feathered edge                       |
-| `why-edible.ts`          | "Why edible" drawing: three-step story that plays once in view; step buttons replay a step (no pinning)                |
+| `why-edible.ts`          | "Why edible" drawing: three steps driven by the scroll or the step buttons, never on a timer (no pinning)              |
 | `intro.ts`               | Intro loader: timings, the inline `<head>` script and its CSS                                                          |
 | `smooth-scroll.ts`       | Lenis setup (desktop only) and stop/start for the scroll lock                                                          |
 | `hydration.ts`           | Waits for the first load to settle and skips content already on screen (no flashes)                                    |
@@ -510,7 +512,7 @@ element: nest wrappers.
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
 | Product videos                        | Play on hover / keyboard focus                                             | Play while in view (max 2 videos at once)         |
 | Stories strip                         | Drag with momentum, strip drifts 140px with scroll, parallax between cards | Native swipe with snap points                     |
-| Why edible drawing                    | Plays once in view: cream, food, cup, with a camera zoom                   | Same                                              |
+| Why edible drawing                    | Steps 1-3 follow the scroll (or a click); cream, food, cup, camera zoom    | Same (tap a step)                                 |
 | Counters                              | Count up once                                                              | Same                                              |
 | Nav                                   | Hides on scroll down, shows on scroll up                                   | Same                                              |
 | Footer                                | Slides up, columns fade in one by one                                      | Same, smaller distances                           |
