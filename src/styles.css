@@ -392,6 +392,20 @@
     animation: hero-wisp 6s ease-in-out infinite;
   }
 }
+/* Hero liquid surface: the wave line drifts sideways (twice as wide, moves half its width). */
+@keyframes hero-meniscus {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-meniscus {
+    animation: hero-meniscus 9s linear infinite;
+  }
+}
 /* Hero "Scroll to drink" cue: a short line travelling down. Desktop with a mouse only. */
 @keyframes hero-scroll-cue {
   from {

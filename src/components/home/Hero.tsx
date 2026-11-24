@@ -16,14 +16,17 @@ const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
  *
  * The serum world fills the screen in greyscale ("Skin care you apply.", "apply." as an
  * outline). The tea world sits on top inside a "fill" that rises from the bottom: its wrapper
- * moves up while its content moves down by the same amount, so the colour climbs the screen
- * with a soft glowing edge, and "apply." turns into "drink." as the edge passes the word.
+ * moves up while its content moves down by the same amount, so the colour climbs the screen.
  *
- * - The hero sticks to the screen (CSS `position: sticky` inside a taller track) and the fill
- *   follows the scroll position, smoothed (scrub), on every device. Scrolling back up brings
- *   the black and white photo back. About one screen of scroll, then the page carries on.
- * - Reduced motion: no track, shown straight away in colour. No JavaScript: black and white.
- * Transform-only.
+ * Scroll story (scrubbed, reversible, transform and opacity only):
+ * - The black and white photo pushes in and dims; its caption lifts away.
+ * - A liquid surface (a glowing, gently moving wave line with a warm bloom under it) rises.
+ * - "apply." lifts away letter by letter just before the surface reaches it; "drink." rises
+ *   in letter by letter behind it while the colour photo settles from 1.14.
+ * - The tea caption and its chips arrive one by one.
+ * - Desktop with a mouse: both photos follow the pointer slightly (depth).
+ * The hero sticks (CSS `position: sticky` in a 220dvh track). Reduced motion: no track,
+ * colour at once. No JavaScript: black and white.
  */
 export function Hero({ featured }: { featured: Product }) {
   const track = useRef<HTMLDivElement>(null);
@@ -35,22 +38,38 @@ export function Hero({ featured }: { featured: Product }) {
       const root = section.current;
       const trackEl = track.current;
       if (!root || !trackEl) return;
-      const outer = root.querySelector<HTMLElement>("[data-fill-outer]");
-      const inner = root.querySelector<HTMLElement>("[data-fill-inner]");
-      const hint = root.querySelector<HTMLElement>("[data-fill-hint]");
-      const zoomOut = root.querySelector<HTMLElement>('[data-world-zoom="left"]');
-      const zoomIn = root.querySelector<HTMLElement>('[data-world-zoom="right"]');
+      const q = <T extends HTMLElement = HTMLElement>(sel: string) => root.querySelector<T>(sel);
+      const qa = (sel: string) => Array.from(root.querySelectorAll<HTMLElement>(sel));
+      const outer = q("[data-fill-outer]");
+      const inner = q("[data-fill-inner]");
+      const edge = q("[data-fill-edge]");
+      const hint = q("[data-fill-hint]");
       if (!outer || !inner) return;
+      const zoomOut = q('[data-world-zoom="left"]');
+      const zoomIn = q('[data-world-zoom="right"]');
+      const dim = q("[data-world-dim]");
+      const applyChars = qa('[data-word="left"] [data-char]');
+      const drinkChars = qa('[data-word="right"] [data-char]');
+      const capOut = qa('[data-caption="left"]');
+      const capIn = qa('[data-caption="right"] [data-cap-part]');
+      const parallax = qa("[data-world-parallax]");
+
       const fill = { p: 0 };
       const paint = () => {
         const off = (1 - fill.p) * 100;
         outer.style.transform = `translate3d(0, ${off}%, 0)`;
         inner.style.transform = `translate3d(0, ${-off}%, 0)`;
+        if (edge) {
+          edge.style.transform = `translate3d(0, ${off}%, 0)`;
+          // The surface fades as it reaches the top of the screen.
+          edge.style.opacity = String(Math.min(1, fill.p * 12, (1 - fill.p) * 6));
+        }
         if (hint) hint.style.opacity = String(Math.max(0, 1 - fill.p * 4));
       };
+
       const mm = gsap.matchMedia();
       mm.add(MOTION_CONDITIONS, (ctx) => {
-        const { isReduced } = ctx.conditions as Record<string, boolean>;
+        const { isReduced, isDesktop } = ctx.conditions as Record<string, boolean>;
         if (isReduced) {
           fill.p = 1;
           paint();
@@ -58,28 +77,85 @@ export function Hero({ featured }: { featured: Product }) {
         }
         fill.p = 0;
         paint();
-        const zooms = [zoomOut, zoomIn].filter(Boolean) as HTMLElement[];
-        // Scroll-linked and reversible: a short hold, the fill (with a slow push-in on the
-        // black and white photo and the colour photo settling from 1.12), then a short hold.
+        const moving = [zoomOut, zoomIn, ...applyChars, ...drinkChars, ...capOut, ...capIn].filter(
+          Boolean,
+        ) as HTMLElement[];
+        gsap.set(moving, { transition: "none" });
+
         const tl = gsap.timeline({
           defaults: { ease: "none" },
           scrollTrigger: {
             trigger: trackEl,
             start: "top top",
             end: "bottom bottom",
-            scrub: 0.9,
-            onToggle: (self) => gsap.set(zooms, { willChange: self.isActive ? "transform" : "" }),
+            scrub: 1.1,
+            onToggle: (self) =>
+              gsap.set(moving, { willChange: self.isActive ? "transform, opacity" : "" }),
           },
         });
-        tl.to({}, { duration: 0.08 })
-          .to(fill, { p: 1, duration: 0.8, ease: "power1.inOut", onUpdate: paint }, 0.08)
-          .fromTo(zoomOut, { scale: 1 }, { scale: 1.08, duration: 0.8 }, 0.08)
-          .fromTo(zoomIn, { scale: 1.12 }, { scale: 1, duration: 0.8, ease: "power1.out" }, 0.08)
-          .to({}, { duration: 0.12 });
+        // Timeline runs 0 to 1: a short hold, the fill from 0.06 to 0.86, a short hold.
+        tl.to({}, { duration: 1 }, 0)
+          .to(fill, { p: 1, duration: 0.8, ease: "power1.inOut", onUpdate: paint }, 0.06)
+          .fromTo(zoomOut, { scale: 1 }, { scale: 1.12, duration: 0.8 }, 0.06)
+          .fromTo(dim, { opacity: 0 }, { opacity: 0.55, duration: 0.6 }, 0.06)
+          .to(capOut, { y: -40, opacity: 0, duration: 0.22, ease: "power2.in" }, 0.08)
+          .to(
+            applyChars,
+            {
+              yPercent: -45,
+              opacity: 0,
+              duration: 0.16,
+              ease: "power2.in",
+              stagger: { each: 0.025, from: "start" },
+            },
+            0.2,
+          )
+          .fromTo(zoomIn, { scale: 1.14 }, { scale: 1, duration: 0.8, ease: "power2.out" }, 0.06)
+          .fromTo(
+            drinkChars,
+            { yPercent: 70, opacity: 0 },
+            {
+              yPercent: 0,
+              opacity: 1,
+              duration: 0.22,
+              ease: "power3.out",
+              stagger: { each: 0.035, from: "start" },
+            },
+            0.32,
+          )
+          .fromTo(
+            capIn,
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.16, ease: "power2.out", stagger: 0.04 },
+            0.56,
+          );
+
+        // Desktop with a mouse: the photos follow the pointer a little (depth).
+        let onMove: ((e: PointerEvent) => void) | null = null;
+        if (isDesktop && parallax.length) {
+          const movers = parallax.map((el) => ({
+            x: gsap.quickTo(el, "x", { duration: 1.4, ease: "power3.out" }),
+            y: gsap.quickTo(el, "y", { duration: 1.4, ease: "power3.out" }),
+            depth: Number(el.dataset["worldParallax"]) || 1,
+          }));
+          onMove = (e: PointerEvent) => {
+            const nx = e.clientX / window.innerWidth - 0.5;
+            const ny = e.clientY / window.innerHeight - 0.5;
+            for (const m of movers) {
+              m.x(-nx * 18 * m.depth);
+              m.y(-ny * 12 * m.depth);
+            }
+          };
+          root.addEventListener("pointermove", onMove);
+        }
+
         return () => {
+          if (onMove) root.removeEventListener("pointermove", onMove);
           tl.scrollTrigger?.kill();
           tl.kill();
-          gsap.set(zooms, { clearProps: "transform,willChange" });
+          gsap.set([...moving, ...parallax, dim].filter(Boolean), {
+            clearProps: "transform,opacity,willChange,transition",
+          });
         };
       });
       return () => mm.revert();
@@ -88,7 +164,7 @@ export function Hero({ featured }: { featured: Product }) {
   );
 
   return (
-    <div ref={track} data-hero-track className="relative motion-safe:h-[200dvh]">
+    <div ref={track} data-hero-track className="relative motion-safe:h-[220dvh]">
       <section
         data-hero-fill
         ref={section}
@@ -111,12 +187,16 @@ export function Hero({ featured }: { featured: Product }) {
           >
             <World side="right" media={media.hero.image} featured={featured} />
           </div>
-          {/* The rising edge: a thin bright line with a soft glow below it. */}
-          <span aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-cream/80" />
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cream/30 to-transparent"
-          />
+        </div>
+
+        {/* The liquid surface: moves with the fill, not clipped by it. */}
+        <div
+          data-fill-edge
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[1]"
+          style={{ transform: "translateY(100%)", opacity: 0 }}
+        >
+          <Meniscus />
         </div>
 
         {/* Shared copy on top. */}
@@ -139,6 +219,37 @@ export function Hero({ featured }: { featured: Product }) {
           </p>
         </div>
       </section>
+    </div>
+  );
+}
+
+/**
+ * The surface of the tea: a soft amber bloom under a thin glowing wave line that drifts
+ * sideways (CSS loop, paused off-screen). Sits exactly on the top edge of the colour.
+ */
+function Meniscus() {
+  const wave = "M0 10 C 100 2, 200 18, 300 10 S 500 2, 600 10 S 800 18, 900 10 S 1100 2, 1200 10";
+  return (
+    <div className="absolute inset-x-0 top-0">
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/30 via-primary/[0.08] to-transparent" />
+      <div className="absolute inset-x-0 -top-10 h-10 bg-gradient-to-t from-cream/15 to-transparent" />
+      <div className="absolute -top-[10px] left-0 h-5 w-full overflow-hidden">
+        <svg
+          viewBox="0 0 1200 20"
+          preserveAspectRatio="none"
+          className="hero-meniscus absolute left-0 top-0 h-full w-[200%] text-cream"
+        >
+          <path
+            d={wave}
+            fill="none"
+            stroke="currentColor"
+            strokeOpacity="0.35"
+            strokeWidth="6"
+            className="blur-[3px]"
+          />
+          <path d={wave} fill="none" stroke="currentColor" strokeOpacity="0.9" strokeWidth="1.2" />
+        </svg>
+      </div>
     </div>
   );
 }
@@ -191,7 +302,17 @@ function Column({
             className={`hero-word block text-[clamp(5rem,2.5rem+15vw,15rem)] leading-[0.95] tracking-[-0.05em] ${shared ? "invisible font-normal" : outline ? "hero-outline font-light" : "font-normal text-cream"}`}
             style={d(550)}
           >
-            {word ?? c.right.word}
+            {shared || !word ? (
+              (word ?? c.right.word)
+            ) : (
+              <span data-word={outline ? "left" : "right"} className="inline-block">
+                {Array.from(word).map((ch, i) => (
+                  <span key={i} data-char className="inline-block">
+                    {ch}
+                  </span>
+                ))}
+              </span>
+            )}
           </span>
         </span>
       </Title>
@@ -234,61 +355,72 @@ function World({
     <div className="absolute inset-0">
       <div className="hero-settle absolute inset-0" style={d(0)}>
         <div data-world-zoom={side} className="absolute inset-0">
-          <Img
-            media={m}
-            priority
-            sizes="100vw"
-            className={`h-full w-full ${left ? "object-[35%_60%] grayscale brightness-[0.8] contrast-[1.08]" : "object-[60%_60%] saturate-[1.15]"}`}
-          />
+          <div data-world-parallax={left ? "0.6" : "1"} className="absolute -inset-6">
+            <Img
+              media={m}
+              priority
+              sizes="100vw"
+              className={`h-full w-full ${left ? "object-[35%_60%] grayscale brightness-[0.8] contrast-[1.08]" : "object-[60%_60%] saturate-[1.15]"}`}
+            />
+          </div>
         </div>
       </div>
       <div
         aria-hidden="true"
         className={`absolute inset-0 ${left ? "bg-gradient-to-b from-ink/60 via-ink/35 to-ink/70" : "bg-gradient-to-b from-ink/45 via-ink/15 to-ink/65"}`}
       />
+      {left && (
+        <div data-world-dim aria-hidden="true" className="absolute inset-0 bg-ink opacity-0" />
+      )}
       <div aria-hidden="true" className="hero-grain absolute inset-0" />
       <Column layer="world" word={c.word} outline={left} featured={featured} />
-      <p
-        aria-hidden="true"
-        className={`hero-ease absolute top-[30%] hidden max-w-[15rem] sm:block ${left ? "left-8 text-left lg:left-12" : "right-8 text-right lg:right-12"}`}
-        style={d(1200)}
-      >
-        <span className="label-caps block text-cream/75">{c.tag}</span>
-        <span className="mt-2 block text-[1.05rem] leading-snug text-cream/95">{c.text}</span>
-        <span className={`mt-4 flex flex-wrap gap-2 ${left ? "" : "justify-end"}`}>
-          {c.facts.map((f) => (
-            <span
-              key={f}
-              className={`rounded-full px-3 py-1 text-xs ${left ? "border border-cream/40 text-cream/80" : "bg-cream text-green"}`}
-            >
-              {f}
-            </span>
-          ))}
-        </span>
-      </p>
-      {/* Phones: a short caption between the label and the headline. */}
-      <p
-        aria-hidden="true"
-        className="hero-ease absolute inset-x-6 top-[30%] text-center sm:hidden"
-        style={d(1000)}
-      >
-        <span className="label-caps block text-cream/75">{c.tag}</span>
-        <span className="mx-auto mt-2 block max-w-[17rem] text-[1.05rem] leading-snug text-cream/95">
-          {c.text}
-        </span>
-        <span className="mt-3 flex flex-wrap justify-center gap-2">
-          {c.facts.map((f) => (
-            <span
-              key={f}
-              className={`rounded-full px-3 py-1 text-xs ${left ? "border border-cream/40 text-cream/80" : "bg-cream text-green"}`}
-            >
-              {f}
-            </span>
-          ))}
-        </span>
-      </p>
+      {/* Captions sit in a wrapper so the scroll story can move them (the inner <p> keeps
+          its CSS entrance). Desktop: in a corner. Phones: centred above the headline. */}
+      <div data-caption={side} aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <p
+          className={`hero-ease absolute top-[30%] hidden max-w-[15rem] sm:block ${left ? "left-8 text-left lg:left-12" : "right-8 text-right lg:right-12"}`}
+          style={d(1200)}
+        >
+          <CaptionParts side={side} />
+        </p>
+        <p className="hero-ease absolute inset-x-6 top-[30%] text-center sm:hidden" style={d(1000)}>
+          <CaptionParts side={side} compact />
+        </p>
+      </div>
       {!left && <Steam />}
     </div>
+  );
+}
+
+/** Tag, line and fact chips; each piece is a separate step in the scroll story. */
+function CaptionParts({ side, compact = false }: { side: "left" | "right"; compact?: boolean }) {
+  const c = hero.compare[side];
+  const left = side === "left";
+  return (
+    <>
+      <span data-cap-part className="label-caps block text-cream/75">
+        {c.tag}
+      </span>
+      <span
+        data-cap-part
+        className={`mt-2 block text-[1.05rem] leading-snug text-cream/95 ${compact ? "mx-auto max-w-[17rem]" : ""}`}
+      >
+        {c.text}
+      </span>
+      <span
+        className={`flex flex-wrap gap-2 ${compact ? "mt-3 justify-center" : `mt-4 ${left ? "" : "justify-end"}`}`}
+      >
+        {c.facts.map((f) => (
+          <span
+            key={f}
+            data-cap-part
+            className={`inline-block rounded-full px-3 py-1 text-xs ${left ? "border border-cream/40 text-cream/80" : "bg-cream text-green"}`}
+          >
+            {f}
+          </span>
+        ))}
+      </span>
+    </>
   );
 }
 

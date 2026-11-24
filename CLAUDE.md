@@ -150,12 +150,15 @@ order (`src/routes/index.tsx`):
    caption "On your face" with fact chips). Colour then rises from the bottom like tea filling
    a cup, with a thin glowing edge: the tea world (`media.hero.image`, "drink." in solid
    letters, "In your cup" caption, steam on desktop) replaces it as the edge passes.
-   - Every device: the hero sticks (CSS `position: sticky` in a 200dvh track) and the fill
-     follows the scroll (GSAP scrub 0.9), with a slow push-in on the black and white photo and
-     the colour photo settling from 1.12. Scrolling back up returns to black and white. Nothing
-     plays by itself. Client-requested exception to the mobile "no scrub" rule (transform
-     only). Phones show the captions centred above the headline; a "Scroll to drink" cue shows
-     until the fill starts. Reduced motion: no track (`motion-safe:` height).
+   - Every device: the hero sticks (CSS `position: sticky` in a 220dvh track) and a scroll
+     story follows the scroll (GSAP scrub 1.1, reversible): the black and white photo pushes
+     in and dims, its caption lifts away, a liquid surface (`Meniscus`: glowing wave line,
+     coral bloom) rises with the colour, "apply." lifts away letter by letter while "drink."
+     rises in letter by letter, the colour photo settles from 1.14 and the tea caption parts
+     arrive one by one. Desktop with a mouse: both photos follow the pointer slightly.
+     Nothing plays by itself. Client-requested exception to the mobile "no scrub" rule
+     (transform and opacity only). A "Scroll to drink" cue shows until the fill starts.
+     Reduced motion: no track (`motion-safe:` height), colour at once.
    - Transform-only: the fill wrapper moves up while its content moves down by the same
      amount. `Column` keeps the shared copy (real h1 and button) and each world's word aligned.
      Fine film grain over both photos. Reduced motion: shown in colour at once. No JavaScript:
