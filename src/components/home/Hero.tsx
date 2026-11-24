@@ -4,7 +4,7 @@ import { media, type MediaImage } from "@/data/media";
 import { inr } from "@/lib/format";
 import { money, type Product } from "@/lib/catalog/types";
 import { Stars } from "@/components/site/Stars";
-import { gsap, useGSAP } from "@/lib/animations/gsap";
+import { gsap, useGSAP, type ScrollTrigger } from "@/lib/animations/gsap";
 import { MOTION_CONDITIONS } from "@/lib/animations/media";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
 import { Img } from "./media";
@@ -25,7 +25,9 @@ const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
  *   in letter by letter behind it while the colour photo settles from 1.14.
  * - The tea caption and its chips arrive one by one.
  * - Desktop with a mouse: both photos follow the pointer slightly (depth).
- * The hero sticks (CSS `position: sticky` in a 220dvh track). Reduced motion: no track,
+ * The hero sticks (CSS `position: sticky` in a 220svh track; `svh` so the phone address bar
+ * never resizes it mid-scroll). Phones: a short scroll commits, the story then finishes on
+ * its own (snap), so it never rests half-way. Reduced motion: no track,
  * colour at once. No JavaScript: black and white.
  */
 export function Hero({ featured }: { featured: Product }) {
@@ -44,6 +46,9 @@ export function Hero({ featured }: { featured: Product }) {
       const inner = q("[data-fill-inner]");
       const edge = q("[data-fill-edge]");
       const hint = q("[data-fill-hint]");
+      const bar = q("[data-fill-bar]");
+      const fromLabel = q("[data-fill-from]");
+      const toLabel = q("[data-fill-to]");
       if (!outer || !inner) return;
       const zoomOut = q('[data-world-zoom="left"]');
       const zoomIn = q('[data-world-zoom="right"]');
@@ -64,7 +69,11 @@ export function Hero({ featured }: { featured: Product }) {
           // The surface fades as it reaches the top of the screen.
           edge.style.opacity = String(Math.min(1, fill.p * 12, (1 - fill.p) * 6));
         }
-        if (hint) hint.style.opacity = String(Math.max(0, 1 - fill.p * 4));
+        if (bar) bar.style.transform = `scaleX(${fill.p})`;
+        if (fromLabel) fromLabel.style.opacity = String(1 - fill.p * 0.55);
+        if (toLabel) toLabel.style.opacity = String(0.45 + fill.p * 0.55);
+        // The control fades out as the colour completes.
+        if (hint) hint.style.opacity = String(Math.min(1, (1 - fill.p) * 5));
       };
 
       const mm = gsap.matchMedia();
@@ -88,7 +97,22 @@ export function Hero({ featured }: { featured: Product }) {
             trigger: trackEl,
             start: "top top",
             end: "bottom bottom",
-            scrub: 1.1,
+            scrub: isDesktop ? 1.1 : 0.6,
+            // Phones: never rest half-way. A short scroll commits and the story finishes.
+            ...(isDesktop
+              ? {}
+              : {
+                  snap: {
+                    snapTo: (v: number, self?: ScrollTrigger) => {
+                      if (v <= 0.001 || v >= 0.999) return v;
+                      const down = (self?.direction ?? 1) > 0;
+                      return down ? (v > 0.1 ? 1 : 0) : v < 0.9 ? 0 : 1;
+                    },
+                    duration: { min: 0.5, max: 1.1 },
+                    delay: 0.12,
+                    ease: "power2.inOut",
+                  },
+                }),
             onToggle: (self) =>
               gsap.set(moving, { willChange: self.isActive ? "transform, opacity" : "" }),
           },
@@ -127,7 +151,7 @@ export function Hero({ featured }: { featured: Product }) {
             capIn,
             { y: 24, opacity: 0 },
             { y: 0, opacity: 1, duration: 0.16, ease: "power2.out", stagger: 0.04 },
-            0.56,
+            0.5,
           );
 
         // Desktop with a mouse: the photos follow the pointer a little (depth).
@@ -164,12 +188,12 @@ export function Hero({ featured }: { featured: Product }) {
   );
 
   return (
-    <div ref={track} data-hero-track className="relative motion-safe:h-[220dvh]">
+    <div ref={track} data-hero-track className="relative motion-safe:h-[220svh]">
       <section
         data-hero-fill
         ref={section}
         aria-labelledby="hero-title"
-        className="sticky top-0 h-[100dvh] min-h-[36rem] overflow-hidden bg-ink text-cream"
+        className="sticky top-0 h-[100svh] min-h-[36rem] overflow-hidden bg-ink text-cream"
       >
         {/* Serum world: black and white, underneath. */}
         <World side="left" media={media.hero.serum} featured={featured} />
@@ -202,19 +226,26 @@ export function Hero({ featured }: { featured: Product }) {
         {/* Shared copy on top. */}
         <Column layer="shared" featured={featured} />
 
-        {/* Scroll cue, fades as the colour rises. */}
+        {/* Progress control: "Apply" -> "Drink" with a line that fills with the scroll. */}
         <div
           data-fill-hint
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-5 z-[3] motion-reduce:hidden"
+          className="pointer-events-none absolute inset-x-0 bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] z-[3] flex justify-center motion-reduce:hidden"
         >
           <p
-            className="hero-ease flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-cream/80"
+            className="hero-ease flex h-9 items-center gap-3 rounded-full border border-cream/20 bg-ink/40 px-4 text-[0.7rem] uppercase tracking-[0.2em] text-cream"
             style={d(1400)}
           >
-            {hero.compare.hint}
-            <span className="relative block h-8 w-px overflow-hidden bg-cream/25">
-              <span className="hero-scroll-cue absolute inset-x-0 top-0 h-1/2 bg-cream" />
+            <span data-fill-from>{hero.compare.progress.from}</span>
+            <span className="relative block h-px w-12 overflow-hidden bg-cream/25">
+              <span
+                data-fill-bar
+                className="absolute inset-0 origin-left bg-cream"
+                style={{ transform: "scaleX(0)" }}
+              />
+            </span>
+            <span data-fill-to className="opacity-[0.45]">
+              {hero.compare.progress.to}
             </span>
           </p>
         </div>
@@ -281,7 +312,7 @@ function Column({
   return (
     <div
       aria-hidden={shared ? undefined : true}
-      className={`pointer-events-none absolute inset-0 flex flex-col items-center px-6 pb-[18%] pt-28 text-center sm:pb-[12%] lg:pt-32 ${shared ? "z-[2]" : ""}`}
+      className={`pointer-events-none absolute inset-0 flex flex-col items-center px-6 pb-[7.5rem] pt-28 text-center sm:pb-[12%] lg:pt-32 ${shared ? "z-[2]" : ""}`}
     >
       <p className={`hero-ease label-caps text-cream/80 ${ghost}`} style={d(200)}>
         {hero.kicker}
@@ -372,6 +403,11 @@ function World({
       {left && (
         <div data-world-dim aria-hidden="true" className="absolute inset-0 bg-ink opacity-0" />
       )}
+      {/* Phones: a deeper shade behind the caption so it reads over bright photos. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-[60%] bg-gradient-to-b from-ink/55 via-ink/25 to-transparent sm:hidden"
+      />
       <div aria-hidden="true" className="hero-grain absolute inset-0" />
       <Column layer="world" word={c.word} outline={left} featured={featured} />
       {/* Captions sit in a wrapper so the scroll story can move them (the inner <p> keeps

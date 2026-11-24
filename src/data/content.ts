@@ -66,7 +66,8 @@ export const hero = {
       facts: ["4 whole foods", "0 sugar", "0 caffeine"],
       name: "SkinFusion",
     },
-    hint: "Scroll to drink",
+    // The small progress control at the bottom of the hero.
+    progress: { from: "Apply", to: "Drink" },
   },
 };
 

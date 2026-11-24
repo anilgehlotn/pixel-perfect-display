@@ -150,15 +150,20 @@ order (`src/routes/index.tsx`):
    caption "On your face" with fact chips). Colour then rises from the bottom like tea filling
    a cup, with a thin glowing edge: the tea world (`media.hero.image`, "drink." in solid
    letters, "In your cup" caption, steam on desktop) replaces it as the edge passes.
-   - Every device: the hero sticks (CSS `position: sticky` in a 220dvh track) and a scroll
-     story follows the scroll (GSAP scrub 1.1, reversible): the black and white photo pushes
-     in and dims, its caption lifts away, a liquid surface (`Meniscus`: glowing wave line,
-     coral bloom) rises with the colour, "apply." lifts away letter by letter while "drink."
-     rises in letter by letter, the colour photo settles from 1.14 and the tea caption parts
-     arrive one by one. Desktop with a mouse: both photos follow the pointer slightly.
-     Nothing plays by itself. Client-requested exception to the mobile "no scrub" rule
-     (transform and opacity only). A "Scroll to drink" cue shows until the fill starts.
-     Reduced motion: no track (`motion-safe:` height), colour at once.
+   - Every device: the hero sticks (CSS `position: sticky` in a 220svh track; `svh`, not
+     `dvh`, so the phone address bar never resizes it mid-scroll) and a scroll story follows
+     the scroll (GSAP scrub, reversible): the black and white photo pushes in and dims, its
+     caption lifts away, a liquid surface (`Meniscus`: glowing wave line, coral bloom) rises
+     with the colour, "apply." lifts away letter by letter while "drink." rises in letter by
+     letter, the colour photo settles from 1.14 and the tea caption parts arrive one by one.
+     A small "Apply / Drink" progress pill at the bottom fills with the scroll
+     (`hero.compare.progress`).
+   - Phones (priority): scrub 0.6 and snap: a short scroll (10% of the track) commits and the
+     story finishes by itself, a short scroll back returns to black and white, so it never
+     rests half-way. A deeper top shade keeps the captions readable. Desktop: scrub 1.1, no
+     snap, photos follow the pointer slightly. Nothing plays by itself. Client-requested
+     exception to the mobile "no scrub" rule (transform and opacity only).
+   - Reduced motion: no track (`motion-safe:` height), colour at once.
    - Transform-only: the fill wrapper moves up while its content moves down by the same
      amount. `Column` keeps the shared copy (real h1 and button) and each world's word aligned.
      Fine film grain over both photos. Reduced motion: shown in colour at once. No JavaScript:

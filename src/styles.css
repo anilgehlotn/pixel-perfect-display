@@ -406,20 +406,6 @@
     animation: hero-meniscus 9s linear infinite;
   }
 }
-/* Hero "Scroll to drink" cue: a short line travelling down. Desktop with a mouse only. */
-@keyframes hero-scroll-cue {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(200%);
-  }
-}
-@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .hero-scroll-cue {
-    animation: hero-scroll-cue 1.8s ease-in-out infinite;
-  }
-}
 @keyframes hero-word {
   from {
     transform: translateY(110%);
