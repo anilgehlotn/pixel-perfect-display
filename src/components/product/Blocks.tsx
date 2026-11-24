@@ -251,7 +251,10 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
             <span data-a-side="them" className="rounded-card bg-surface" />
           </div>
 
-          <div data-a-side="us" className="relative flex items-center gap-4 px-8 pb-5 pt-8 text-cream">
+          <div
+            data-a-side="us"
+            className="relative flex items-center gap-4 px-8 pb-5 pt-8 text-cream"
+          >
             {/* Desktop: a compact header (round photo + name), level with "The rest". */}
             <span className="relative shrink-0">
               <span className="block h-16 w-16 overflow-hidden rounded-full bg-green-soft">
