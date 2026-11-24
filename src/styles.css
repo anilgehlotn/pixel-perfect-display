@@ -401,6 +401,20 @@
     transparent 100%
   );
 }
+/* Hero scroll cue: a short line travelling down. */
+@keyframes hero-scroll-cue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(200%);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-scroll-cue {
+    animation: hero-scroll-cue 1.8s ease-in-out infinite;
+  }
+}
 @keyframes hero-word {
   from {
     transform: translateY(110%);

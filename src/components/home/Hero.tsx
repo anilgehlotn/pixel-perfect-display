@@ -3,7 +3,6 @@ import { hero } from "@/data/content";
 import { media, type MediaImage } from "@/data/media";
 import { inr } from "@/lib/format";
 import { money, type Product } from "@/lib/catalog/types";
-import { Stars } from "@/components/site/Stars";
 import { gsap, useGSAP, type ScrollTrigger } from "@/lib/animations/gsap";
 import { MOTION_CONDITIONS } from "@/lib/animations/media";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
@@ -11,25 +10,29 @@ import { Img } from "./media";
 
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
+/** Scroll positions (0 to 1 of the track) of the three chapters; phones snap between them. */
+const CHAPTERS = [0, 0.34, 1] as const;
+
 /**
- * 1. HERO: "the drop". Black and white until a drop of tea turns it into colour, on scroll.
+ * 1. HERO: a short film in three chapters, played by the scroll (scrubbed, reversible).
  *
- * At rest the serum world fills the screen in greyscale ("Skin care you apply.", "apply." as
- * an outline). Scrolling plays a story (scrubbed, so it follows the finger and reverses):
- * 1. The black and white photo pushes in and dims; its caption lifts away.
- * 2. A drop of tea falls from the top and lands on the headline; "apply." lifts away letter
- *    by letter as it lands, and ripples spread from the point of impact.
- * 3. Colour blooms out from that point in a growing circle (with a soft bright rim) until the
- *    tea world fills the screen; "drink." rises letter by letter out of the bloom, the colour
- *    photo settles from 1.14 and the tea caption parts arrive one by one.
- * A small "Apply / Drink" pill at the bottom fills with the scroll.
+ * At rest: the black and white serum world fills the screen. "Skin care you apply.", one
+ * button and the price. Nothing else.
+ * Chapter 1 (to 0.34): the photo pulls back into a rounded frame on a black stage and dims;
+ *   the headline drifts away; a statement lights up word by word ("Serums stay on the
+ *   surface. Skin care should go deeper.").
+ * Chapter 2 (to 1): the statement leaves, a drop of tea falls onto the frame, ripples spread,
+ *   and colour blooms out from the point of impact while the frame opens back to full bleed.
+ *   "drink." rises letter by letter, the headline and button return, and a spec line
+ *   (4 whole foods | 0 sugar | 0 caffeine) sits under it.
  *
- * Transform and opacity only. The bloom is a circle that scales up while its content scales
- * down by the same factor (so the photo stays put and only the circular window grows).
- * The hero sticks (CSS `position: sticky` in a 240svh track; `svh` so the phone address bar
- * never resizes it). Phones: a short scroll commits and the story finishes by itself (snap),
- * a short scroll back returns to black and white. Desktop: smoother scrub, photos follow the
- * pointer slightly. Reduced motion: no track, colour at once. No JavaScript: black and white.
+ * Transform and opacity only. The frame is a full-screen card with rounded corners at
+ * scale 1.06 (corners off-screen) that scales to 0.86. The bloom is a circle that scales up
+ * while its content scales down by the same factor, so only the round window grows.
+ * The hero sticks (CSS `position: sticky` in a 320svh track; `svh` so the phone address bar
+ * never resizes it). Phones: each swipe moves one chapter forward or back (snap), so it
+ * never rests between chapters. Desktop: a slower scrub and slight pointer depth.
+ * Reduced motion: no track, colour at once. No JavaScript: the black and white world.
  */
 export function Hero({ featured }: { featured: Product }) {
   const track = useRef<HTMLDivElement>(null);
@@ -43,45 +46,49 @@ export function Hero({ featured }: { featured: Product }) {
       if (!root || !trackEl) return;
       const q = (sel: string) => root.querySelector<HTMLElement>(sel);
       const qa = (sel: string) => Array.from(root.querySelectorAll<HTMLElement>(sel));
+      const card = q("[data-card]");
       const bloom = q("[data-bloom]");
       const bloomInner = q("[data-bloom-inner]");
       const rim = q("[data-bloom-rim]");
       const anchor = q("[data-word-anchor]");
+      if (!card || !bloom || !bloomInner || !anchor) return;
       const drop = q("[data-drop]");
       const ripples = qa("[data-ripple]");
-      const hint = q("[data-fill-hint]");
-      const bar = q("[data-fill-bar]");
-      const fromLabel = q("[data-fill-from]");
-      const toLabel = q("[data-fill-to]");
-      if (!bloom || !bloomInner || !anchor) return;
+      const cue = q("[data-cue]");
+      const shared = q("[data-shared]");
+      const statement = q("[data-statement]");
+      const words = qa("[data-statement] [data-sword]");
       const zoomOut = q('[data-world-zoom="left"]');
       const zoomIn = q('[data-world-zoom="right"]');
       const dim = q("[data-world-dim]");
       const applyChars = qa('[data-word="left"] [data-char]');
       const drinkChars = qa('[data-word="right"] [data-char]');
-      const capOut = qa('[data-caption="left"]');
-      const capIn = qa('[data-caption="right"] [data-cap-part]');
       const parallax = qa("[data-world-parallax]");
 
-      // Geometry: the impact point is the centre of the headline word; the bloom circle is
-      // just big enough to cover the screen from there. Measured, never animated.
+      // Geometry from layout offsets (not affected by the card's scale): the impact point is
+      // the centre of the headline word; the bloom circle just covers the card from there.
       const geo = { cx: 0, cy: 0, r: 1 };
       const measure = () => {
-        const box = root.getBoundingClientRect();
-        const a = anchor.getBoundingClientRect();
-        const w = box.width;
-        const h = box.height;
-        geo.cx = a.left - box.left + a.width / 2;
-        geo.cy = a.top - box.top + a.height / 2;
+        let x = 0;
+        let y = 0;
+        let n: HTMLElement | null = anchor;
+        while (n && n !== card) {
+          x += n.offsetLeft;
+          y += n.offsetTop;
+          n = n.offsetParent as HTMLElement | null;
+        }
+        const w = card.offsetWidth;
+        const h = card.offsetHeight;
+        geo.cx = x + anchor.offsetWidth / 2;
+        geo.cy = y + anchor.offsetHeight / 2;
         geo.r =
           Math.ceil(Math.hypot(Math.max(geo.cx, w - geo.cx), Math.max(geo.cy, h - geo.cy))) + 2;
-        const size = `${geo.r * 2}px`;
         for (const el of [bloom, rim]) {
           if (!el) continue;
           el.style.left = `${geo.cx - geo.r}px`;
           el.style.top = `${geo.cy - geo.r}px`;
-          el.style.width = size;
-          el.style.height = size;
+          el.style.width = `${geo.r * 2}px`;
+          el.style.height = `${geo.r * 2}px`;
         }
         bloomInner.style.left = `${geo.r - geo.cx}px`;
         bloomInner.style.top = `${geo.r - geo.cy}px`;
@@ -95,11 +102,11 @@ export function Hero({ featured }: { featured: Product }) {
         }
       };
 
-      const state = { s: 0, p: 0 };
       // The circle starts as a small splash (2% of full size), never smaller: below that the
-      // counter-scale would ask the browser to draw the photo at a huge zoom. Until then it
-      // is hidden (not painted at all).
+      // counter-scale would ask the browser to draw the photo at a huge zoom. Until then it is
+      // hidden (not painted at all).
       const MIN = 0.02;
+      const state = { s: 0 };
       const paint = () => {
         const on = state.s > MIN;
         const s = Math.max(state.s, MIN);
@@ -111,15 +118,6 @@ export function Hero({ featured }: { featured: Product }) {
           rim.style.transform = `scale(${s})`;
           rim.style.opacity = String(Math.min(1, (1 - state.s) * 4));
         }
-        if (bar) bar.style.transform = `scaleX(${state.p})`;
-        if (fromLabel) fromLabel.style.opacity = String(1 - state.p * 0.55);
-        if (toLabel) toLabel.style.opacity = String(0.45 + state.p * 0.55);
-        if (hint) hint.style.opacity = String(Math.min(1, (1 - state.p) * 5));
-      };
-      const showColour = () => {
-        state.s = 1;
-        state.p = 1;
-        paint();
       };
 
       const mm = gsap.matchMedia();
@@ -127,26 +125,31 @@ export function Hero({ featured }: { featured: Product }) {
         const { isReduced, isDesktop } = ctx.conditions as Record<string, boolean>;
         measure();
         if (isReduced) {
-          showColour();
+          state.s = 1;
+          paint();
           return;
         }
         state.s = 0;
-        state.p = 0;
         paint();
         const moving = [
+          card,
           zoomOut,
           zoomIn,
           drop,
+          shared,
+          statement,
+          cue,
+          ...words,
           ...ripples,
           ...applyChars,
           ...drinkChars,
-          ...capOut,
-          ...capIn,
         ].filter(Boolean) as HTMLElement[];
         gsap.set(moving, { transition: "none" });
         if (drop) gsap.set(drop, { xPercent: -50, yPercent: -100, opacity: 0 });
         if (ripples.length)
           gsap.set(ripples, { xPercent: -50, yPercent: -50, scale: 0.2, opacity: 0 });
+        if (statement) gsap.set(statement, { autoAlpha: 0 });
+        if (words.length) gsap.set(words, { opacity: 0.14 });
 
         const tl = gsap.timeline({
           defaults: { ease: "none" },
@@ -154,7 +157,7 @@ export function Hero({ featured }: { featured: Product }) {
             trigger: trackEl,
             start: "top top",
             end: "bottom bottom",
-            scrub: isDesktop ? 1.2 : 0.6,
+            scrub: isDesktop ? 1.2 : 0.5,
             invalidateOnRefresh: true,
             onRefreshInit: measure,
             onRefresh: paint,
@@ -163,86 +166,105 @@ export function Hero({ featured }: { featured: Product }) {
             ...(isDesktop
               ? {}
               : {
+                  // Phones: each swipe moves one chapter forward or back.
                   snap: {
                     snapTo: (v: number, self?: ScrollTrigger) => {
-                      if (v <= 0.001 || v >= 0.999) return v;
+                      if (CHAPTERS.some((c) => Math.abs(c - v) < 0.004)) return v;
                       const down = (self?.direction ?? 1) > 0;
-                      return down ? (v > 0.08 ? 1 : 0) : v < 0.92 ? 0 : 1;
+                      if (down) return CHAPTERS.find((c) => c > v) ?? 1;
+                      return [...CHAPTERS].reverse().find((c) => c < v) ?? 0;
                     },
-                    duration: { min: 0.7, max: 1.4 },
-                    delay: 0.1,
-                    ease: "power2.inOut",
+                    duration: { min: 0.8, max: 1.6 },
+                    delay: 0.08,
+                    ease: "power3.inOut",
                   },
                 }),
           },
         });
 
-        // 0 to 1: hold, fall (0.05 to 0.27), impact at 0.27, bloom (0.27 to 0.85), hold.
-        const IMPACT = 0.27;
-        tl.to({}, { duration: 1 }, 0)
-          .to(state, { p: 1, duration: 0.85, onUpdate: paint }, 0.05)
-          .fromTo(zoomOut, { scale: 1 }, { scale: 1.1, duration: 0.8 }, 0.05)
-          .fromTo(dim, { opacity: 0 }, { opacity: 0.5, duration: 0.25 }, 0.05)
-          .to(capOut, { y: -36, opacity: 0, duration: 0.16, ease: "power2.in" }, 0.06);
+        const IMPACT = 0.5;
+        tl.to({}, { duration: 1 }, 0);
+        // Chapter 1: pull back into a frame, headline leaves, statement lights up.
+        tl.fromTo(
+          card,
+          { scale: 1.06 },
+          { scale: 0.86, duration: 0.26, ease: "power2.inOut" },
+          0.03,
+        )
+          .fromTo(zoomOut, { scale: 1 }, { scale: 1.08, duration: 0.45 }, 0.03)
+          .fromTo(dim, { opacity: 0 }, { opacity: 0.55, duration: 0.2 }, 0.05)
+          .to(cue, { autoAlpha: 0, duration: 0.04 }, 0.01)
+          .to(shared, { autoAlpha: 0, y: -24, duration: 0.1, ease: "power2.in" }, 0.03)
+          .to(
+            applyChars,
+            {
+              yPercent: -30,
+              opacity: 0,
+              duration: 0.1,
+              ease: "power2.in",
+              stagger: { each: 0.012, from: "center" },
+            },
+            0.04,
+          )
+          .to(statement, { autoAlpha: 1, duration: 0.04 }, 0.12)
+          .to(words, { opacity: 1, duration: 0.05, stagger: 0.016 }, 0.14)
+          // Chapter 2: statement leaves, the drop falls, colour blooms, frame opens.
+          .to(statement, { autoAlpha: 0, y: -28, duration: 0.07, ease: "power2.in" }, 0.37);
         if (drop) {
-          tl.to(drop, { opacity: 1, duration: 0.04 }, 0.05)
+          tl.to(drop, { opacity: 1, duration: 0.03 }, 0.38)
             .fromTo(
               drop,
               { y: () => -geo.cy - 40 },
-              { y: 0, duration: IMPACT - 0.05, ease: "power2.in" },
-              0.05,
+              { y: 0, duration: IMPACT - 0.38, ease: "power2.in" },
+              0.38,
             )
             .fromTo(
               drop,
-              { scaleY: 1, scaleX: 1 },
-              { scaleY: 1.25, scaleX: 0.85, duration: IMPACT - 0.09, ease: "power1.in" },
-              0.07,
+              { scaleX: 1, scaleY: 1 },
+              { scaleX: 0.85, scaleY: 1.25, duration: IMPACT - 0.4, ease: "power1.in" },
+              0.4,
             )
-            .to(drop, { scale: 0.2, opacity: 0, duration: 0.03, ease: "power1.out" }, IMPACT);
+            .to(drop, { scale: 0.2, opacity: 0, duration: 0.02 }, IMPACT);
         }
-        tl.to(
-          applyChars,
-          {
-            yPercent: -40,
-            opacity: 0,
-            duration: 0.12,
-            ease: "power2.in",
-            stagger: { each: 0.018, from: "center" },
-          },
-          IMPACT - 0.05,
-        );
         ripples.forEach((el, i) => {
           tl.fromTo(
             el,
             { scale: 0.2, opacity: 0.9 },
-            { scale: 2.6 + i * 1.2, opacity: 0, duration: 0.3, ease: "power2.out" },
-            IMPACT + i * 0.05,
+            {
+              scale: 2.6 + i * 1.2,
+              opacity: 0,
+              duration: 0.22,
+              ease: "power2.out",
+              immediateRender: false,
+            },
+            IMPACT + i * 0.04,
           );
         });
         tl.fromTo(
           state,
           { s: 0 },
-          { s: 1, duration: 0.58, ease: "power2.inOut", onUpdate: paint },
+          { s: 1, duration: 0.34, ease: "power2.inOut", onUpdate: paint },
           IMPACT,
         )
-          .fromTo(zoomIn, { scale: 1.14 }, { scale: 1, duration: 0.6, ease: "power2.out" }, IMPACT)
+          .to(card, { scale: 1.06, duration: 0.34, ease: "power2.inOut" }, IMPACT + 0.04)
+          .fromTo(zoomIn, { scale: 1.16 }, { scale: 1, duration: 0.4, ease: "power2.out" }, IMPACT)
           .fromTo(
             drinkChars,
             { yPercent: 70, opacity: 0 },
             {
               yPercent: 0,
               opacity: 1,
-              duration: 0.18,
+              duration: 0.12,
               ease: "power3.out",
-              stagger: { each: 0.025, from: "center" },
+              stagger: { each: 0.018, from: "center" },
             },
-            IMPACT + 0.04,
+            IMPACT + 0.06,
           )
           .fromTo(
-            capIn,
-            { y: 24, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.14, ease: "power2.out", stagger: 0.035 },
-            0.6,
+            shared,
+            { autoAlpha: 0, y: 24 },
+            { autoAlpha: 1, y: 0, duration: 0.1, ease: "power2.out", immediateRender: false },
+            IMPACT + 0.2,
           );
 
         // Desktop with a mouse: the photos follow the pointer a little (depth).
@@ -257,8 +279,8 @@ export function Hero({ featured }: { featured: Product }) {
             const nx = e.clientX / window.innerWidth - 0.5;
             const ny = e.clientY / window.innerHeight - 0.5;
             for (const m of movers) {
-              m.x(-nx * 18 * m.depth);
-              m.y(-ny * 12 * m.depth);
+              m.x(-nx * 16 * m.depth);
+              m.y(-ny * 10 * m.depth);
             }
           };
           root.addEventListener("pointermove", onMove);
@@ -269,7 +291,7 @@ export function Hero({ featured }: { featured: Product }) {
           tl.scrollTrigger?.kill();
           tl.kill();
           gsap.set([...moving, ...parallax, dim].filter(Boolean), {
-            clearProps: "transform,opacity,willChange,transition",
+            clearProps: "transform,opacity,visibility,willChange,transition",
           });
         };
       });
@@ -278,86 +300,110 @@ export function Hero({ featured }: { featured: Product }) {
     { scope: track },
   );
 
+  const c = hero.compare;
   return (
-    <div ref={track} data-hero-track className="relative motion-safe:h-[240svh]">
+    <div ref={track} data-hero-track className="relative bg-ink motion-safe:h-[320svh]">
       <section
         data-hero-fill
         ref={section}
         aria-labelledby="hero-title"
         className="sticky top-0 h-[100svh] min-h-[36rem] overflow-hidden bg-ink text-cream"
       >
-        {/* Serum world: black and white, underneath. */}
-        <World side="left" media={media.hero.serum} featured={featured} />
-
-        {/* Ripples where the drop lands. */}
-        {[0, 1].map((i) => (
-          <span
-            key={i}
-            data-ripple
-            aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 z-[1] block h-40 w-40 rounded-full border border-cream/70 opacity-0"
-          />
-        ))}
-
-        {/* Tea world: a circle that grows from the point of impact (content counter-scaled). */}
+        {/* The frame: full screen at rest (corners off-screen at 1.06), pulls back mid-story. */}
         <div
-          data-bloom
-          className="absolute left-1/2 top-1/2 z-[1] h-0 w-0 overflow-hidden rounded-full"
-          style={{ visibility: "hidden" }}
+          data-card
+          className="absolute inset-0 overflow-hidden rounded-[1.75rem] lg:rounded-[2.25rem]"
+          style={{ transform: "scale(1.06)" }}
         >
-          <div data-bloom-inner className="absolute">
-            <World side="right" media={media.hero.image} featured={featured} />
-          </div>
-        </div>
-        {/* A soft bright rim on the edge of the bloom. */}
-        <div
-          data-bloom-rim
-          aria-hidden="true"
-          className="hero-rim pointer-events-none absolute left-1/2 top-1/2 z-[1] h-0 w-0 rounded-full"
-          style={{ visibility: "hidden" }}
-        />
+          {/* Serum world: black and white, underneath. */}
+          <World side="left" media={media.hero.serum} featured={featured} />
 
-        {/* The drop of tea. */}
-        <span
-          data-drop
-          aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 z-[2] block w-6 opacity-0"
-        >
-          <svg
-            viewBox="0 0 20 28"
-            className="block w-full drop-shadow-[0_0_10px_var(--color-primary)]"
-          >
-            <path
-              d="M10 0 C 10 0, 20 13, 20 18 A 10 10 0 0 1 0 18 C 0 13, 10 0, 10 0 Z"
-              className="fill-primary"
+          {/* Ripples where the drop lands. */}
+          {[0, 1].map((i) => (
+            <span
+              key={i}
+              data-ripple
+              aria-hidden="true"
+              className="pointer-events-none absolute left-1/2 top-1/2 z-[1] block h-40 w-40 rounded-full border border-cream/70 opacity-0"
             />
-            <ellipse cx="6.5" cy="17" rx="2" ry="3.2" className="fill-cream/70" />
-          </svg>
-        </span>
+          ))}
 
-        {/* Shared copy on top. */}
-        <Column layer="shared" featured={featured} />
+          {/* Tea world: a circle that grows from the point of impact (content counter-scaled). */}
+          <div
+            data-bloom
+            className="absolute left-1/2 top-1/2 z-[1] h-0 w-0 overflow-hidden rounded-full"
+            style={{ visibility: "hidden" }}
+          >
+            <div data-bloom-inner className="absolute">
+              <World side="right" media={media.hero.image} featured={featured} />
+            </div>
+          </div>
+          <div
+            data-bloom-rim
+            aria-hidden="true"
+            className="hero-rim pointer-events-none absolute left-1/2 top-1/2 z-[1] h-0 w-0 rounded-full"
+            style={{ visibility: "hidden" }}
+          />
 
-        {/* Progress pill: "Apply" -> "Drink" with a line that fills with the scroll. */}
+          {/* The drop of tea. */}
+          <span
+            data-drop
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] block w-6 opacity-0"
+          >
+            <svg
+              viewBox="0 0 20 28"
+              className="block w-full drop-shadow-[0_0_10px_var(--color-primary)]"
+            >
+              <path
+                d="M10 0 C 10 0, 20 13, 20 18 A 10 10 0 0 1 0 18 C 0 13, 10 0, 10 0 Z"
+                className="fill-primary"
+              />
+              <ellipse cx="6.5" cy="17" rx="2" ry="3.2" className="fill-cream/70" />
+            </svg>
+          </span>
+
+          {/* Shared copy on top: the real headline, button and price. */}
+          <Column layer="shared" featured={featured} />
+        </div>
+
+        {/* The statement: lights up word by word in chapter 1 (decorative; the same words are
+            in the headline's description for screen readers). */}
         <div
-          data-fill-hint
+          data-statement
+          aria-hidden="true"
+          className="pointer-events-none invisible absolute inset-0 z-[4] flex items-center justify-center px-6"
+        >
+          <p className="max-w-[12ch] text-balance text-center text-[clamp(2.1rem,1.1rem+4.2vw,5rem)] font-medium leading-[1.04] tracking-[-0.035em] text-cream sm:max-w-none">
+            {c.statement.map((line, li) => (
+              <span
+                key={line}
+                className={`block text-balance sm:whitespace-nowrap ${li === 1 ? "mt-[0.35em]" : ""}`}
+              >
+                {line.split(" ").map((w, wi) => (
+                  <span key={`${w}-${wi}`} data-sword className="inline-block">
+                    {w}
+                    {" "}
+                  </span>
+                ))}
+              </span>
+            ))}
+          </p>
+        </div>
+
+        {/* Scroll cue at rest: a short line travelling down. */}
+        <div
+          data-cue
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] z-[3] flex justify-center motion-reduce:hidden"
         >
           <p
-            className="hero-ease flex h-9 items-center gap-3 rounded-full border border-cream/20 bg-ink/40 px-4 text-[0.7rem] uppercase tracking-[0.2em] text-cream"
+            className="hero-ease flex flex-col items-center gap-2 text-[0.7rem] uppercase tracking-[0.25em] text-cream/70"
             style={d(1400)}
           >
-            <span data-fill-from>{hero.compare.progress.from}</span>
-            <span className="relative block h-px w-12 overflow-hidden bg-cream/25">
-              <span
-                data-fill-bar
-                className="absolute inset-0 origin-left bg-cream"
-                style={{ transform: "scaleX(0)" }}
-              />
-            </span>
-            <span data-fill-to className="opacity-[0.45]">
-              {hero.compare.progress.to}
+            {c.scrollCue}
+            <span className="relative block h-8 w-px overflow-hidden bg-cream/20">
+              <span className="hero-scroll-cue absolute inset-x-0 top-0 h-1/2 bg-cream" />
             </span>
           </p>
         </div>
@@ -367,39 +413,39 @@ export function Hero({ featured }: { featured: Product }) {
 }
 
 /**
- * The centred column: kicker, "Skin care you", the big word, button and proof. Rendered three
- * times with the same layout so the word lines up exactly: once on top with the real copy and
- * an invisible word (keeps the space), and once inside each world with only the word visible.
+ * The centred column: kicker, "Skin care you", the big word, button, price and (in the colour
+ * world) the spec line. Rendered three times with the same layout so the word lines up
+ * exactly: once on top with the real copy and an invisible word (keeps the space), and once
+ * inside each world with only its own pieces visible.
  */
 function Column({
   layer,
-  word,
-  outline = false,
+  side,
   featured,
 }: {
   layer: "shared" | "world";
-  word?: string;
-  outline?: boolean;
+  side?: "left" | "right";
   featured: Product;
 }) {
   const c = hero.compare;
   const shared = layer === "shared";
   const ghost = shared ? "" : "invisible";
   const price = money(featured.priceRange.minVariantPrice);
-  const mrp = featured.compareAtPriceRange
-    ? money(featured.compareAtPriceRange.minVariantPrice)
-    : 0;
+  const word = side ? c[side].word : c.right.word;
   const Title = shared ? "h1" : "div";
   return (
     <div
       aria-hidden={shared ? undefined : true}
-      className={`pointer-events-none absolute inset-0 flex flex-col items-center px-6 pb-[7.5rem] pt-28 text-center sm:pb-[12%] lg:pt-32 ${shared ? "z-[2]" : ""}`}
+      {...(shared ? { "data-shared": "" } : {})}
+      className={`pointer-events-none absolute inset-0 flex flex-col items-center px-6 pb-[6.5rem] pt-28 text-center sm:pb-[9%] lg:pt-32 ${shared ? "z-[2]" : ""}`}
     >
-      <p className={`hero-ease label-caps text-cream/80 ${ghost}`} style={d(200)}>
+      <p className={`hero-ease label-caps text-cream/75 ${ghost}`} style={d(200)}>
         {hero.kicker}
       </p>
       <Title
-        {...(shared ? { id: "hero-title", "aria-label": hero.title } : {})}
+        {...(shared
+          ? { id: "hero-title", "aria-label": hero.title, "aria-describedby": "hero-statement" }
+          : {})}
         className="mt-auto flex flex-col items-center"
       >
         <span
@@ -415,13 +461,13 @@ function Column({
           className="block overflow-hidden pb-[0.06em]"
         >
           <span
-            className={`hero-word block text-[clamp(5rem,2.5rem+15vw,15rem)] leading-[0.95] tracking-[-0.05em] ${shared ? "invisible font-normal" : outline ? "hero-outline font-light" : "font-normal text-cream"}`}
+            className={`hero-word block text-[clamp(5rem,2.5rem+15vw,15rem)] leading-[0.95] tracking-[-0.05em] ${shared ? "invisible font-normal" : side === "left" ? "hero-outline font-light" : "font-normal text-cream"}`}
             style={d(550)}
           >
-            {shared || !word ? (
-              (word ?? c.right.word)
+            {shared ? (
+              word
             ) : (
-              <span data-word={outline ? "left" : "right"} className="inline-block">
+              <span data-word={side} className="inline-block">
                 {Array.from(word).map((ch, i) => (
                   <span key={i} data-char className="inline-block">
                     {ch}
@@ -432,29 +478,40 @@ function Column({
           </span>
         </span>
       </Title>
+      {shared && (
+        <span id="hero-statement" className="sr-only">
+          {c.statement.join(" ")}
+        </span>
+      )}
       <div
-        className={`hero-ease mt-6 flex flex-col items-center gap-3 ${shared ? "pointer-events-auto" : "invisible"}`}
+        className={`hero-ease mt-6 flex flex-col items-center gap-2.5 ${shared ? "pointer-events-auto" : "invisible"}`}
         style={d(900)}
       >
         <a href={hero.shopCta.href} className="btn btn-primary" tabIndex={shared ? undefined : -1}>
           {hero.shopCta.label}
         </a>
-        {featured.rating && (
-          <span className="hidden items-center gap-2 text-sm text-cream/80 sm:flex">
-            <Stars value={featured.rating.value} size={13} />
-            {featured.rating.value.toFixed(1)} from {featured.rating.count.toLocaleString("en-IN")}{" "}
-            {hero.ratingLabel}, {hero.from.toLowerCase()} {inr(price)}
-            {mrp > price && <span className="line-through">{inr(mrp)}</span>}
-          </span>
-        )}
+        <span className="text-sm text-cream/70">
+          {hero.from} {inr(price)}
+        </span>
       </div>
+      {/* Spec line: only visible in the colour world (revealed by the bloom). */}
+      <ul
+        className={`mt-5 flex items-center gap-4 text-[0.8rem] tracking-[0.02em] text-cream/85 sm:text-sm ${side === "right" ? "" : "invisible"}`}
+      >
+        {c.right.facts.map((f, i) => (
+          <li key={f} className="flex items-center gap-4">
+            {i > 0 && <span aria-hidden="true" className="h-3 w-px bg-cream/35" />}
+            {f}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 /**
- * One world: graded photo, the giant word (in the same place in both worlds), and a caption
- * in its own corner. The serum world is cool and grey; the tea world is warm.
+ * One world: graded photo, the giant word (in the same place in both worlds). The serum world
+ * is cool and grey and can be dimmed; the tea world is warm, with steam on desktop.
  */
 function World({
   side,
@@ -465,7 +522,6 @@ function World({
   media: MediaImage;
   featured: Product;
 }) {
-  const c = hero.compare[side];
   const left = side === "left";
   return (
     <div className="absolute inset-0">
@@ -483,65 +539,15 @@ function World({
       </div>
       <div
         aria-hidden="true"
-        className={`absolute inset-0 ${left ? "bg-gradient-to-b from-ink/60 via-ink/35 to-ink/70" : "bg-gradient-to-b from-ink/45 via-ink/15 to-ink/65"}`}
+        className={`absolute inset-0 ${left ? "bg-gradient-to-b from-ink/60 via-ink/35 to-ink/70" : "bg-gradient-to-b from-ink/40 via-ink/10 to-ink/70"}`}
       />
       {left && (
         <div data-world-dim aria-hidden="true" className="absolute inset-0 bg-ink opacity-0" />
       )}
-      {/* Phones: a deeper shade behind the caption so it reads over bright photos. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-[60%] bg-gradient-to-b from-ink/55 via-ink/25 to-transparent sm:hidden"
-      />
       <div aria-hidden="true" className="hero-grain absolute inset-0" />
-      <Column layer="world" word={c.word} outline={left} featured={featured} />
-      {/* Captions sit in a wrapper so the scroll story can move them (the inner <p> keeps
-          its CSS entrance). Desktop: in a corner. Phones: centred above the headline. */}
-      <div data-caption={side} aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <p
-          className={`hero-ease absolute top-[30%] hidden max-w-[15rem] sm:block ${left ? "left-8 text-left lg:left-12" : "right-8 text-right lg:right-12"}`}
-          style={d(1200)}
-        >
-          <CaptionParts side={side} />
-        </p>
-        <p className="hero-ease absolute inset-x-6 top-[30%] text-center sm:hidden" style={d(1000)}>
-          <CaptionParts side={side} compact />
-        </p>
-      </div>
+      <Column layer="world" side={side} featured={featured} />
       {!left && <Steam />}
     </div>
-  );
-}
-
-/** Tag, line and fact chips; each piece is a separate step in the scroll story. */
-function CaptionParts({ side, compact = false }: { side: "left" | "right"; compact?: boolean }) {
-  const c = hero.compare[side];
-  const left = side === "left";
-  return (
-    <>
-      <span data-cap-part className="label-caps block text-cream/75">
-        {c.tag}
-      </span>
-      <span
-        data-cap-part
-        className={`mt-2 block text-[1.05rem] leading-snug text-cream/95 ${compact ? "mx-auto max-w-[17rem]" : ""}`}
-      >
-        {c.text}
-      </span>
-      <span
-        className={`flex flex-wrap gap-2 ${compact ? "mt-3 justify-center" : `mt-4 ${left ? "" : "justify-end"}`}`}
-      >
-        {c.facts.map((f) => (
-          <span
-            key={f}
-            data-cap-part
-            className={`inline-block rounded-full px-3 py-1 text-xs ${left ? "border border-cream/40 text-cream/80" : "bg-cream text-green"}`}
-          >
-            {f}
-          </span>
-        ))}
-      </span>
-    </>
   );
 }
 

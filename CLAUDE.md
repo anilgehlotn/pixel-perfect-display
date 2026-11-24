@@ -145,29 +145,30 @@ regenerates `routeTree.gen.ts` automatically.
 Seed-inspired layout (layout and motion only; no Seed content, media or fonts). Sections, in
 order (`src/routes/index.tsx`):
 
-1. **Hero** (`Hero.tsx`), "the drop": starts in black and white (`media.hero.serum`,
-   greyscale, "Skin care you apply." with "apply." as a thin outline, caption "On your face"
-   with fact chips). Scrolling plays a story that follows the scroll (GSAP scrub) and
-   reverses on the way back:
-   - The black and white photo pushes in and dims; its caption lifts away.
-   - A coral drop of tea falls from the top and lands on the headline word; "apply." lifts
-     away letter by letter and two ripples spread from the point of impact.
-   - Colour blooms out from that point in a growing circle with a soft bright rim
-     (`.hero-rim`) until the tea world (`media.hero.image`, "drink.", "In your cup", steam on
-     desktop) fills the screen; "drink." rises letter by letter, the colour photo settles from
-     1.14 and the tea caption parts arrive one by one.
-   - An "Apply / Drink" progress pill at the bottom fills with the scroll
-     (`hero.compare.progress`).
-   - The hero sticks (CSS `position: sticky` in a 240svh track; `svh`, not `dvh`, so the
+1. **Hero** (`Hero.tsx`): a short film in three chapters played by the scroll (GSAP scrub,
+   reversible), Apple-style restraint: no captions, chips or ratings in the hero.
+   - At rest: the black and white serum world (`media.hero.serum`) fills the screen: kicker,
+     "Skin care you apply." ("apply." as a thin outline), one button and "From" price, a
+     small "Scroll" cue.
+   - Chapter 1 (to 0.34 of the track): the photo pulls back into a rounded frame on a black
+     stage (`data-card`, scale 1.06 to 0.86; at 1.06 its corners are off-screen) and dims,
+     the headline drifts away, and a statement lights up word by word
+     (`hero.compare.statement`, also in the h1's description for screen readers).
+   - Chapter 2: the statement leaves, a coral drop of tea falls onto the headline position,
+     two ripples spread, and colour blooms out from there in a growing circle with a soft
+     rim (`.hero-rim`) while the frame opens back to full bleed. "drink." rises letter by
+     letter, the headline, button and price return, and a spec line (`facts`, thin dividers)
+     sits underneath. Steam in the tea world on desktop.
+   - The hero sticks (CSS `position: sticky` in a 320svh track; `svh`, not `dvh`, so the
      phone address bar never resizes it).
-   - Phones (priority): scrub 0.6 and snap: a short scroll (8% of the track) commits and the
-     story finishes by itself, a short scroll back returns to black and white, so it never
-     rests half-way. A deeper top shade keeps the captions readable. Desktop: scrub 1.2, no
-     snap, photos follow the pointer slightly. Nothing plays by itself. Client-requested
-     exception to the mobile "no scrub" rule (transform and opacity only).
+   - Phones (priority): scrub 0.5 and snap between chapters (`CHAPTERS` in Hero.tsx): each
+     swipe moves one chapter forward or back, so it never rests in between. Desktop: scrub
+     1.2, no snap, photos follow the pointer slightly. Nothing plays by itself.
+     Client-requested exception to the mobile "no scrub" rule (transform and opacity only).
    - Bloom technique: the circle scales up while its content scales down by the same factor,
      so only the round window grows. It starts at 2% of full size (hidden before that): never
-     smaller, or the counter-scale makes the browser draw the photo at a huge zoom.
+     smaller, or the counter-scale makes the browser draw the photo at a huge zoom. Geometry
+     comes from layout offsets, so the card's scale does not affect it.
    - Reduced motion: no track (`motion-safe:` height), colour at once. No JavaScript: the
      black and white serum world. Fine film grain over both photos.
      **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
@@ -499,7 +500,7 @@ element: nest wrappers.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
 | Intro loader (home, once per session) | Letters fade up, slide away, max 1.6s                                      | Same, max 1s                                      |
 | Hero entrance                         | Nav fades down, headline lines rise from a mask, composition settles in    | Text fades up, composition fades in, buttons last |
-| Hero                                  | Black and white; sticky, a drop lands and colour blooms out (scrub)        | Same, plus snap so it never rests half-way        |
+| Hero                                  | Black and white film in chapters: frame, statement, drop, bloom (scrub)    | Same, snapping chapter by chapter                 |
 | Big headlines (`lines`)               | Lines rise from a mask once                                                | Fade up once                                      |
 | Images (`media`)                      | Scale 1.06 to 1 + fade in, 1.4s                                            | Same, 0.9s                                        |
 | Cards                                 | y 48, stagger 0.1; lift 6px on hover                                       | y 20, stagger 0.05, max 6 per group               |
