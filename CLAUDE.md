@@ -175,8 +175,8 @@ order (`src/routes/index.tsx`):
    - Reduced motion: no track (`motion-safe:` height), no shader, colour at once. No
      JavaScript: the black and white serum world.
      **Ingredient strip** (`IngredientStrip` in Sections.tsx, `ingredientStrip` copy): green band
-     under the hero; moves slowly on desktop (paused off-screen, pause button on the strip),
-     still on phones.
+     under the hero; moves slowly on every device (30s phones, 40s desktop; paused off-screen
+     and in hidden tabs; 44px pause button on the strip); still with reduced motion.
 2. **Product row** (`#shop`): eyebrow "The collection", "Our teas" and a short line beside it
    (`home.products`). `getProducts()` as white cards (`ProductCard`, exported and reused for
    "You may also like"): the photo is inset with rounded corners, frosted tags on it (best

@@ -31,8 +31,8 @@ import { SkinLayers } from "./SkinLayers";
 import { useWhyEdibleStory } from "@/lib/animations/why-edible";
 
 /* INGREDIENT STRIP: a slow moving line of the ingredients and promises under the hero.
-   Desktop with a mouse: it moves (paused off-screen and in hidden tabs). Phones and reduced
-   motion: still. The second copy is decorative. */
+   It moves on every device (paused off-screen, in hidden tabs and by the pause button);
+   reduced motion: still, no button. The second copy is decorative. */
 export function IngredientStrip() {
   const ref = useRef<HTMLElement>(null);
   const [paused, setPaused] = useState(false);
@@ -62,7 +62,7 @@ export function IngredientStrip() {
         type="button"
         onClick={() => setPaused((p) => !p)}
         aria-label={paused ? "Play moving strip" : "Pause moving strip"}
-        className="absolute right-3 top-1/2 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-green text-cream/80 ring-1 ring-cream/25 hover:text-cream lg:grid"
+        className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-green text-cream/80 ring-1 ring-cream/25 hover:text-cream motion-reduce:hidden lg:right-3"
       >
         {paused ? (
           <Play size={12} weight="fill" aria-hidden="true" />
