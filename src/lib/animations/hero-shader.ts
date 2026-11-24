@@ -1,16 +1,13 @@
 /**
  * Homepage hero renderer (WebGL 1, one full-screen quad, two photos).
  *
- * Draws the black and white serum photo and the colour tea photo, and "steeps" the colour into
- * the black and white like tea spreading through water:
- * - two fine ripples that gently refract the photo where the drop lands,
- * - an organic, slowly shifting edge (fractal noise) instead of a hard circle,
- * - a warm glowing rim with a slight colour split along it (light through a glass of tea),
- * - a warm stain just ahead of the edge, before the colour arrives,
- * - film grain and the same top/bottom shading as the DOM fallback.
+ * Draws the black and white serum photo and the colour tea photo. After the drop lands, two
+ * fine ripples gently bend the photo and the colour spreads out from the impact point in one
+ * clean, round wave with a soft feathered edge (grey rising to full colour inside the edge),
+ * with film grain and the same top/bottom shading as the DOM fallback.
  *
- * It renders only when something changes (scroll progress, pointer, or the living edge while
- * the transition is in between), so a still hero costs nothing. Device pixel ratio is capped.
+ * It renders only when something changes (scroll progress, pointer, or the ripples while they
+ * spread), so a still hero costs nothing. Device pixel ratio is capped.
  * If WebGL is missing or the context is lost, `createHeroRenderer` returns null / calls
  * `onLost`, and the hero falls back to a plain DOM crossfade.
  */
@@ -72,24 +69,6 @@ float hash(vec2 p) {
   p += dot(p, p + 45.32);
   return fract(p.x * p.y);
 }
-float noise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
-             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
-}
-float fbm(vec2 p) {
-  float v = 0.0;
-  float a = 0.5;
-  for (int i = 0; i < 5; i++) {
-    v += a * noise(p);
-    p = p * 2.03 + vec2(1.7, 9.2);
-    a *= 0.5;
-  }
-  return v;
-}
-
 // object-fit: cover with object-position (focus) and an extra zoom, on a box uPad px larger
 // than the canvas on every side (matches the DOM photo, which has room for pointer depth).
 vec2 cover(vec2 uv, vec2 size, vec2 focus, float zoom, vec2 shift) {
@@ -131,22 +110,16 @@ void main() {
   float ring2 = exp(-pow((d - r2) * 18.0, 2.0)) * 0.55;
   float wave = (sin((d - r1) * 110.0) * ring1 + sin((d - r2) * 130.0) * ring2) * ringFade;
 
-  // The colour edge: a circle roughed up by slow fractal noise, so it spreads like tea
-  // steeping in water. The roughness is largest mid-way and settles as it fills.
-  float grow = smoothstep(0.0, 0.08, uBloom);
-  float R = uBloom * (maxR + 0.45) - 0.03;
-  float n1 = fbm(p * 2.4 + vec2(uTime * 0.05, -uTime * 0.04));
-  float n2 = fbm(p * 7.0 - vec2(uTime * 0.09, uTime * 0.07));
-  float rough = (n1 - 0.5) * 0.42 * grow * (1.0 - uBloom * 0.55) + (n2 - 0.5) * 0.07 * grow;
-  float edge = d - R + rough;
-  float mask = (1.0 - smoothstep(-0.012, 0.012, edge)) * step(0.0005, uBloom);
-  // The rim grows in gently (no hot spot while the colour is still small) and fades at the end.
-  float rimIn = smoothstep(0.03, 0.3, uBloom);
-  float band = exp(-pow(edge * 16.0, 2.0)) * rimIn * (1.0 - smoothstep(0.88, 1.0, uBloom));
+  // The colour: one clean, perfectly round wave from the impact point with a soft feathered
+  // edge (smootherstep), no glow or distortion. It starts just under the drop and reaches
+  // the farthest corner at 1.
+  float F = 0.11;
+  float R = uBloom * (maxR + 2.0 * F) - F;
+  float t = clamp((R + F - d) / (2.0 * F), 0.0, 1.0);
+  float mask = t * t * t * (t * (t * 6.0 - 15.0) + 10.0) * step(0.0005, uBloom);
 
-  // Liquid lens: the ripple and the edge both refract the photo outward.
-  vec2 disp = dir * (wave * 0.0045 + band * 0.018) / sc;
-  vec2 uvD = uv + disp;
+  // Only the ripples bend the photo, very slightly.
+  vec2 uvD = uv + dir * wave * 0.0045 / sc;
   vec2 tilt = uTilt * uPad;
 
   // Black and white world: grayscale, brightness 0.8, contrast 1.08, then dimmed and shaded.
@@ -157,24 +130,17 @@ void main() {
   A = shade(A, uv.y, vec3(0.6, 0.35, 0.7));
   A = mix(A, INK, uDim);
 
-  // Tea stain creeping just ahead of the edge.
-  float ahead = exp(-max(edge, 0.0) * 7.0) * (1.0 - mask) * grow * (1.0 - uBloom);
-  A = mix(A, A * vec3(1.18, 0.98, 0.78) + vec3(0.04, 0.02, 0.0), ahead * 0.85);
-
-  // Colour world, with a slight colour split along the rim.
-  vec2 uvB = cover(uvD, uSizeB, uFocusB, uZoomB, tilt);
-  vec2 split = dir * band * 0.007 / sc;
-  vec3 B = vec3(texture2D(uB, uvB + split).r, texture2D(uB, uvB).g, texture2D(uB, uvB - split).b);
-  B = mix(vec3(dot(B, LUM)), B, 1.15);
+  // Colour world. Inside the soft edge the colour comes up gradually (from grey to full
+  // colour), so the two photos never look like a double exposure.
+  vec3 B = texture2D(uB, cover(uvD, uSizeB, uFocusB, uZoomB, tilt)).rgb;
+  B = mix(vec3(dot(B, LUM)), B, 1.15 * mask);
   B = shade(B, uv.y, vec3(0.4, 0.1, 0.7));
 
   vec3 col = mix(A, B, mask);
-  // Warm glowing rim.
-  col += vec3(1.0, 0.76, 0.55) * band * 0.38;
-  // Ripple highlight.
-  col += vec3(1.0, 0.95, 0.88) * max(wave, 0.0) * 0.035;
-  // Film grain.
-  col += (hash(uv * uRes + fract(uTime * 7.0) * 311.0) - 0.5) * 0.045;
+  // Ripple highlight (faint).
+  col += vec3(1.0, 0.95, 0.88) * max(wave, 0.0) * 0.03;
+  // Film grain (still).
+  col += (hash(uv * uRes) - 0.5) * 0.04;
 
   gl_FragColor = vec4(col, 1.0);
 }`;

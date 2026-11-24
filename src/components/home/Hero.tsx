@@ -22,10 +22,9 @@ const FOCUS = { a: [0.35, 0.6], b: [0.6, 0.6] } as const;
  * At rest: the black and white serum world. "Skin care you apply.", one button and the price.
  * As you scroll:
  * - the photo pulls back into a rounded frame on a black stage and dims;
- * - a coral drop of tea falls onto the headline; "apply." lifts away letter by letter;
- * - the photo ripples like a liquid surface where it lands (real refraction), and the colour
- *   steeps outward like tea spreading through water: an organic, slowly shifting edge with
- *   a warm glowing rim and a slight colour split, a warm stain creeping just ahead of it;
+ * - a small amber bead of tea falls onto the headline; "apply." lifts away letter by letter;
+ * - two fine ripples gently bend the photo where it lands, and the colour spreads out from
+ *   there in one clean, round wave with a soft feathered edge (no glow or distortion);
  * - the frame opens back to full bleed, "drink." rises letter by letter and the spec line
  *   (4 whole foods | 0 sugar | 0 caffeine) arrives.
  *
@@ -109,7 +108,7 @@ export function Hero({ featured }: { featured: Product }) {
           tiltY: tilt.y,
         });
         renderer.draw(t / 1000);
-        const living = (u.bloom > 0 && u.bloom < 1) || (u.ripple > 0 && u.ripple < 1);
+        const living = u.ripple > 0 && u.ripple < 1;
         const tilting = Math.abs(tilt.tx - tilt.x) + Math.abs(tilt.ty - tilt.y) > 0.001;
         if (living || tilting) schedule();
       };
@@ -186,8 +185,8 @@ export function Hero({ featured }: { featured: Product }) {
         gsap.set(moving, { transition: "none" });
         if (drop) gsap.set(drop, { xPercent: -50, yPercent: -100, opacity: 0 });
         // Start states, set every time this runs (a re-run after cleanup must not show them).
-        gsap.set(drinkChars, { yPercent: 70, opacity: 0 });
-        gsap.set(applyChars, { yPercent: 0, opacity: 1 });
+        gsap.set(drinkChars, { y: 0, yPercent: 70, opacity: 0 });
+        gsap.set(applyChars, { y: 0, yPercent: 0, opacity: 1 });
         if (spec) gsap.set(spec, { opacity: 0, y: 14 });
         if (steam) gsap.set(steam, { opacity: 0 });
 
@@ -212,7 +211,7 @@ export function Hero({ featured }: { featured: Product }) {
                       const down = (self?.direction ?? 1) > 0;
                       return down ? (v > 0.04 ? 1 : 0) : v < 0.96 ? 0 : 1;
                     },
-                    duration: { min: 1.2, max: 2 },
+                    duration: { min: 1.4, max: 2.2 },
                     delay: 0.08,
                     ease: "power2.inOut",
                   },
@@ -264,7 +263,7 @@ export function Hero({ featured }: { featured: Product }) {
           .fromTo(
             u,
             { bloom: 0 },
-            { bloom: 1, duration: 0.46, ease: "power1.inOut", onUpdate: update },
+            { bloom: 1, duration: 0.5, ease: "sine.inOut", onUpdate: update },
             IMPACT + 0.01,
           )
           .fromTo(
@@ -276,8 +275,9 @@ export function Hero({ featured }: { featured: Product }) {
           .to(card, { scale: 1.06, duration: 0.42, ease: "power2.inOut" }, IMPACT + 0.06)
           .fromTo(
             drinkChars,
-            { yPercent: 70, opacity: 0 },
+            { y: 0, yPercent: 70, opacity: 0 },
             {
+              y: 0,
               yPercent: 0,
               opacity: 1,
               duration: 0.12,

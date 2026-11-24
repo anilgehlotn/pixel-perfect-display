@@ -153,14 +153,14 @@ order (`src/routes/index.tsx`):
    - As you scroll: the photo pulls back into a rounded frame on a black stage (`data-card`,
      scale 1.06 to 0.86; at 1.06 its corners are off-screen) and dims; a small amber glass
      bead of tea (`.hero-drop-bead`, faint trail) falls onto the headline; "apply." lifts away
-     letter by letter; two fine ripples gently refract the photo where it lands and the colour (`media.hero.image`)
-     steeps outward like tea spreading through water: an organic, slowly shifting edge with
-     a warm glowing rim and a slight colour split, and a warm stain creeping just ahead of
-     it. The frame opens back to full bleed, "drink." rises letter by letter (both words
+     letter by letter; two fine ripples gently refract the photo where it lands
+     and the colour (`media.hero.image`) spreads out from there in one clean, round wave
+     with a soft feathered edge (grey rising to full colour inside the edge; no glow, no
+     distortion). The frame opens back to full bleed, "drink." rises letter by letter (both words
      share one grid cell), the spec line (`facts`) and the steam (desktop) arrive.
    - Rendering: `lib/animations/hero-shader.ts`, a small WebGL 1 shader (one quad, the two
-     photos as textures, fractal noise for the edge). It draws only when something changes
-     (scroll, pointer, or the living edge while the colour is in between), pauses
+     photos as textures). It draws only when something changes (scroll, pointer, or the
+     ripples while they spread), pauses
      off-screen, caps the pixel ratio (1.5 phones, 2 desktop) and fades in after the hero
      entrance. The server HTML and the fallback (no WebGL, context lost, still loading) are
      the two `<img>` layers with the same grading, crossfaded by the same scroll values.
@@ -468,7 +468,7 @@ Built with GSAP (ScrollTrigger, SplitText, `useGSAP`) and Lenis. Everything live
 | `presets.ts`             | The reusable animations: `heading`, `fade`, `cards`, `tilt`, `draw`, `pop`, `countUp`, `footerReveal`                  |
 | `useScrollAnimations.ts` | Hook used by each page: runs the preset named in every `data-anim` (and every `data-count`) inside the page            |
 | `hero.ts`                | Homepage hero entrance timeline                                                                                        |
-| `hero-shader.ts`         | Homepage hero WebGL renderer: black and white to colour "steeping" with ripples, organic edge, glow                    |
+| `hero-shader.ts`         | Homepage hero WebGL renderer: soft ripples, then a clean round colour wave with a feathered edge                       |
 | `why-edible.ts`          | "Why edible" drawing: three-step story that plays once in view; step buttons replay a step (no pinning)                |
 | `intro.ts`               | Intro loader: timings, the inline `<head>` script and its CSS                                                          |
 | `smooth-scroll.ts`       | Lenis setup (desktop only) and stop/start for the scroll lock                                                          |
