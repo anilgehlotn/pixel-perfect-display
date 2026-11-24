@@ -392,6 +392,29 @@
     animation: hero-wisp 6s ease-in-out infinite;
   }
 }
+/* Hero drop: a small amber glass bead (teardrop, highlight top left) with a faint trail. */
+.hero-drop-bead {
+  position: absolute;
+  inset: 0;
+  border-radius: 0 50% 50% 50%;
+  transform: rotate(45deg);
+  background: radial-gradient(
+    circle at 38% 38%,
+    rgb(255 240 214 / 0.95),
+    rgb(214 142 58) 45%,
+    rgb(140 76 22)
+  );
+  box-shadow: 0 0 8px rgb(214 142 58 / 0.4);
+}
+.hero-drop-trail {
+  position: absolute;
+  left: 50%;
+  bottom: 60%;
+  width: 1px;
+  height: 3.5rem;
+  margin-left: -0.5px;
+  background: linear-gradient(to bottom, transparent, rgb(255 240 214 / 0.45));
+}
 /* Hero scroll cue: a short line travelling down. */
 @keyframes hero-scroll-cue {
   from {

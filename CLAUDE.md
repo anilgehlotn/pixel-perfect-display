@@ -151,9 +151,9 @@ order (`src/routes/index.tsx`):
      "Skin care you apply." ("apply." as a thin outline), one button and "From" price, a
      small "Scroll" cue.
    - As you scroll: the photo pulls back into a rounded frame on a black stage (`data-card`,
-     scale 1.06 to 0.86; at 1.06 its corners are off-screen) and dims; a coral drop of tea
-     falls onto the headline; "apply." lifts away letter by letter; the photo ripples like a
-     liquid surface where it lands (real refraction) and the colour (`media.hero.image`)
+     scale 1.06 to 0.86; at 1.06 its corners are off-screen) and dims; a small amber glass
+     bead of tea (`.hero-drop-bead`, faint trail) falls onto the headline; "apply." lifts away
+     letter by letter; two fine ripples gently refract the photo where it lands and the colour (`media.hero.image`)
      steeps outward like tea spreading through water: an organic, slowly shifting edge with
      a warm glowing rim and a slight colour split, and a warm stain creeping just ahead of
      it. The frame opens back to full bleed, "drink." rises letter by letter (both words

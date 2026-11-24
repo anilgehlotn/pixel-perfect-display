@@ -3,7 +3,7 @@
  *
  * Draws the black and white serum photo and the colour tea photo, and "steeps" the colour into
  * the black and white like tea spreading through water:
- * - a ripple ring that refracts the photo where the drop lands,
+ * - two fine ripples that gently refract the photo where the drop lands,
  * - an organic, slowly shifting edge (fractal noise) instead of a hard circle,
  * - a warm glowing rim with a slight colour split along it (light through a glass of tea),
  * - a warm stain just ahead of the edge, before the colour arrives,
@@ -122,11 +122,14 @@ void main() {
   float maxR = max(max(length(c), length(c - vec2(aspect, 0.0))),
                    max(length(c - vec2(0.0, 1.0)), length(c - sc)));
 
-  // Ripple ring: a travelling wave that bends the photo, fading as it spreads.
-  float ringR = uRipple * maxR * 0.9;
-  float ringFade = (1.0 - uRipple) * step(0.0001, uRipple);
-  float ring = exp(-pow((d - ringR) * 9.0, 2.0)) * ringFade;
-  float wave = sin((d - ringR) * 70.0) * ring;
+  // Ripples: two fine rings travelling out from the impact (the second slower and softer),
+  // fading quickly. They only bend the photo slightly, like a real water surface.
+  float ringFade = pow(1.0 - uRipple, 1.6) * step(0.0001, uRipple);
+  float r1 = uRipple * maxR * 0.85;
+  float r2 = uRipple * maxR * 0.5;
+  float ring1 = exp(-pow((d - r1) * 14.0, 2.0));
+  float ring2 = exp(-pow((d - r2) * 18.0, 2.0)) * 0.55;
+  float wave = (sin((d - r1) * 110.0) * ring1 + sin((d - r2) * 130.0) * ring2) * ringFade;
 
   // The colour edge: a circle roughed up by slow fractal noise, so it spreads like tea
   // steeping in water. The roughness is largest mid-way and settles as it fills.
@@ -142,7 +145,7 @@ void main() {
   float band = exp(-pow(edge * 16.0, 2.0)) * rimIn * (1.0 - smoothstep(0.88, 1.0, uBloom));
 
   // Liquid lens: the ripple and the edge both refract the photo outward.
-  vec2 disp = dir * (wave * 0.010 + band * 0.018) / sc;
+  vec2 disp = dir * (wave * 0.0045 + band * 0.018) / sc;
   vec2 uvD = uv + disp;
   vec2 tilt = uTilt * uPad;
 
@@ -169,7 +172,7 @@ void main() {
   // Warm glowing rim.
   col += vec3(1.0, 0.76, 0.55) * band * 0.38;
   // Ripple highlight.
-  col += vec3(0.9) * max(wave, 0.0) * 0.12;
+  col += vec3(1.0, 0.95, 0.88) * max(wave, 0.0) * 0.035;
   // Film grain.
   col += (hash(uv * uRes + fract(uTime * 7.0) * 311.0) - 0.5) * 0.045;
 

@@ -379,22 +379,14 @@ export function Hero({ featured }: { featured: Product }) {
             <Steam />
           </div>
 
-          {/* The drop of tea. */}
+          {/* The drop of tea: a small amber glass bead with a faint motion trail. */}
           <span
             data-drop
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] block w-6 opacity-0"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] block h-[11px] w-[11px] opacity-0"
           >
-            <svg
-              viewBox="0 0 20 28"
-              className="block w-full drop-shadow-[0_0_10px_var(--color-primary)]"
-            >
-              <path
-                d="M10 0 C 10 0, 20 13, 20 18 A 10 10 0 0 1 0 18 C 0 13, 10 0, 10 0 Z"
-                className="fill-primary"
-              />
-              <ellipse cx="6.5" cy="17" rx="2" ry="3.2" className="fill-cream/70" />
-            </svg>
+            <span className="hero-drop-trail" />
+            <span className="hero-drop-bead" />
           </span>
 
           {/* Copy. */}
