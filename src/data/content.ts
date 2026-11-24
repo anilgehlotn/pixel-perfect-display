@@ -480,10 +480,9 @@ export const comparison = {
   text: "Most tea bags hold crushed leaf and flavourings. Ours hold four whole ingredients from a two-thousand-year-old tradition, and nothing else.",
   columns: ["SkinFusion", "Regular tea bags", "Beauty supplements"],
   ourTag: "Whole-food tea",
-  // Caption on the arch photo, and the small line under the board.
-  photoCaption: "One cup a day",
-  // Circular text badge on the arch.
-  badge: "Whole-food tea · Nothing added · ",
+  // "The rest" card, and the short names used on its answer chips.
+  theRest: { title: "The rest", sub: "Regular tea bags and beauty supplements" },
+  shortNames: ["Tea bags", "Supplements"],
   scoreTitle: "Ticks out of five",
   note: "Compared with typical products in each group. Labels vary by brand.",
   yes: "Yes",

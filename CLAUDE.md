@@ -218,37 +218,30 @@ order (`src/routes/index.tsx`):
    step cards with icons (Leaf, ThermometerHot, Timer), the TCM line and a "See Skin Glow Tea"
    button. 2 columns of cards on phones, 4 on desktop. Copy: `home.howItWorks`, `ingredients`.
 6. **Comparison** (`ComparisonTable` from components/product/Blocks.tsx, `comparison` in
-   content.ts): a light section right after the green ingredients block (so the page
-   alternates), in the same language: eyebrow "Why SkinFusion" and title "SkinFusion vs. the
-   rest" on the left, the line on the right. No numbers or chips repeated from the
-   ingredients block.
-   - Everything sits in a blush rounded panel. Below the intro: an arch collage (sticky on
-     desktop): `media.comparison.main` (the glass teapot) in a tall arch like the ingredient
-     cards, a round inset of red dates (`media.comparison.inset`) over its corner, a circular
-     text badge (`badge`, turns slowly on desktop, CSS `cmp-spin`, paused off-screen) and a
-     "One cup a day" pill. Both photos are used nowhere else on the homepage (the brewed cup
-     and the jujube bowl already appear in the product row and the ingredients block).
-   - Beside it, a white board that shows SkinFusion and BOTH competitors at once (no
-     switch). From `md`: a 4-column table with a raised green SkinFusion column (soft top
-     light, leaf badge, coral ticks, "See Skin Glow Tea" at its foot). Phones: three icon
-     heads, then each point with three tiles under it (a slightly wider green SkinFusion
-     tile with the tick, two beige competitor tiles with words). Under the rows, "Ticks out
-     of five" (`scoreTitle`): three bars counted from the table's `true` values (5/5, 1/5,
-     0/5). A small note under the board. The table keeps explicit ARIA roles because its
-     rows are laid out as grids. Every row stays fully readable: no scroll dimming (tried,
-     the client found it hard to read; a compact icon-only phone layout was also rejected).
-   - Arch shape: `rounded-t-[50%_40%]` (half the width, for a 4:5 box), not `rounded-t-full`:
-     a 9999px radius makes the browser shrink every corner, so the bottom corners went
-     square. The ingredient cards use the same fix.
-   - Scroll (`lib/animations/comparison.ts`): the title's words rise out of a mask (SplitText)
-     with the intro; the arch rises while the photo settles from 1.18 to 1, the red-dates
-     circle and the badge pop, then the pill (desktop: photo and circle drift at different
-     speeds); a soft coral glow (`data-cmp-glow`) travels down behind the board (scrubbed);
-     once: the board rises, the green column grows down (scaleY), the heads come in, then
-     each row: label in, the green tile settles with its tick popping, the two competitor
-     tiles slide in from the right; a thin coral line draws down the side; the button
-     rises; the score bars fill (scaleX) while the numbers count up. Reduced motion:
-     nothing moves.
+   content.ts), "head to head" (client picked direction A of three): a blush rounded panel
+   after the green ingredients block. Eyebrow "Why SkinFusion" and title "SkinFusion vs. the
+   rest" on the left, the line on the right. Then a green SkinFusion card (photo
+   `media.comparison`, the glass teapot, used nowhere else on the homepage; leaf badge,
+   "Whole-food tea", five coral ticks, "See Skin Glow Tea") faces a white "The rest" card
+   (`theRest`: tea-bag and pill icons) with a coral "vs" circle between them. Below: the tick
+   score line (`scoreTitle`, counted from the table's `true` values: SkinFusion 5, Tea bags
+   1, Supplements 0) and a small note.
+   - Phones and tablets (`data-a-layout="stack"`): the cards stack, the "vs" sits on the seam;
+     the photo is a wide banner on the green card; on "The rest" each point is a small green
+     heading with two answer chips ("Tea bags: crushed leaf", "Supplements: pills or powder";
+     `shortNames`).
+   - Desktop (`data-a-layout="wide"`, from `lg`): one 3-column grid (cards and the "vs"
+     column) with the card backgrounds drawn behind the cells, so each point lines up
+     straight across both cards; compact headers (round photo thumbnail with a leaf badge)
+     so both cards start level.
+   - Animation (`lib/animations/comparison.ts`, once per part): the title's words rise out of
+     a mask (SplitText) with the intro; desktop: SkinFusion slides in from the left and "The
+     rest" from the right, the photo settles, the "vs" pops, the ticks pop one by one, the
+     answers settle row by row; phones: the green card rises with its ticks popping, then
+     (when reached) the "vs" pops and "The rest" rises with its answers; the score line last.
+     Every row stays fully readable (no scroll dimming). Reduced motion: nothing moves.
+   - Rejected along the way (do not bring back): scroll dimming of rows, icon-only compact
+     rows on phones, a switch between competitors, repeating the 4 / 0 / 0 numbers.
      The product page uses it with `cta={false}`.
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
    that opens the full-screen `VideoDialog`.
@@ -734,7 +727,7 @@ Demo photos (`public/media/demo/photos/`, Pexels License unless noted, all `isDe
 - [ ] `jujube-tree.webp` (sourcing, Pixabay; `red-dates.webp` is no longer used)
 - [ ] `jasmine-cup.webp` (hero; confirm the photographer on its Pexels page)
 - [ ] `ginger-lemon.webp` (Gut Balance card fallback)
-- [ ] `glass-teapot.webp`, `hands-cup.webp` (product galleries), `bathroom-shelf.webp`
+- [ ] `glass-teapot.webp` (product gallery, comparison card), `hands-cup.webp` (product gallery), `bathroom-shelf.webp`
       (serum side of the hero)
 - [ ] `teacup-mint.webp`, `hands-glass.webp` (stories)
 - [ ] `herbal-flatlay.webp` (Glow Ritual Bundle card fallback)

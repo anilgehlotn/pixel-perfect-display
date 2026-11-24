@@ -1,5 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
-import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
+import { Fragment, useRef, useState, type ReactNode } from "react";
 import { Check, Coffee, Leaf, Minus, Pill, Plus } from "@phosphor-icons/react";
 import {
   comparison,
@@ -69,30 +68,121 @@ export function SectionIntro({
 const OTHER_ICONS = [Coffee, Pill];
 
 /**
- * "SkinFusion vs. the rest" (homepage, and the product page with `cta={false}`). A light
- * section that follows the green ingredients block: title left and intro right (like the
- * section above), then the cup in a tall arch (sticky on desktop) beside a comparison board
- * that shows SkinFusion and BOTH competitors at once: a raised green SkinFusion column with
- * coral ticks, then Regular tea bags and Beauty supplements. Phones: each point with three
- * tiles under it. Below the rows, "Ticks out of five" as three bars that fill as they count.
+ * "SkinFusion vs. the rest" (homepage, and the product page with `cta={false}`), "head to
+ * head": inside a blush panel, a green SkinFusion card (photo, five coral ticks, the button)
+ * faces a white "The rest" card, with a coral "vs" between them and the tick score below.
+ * - Phones: the cards stack (SkinFusion first, "vs" on the seam); on "The rest" each point is
+ *   a small heading with two answer chips (Tea bags, Supplements).
+ * - Desktop: one grid, so every point lines up straight across both cards.
  * Animation: lib/animations/comparison.ts.
  */
 export function ComparisonTable({ cta = true }: { cta?: boolean }) {
-  const [ours, ...others] = comparison.columns;
+  const [ours] = comparison.columns;
   const scope = useRef<HTMLElement>(null);
-  usePauseWhenHidden(scope);
   useComparisonReveal(scope);
-  const total = comparison.rows.length;
-  const score = comparison.columns.map(
-    (_, ci) => comparison.rows.filter((r) => r.values[ci] === true).length,
+  const rows = comparison.rows;
+  const total = rows.length;
+  const score = comparison.columns.map((_, ci) => rows.filter((r) => r.values[ci] === true).length);
+  const lower = (v: string | boolean) => {
+    const t = answer(v);
+    return t.charAt(0).toLowerCase() + t.slice(1);
+  };
+
+  const tick = (
+    <span
+      data-cmp-tick
+      className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
+    >
+      <Check size={14} weight="bold" aria-hidden="true" />
+    </span>
   );
-  // Phones: three tile columns (SkinFusion a little wider). md+: a label column first.
-  const cols =
-    "grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)] md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]";
+  const usHeader = (
+    <>
+      <div className="aspect-[16/10] overflow-hidden rounded-[1.25rem] bg-green-soft">
+        <div data-a-photo className="h-full w-full">
+          <Img
+            media={media.comparison}
+            sizes="(min-width: 1024px) 34vw, 90vw"
+            className="h-full w-full object-[62%_50%]"
+          />
+        </div>
+      </div>
+      <div className="mt-5 flex items-center gap-3">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+          <Leaf size={22} weight="light" aria-hidden="true" />
+        </span>
+        <span>
+          <span className="block text-2xl leading-tight">{ours}</span>
+          <span className="block text-sm text-cream/70">{comparison.ourTag}</span>
+        </span>
+      </div>
+    </>
+  );
+  const themHeader = (
+    <div className="flex items-center gap-3">
+      <span className="flex -space-x-2">
+        {OTHER_ICONS.map((Ic, i) => (
+          <span
+            key={i}
+            className="grid h-11 w-11 place-items-center rounded-full border-2 border-surface bg-beige text-muted-foreground"
+          >
+            <Ic size={20} weight="light" aria-hidden="true" />
+          </span>
+        ))}
+      </span>
+      <span>
+        <span className="block text-2xl leading-tight text-ink">{comparison.theRest.title}</span>
+        <span className="block text-sm text-muted-foreground">{comparison.theRest.sub}</span>
+      </span>
+    </div>
+  );
+  const chips = (row: (typeof rows)[number]) => (
+    <span className="mt-2 flex flex-wrap gap-2">
+      {comparison.shortNames.map((name, oi) => {
+        const Ic = OTHER_ICONS[oi] ?? Coffee;
+        return (
+          <span
+            key={name}
+            className="inline-flex items-center gap-1.5 rounded-full bg-beige px-3 py-1.5 text-sm leading-tight text-ink"
+          >
+            <Ic
+              size={14}
+              weight="light"
+              className="shrink-0 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <span className="text-muted-foreground">{name}:</span>
+            {lower(row.values[oi + 1] ?? false)}
+          </span>
+        );
+      })}
+    </span>
+  );
+  const vs = (
+    <span
+      data-a-vs
+      aria-hidden="true"
+      className="grid h-16 w-16 place-items-center rounded-full border-[5px] border-blush bg-primary text-xl font-medium text-primary-foreground"
+    >
+      vs
+    </span>
+  );
+  const button = cta && (
+    <a href={comparison.cta.href} className="btn btn-primary w-full">
+      {comparison.cta.label}
+    </a>
+  );
+  const light = (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-card bg-gradient-to-b from-cream/[0.12] to-transparent"
+    />
+  );
+
   return (
     <section ref={scope} aria-labelledby="compare-title" className="section-y px-4 md:px-6">
-      <div className="relative mx-auto max-w-[84rem] overflow-hidden rounded-card bg-blush px-4 py-12 sm:px-10 sm:py-14 lg:p-16">
-        <div className="relative grid gap-5 lg:grid-cols-2 lg:items-end lg:gap-16">
+      <div className="mx-auto max-w-[84rem] rounded-card bg-blush px-4 py-12 sm:px-10 sm:py-14 lg:p-16">
+        <div className="grid gap-5 lg:grid-cols-2 lg:items-end lg:gap-16">
           <div>
             <p data-cmp-intro className="mb-2 text-sm font-medium tracking-[0.06em] text-ink">
               {comparison.eyebrow}
@@ -106,243 +196,130 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 lg:mt-16 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:items-start lg:gap-10">
-          {/* The cup in an arch (like the ingredient cards above); sticky on desktop. */}
-          <figure
-            data-cmp-arch
-            className="relative mx-auto w-full max-w-[15rem] sm:max-w-xs lg:sticky lg:top-28 lg:max-w-none"
+        {/* Phones and tablets: the two cards stacked, "vs" on the seam. */}
+        <div data-a-layout="stack" className="mt-10 lg:hidden">
+          <article
+            data-a-side="us"
+            className="relative overflow-hidden rounded-card bg-green p-5 text-cream sm:p-7"
           >
-            <div className="relative aspect-[4/5] overflow-hidden rounded-b-[1.75rem] rounded-t-[50%_40%] bg-beige">
-              <div data-cmp-depth className="absolute -inset-6">
-                <Img
-                  media={media.comparison.main}
-                  sizes="(min-width: 1024px) 30vw, 60vw"
-                  className="h-full w-full object-[62%_50%]"
-                />
-              </div>
+            {light}
+            <div className="relative">
+              {usHeader}
+              <ul className="mt-4">
+                {rows.map((r) => (
+                  <li
+                    key={r.label}
+                    className="flex items-center gap-3 border-t border-cream/15 py-3 text-[1.02rem] leading-snug"
+                  >
+                    {tick}
+                    {r.label}
+                    <span className="sr-only">: {answer(r.values[0] ?? false)}</span>
+                  </li>
+                ))}
+              </ul>
+              {button && <div className="mt-4">{button}</div>}
             </div>
-            {/* Inset photo of red dates, overlapping the arch's corner. */}
-            <div className="absolute -right-3 bottom-20 w-[40%] sm:-right-6">
-              <div
-                data-cmp-inset
-                className="aspect-square overflow-hidden rounded-full border-4 border-blush"
-              >
-                <Img
-                  media={media.comparison.inset}
-                  sizes="(min-width: 1024px) 12vw, 30vw"
-                  className="h-full w-full"
-                />
-              </div>
-            </div>
-            {/* A slowly turning circular text badge (desktop with a mouse turns it; CSS). */}
-            <div
-              data-cmp-ring-badge
-              aria-hidden="true"
-              className="absolute -left-4 top-6 w-[34%] sm:-left-8"
-            >
-              <svg viewBox="0 0 120 120" className="cmp-spin block h-auto w-full text-green">
-                <defs>
-                  <path id="cmp-circle" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
-                </defs>
-                <circle cx="60" cy="60" r="58" className="fill-cream" />
-                <text className="fill-current text-[10.5px] tracking-[0.18em]">
-                  <textPath href="#cmp-circle">{comparison.badge}</textPath>
-                </text>
-                <g transform="translate(48 48)" className="text-primary">
-                  <path
-                    d="M12 2C6 6 4 11 6 16c1.5 3.5 5 5 8 4 4-1.5 6-6 5-11-1-4-4-6-7-7Z"
-                    className="fill-current"
+          </article>
+          <div className="relative z-[1] -my-5 flex justify-center">{vs}</div>
+          <article data-a-side="them" className="rounded-card bg-surface p-5 pt-8 sm:p-7 sm:pt-9">
+            {themHeader}
+            <ul className="mt-4">
+              {rows.map((r) => (
+                <li key={r.label} data-a-row className="border-t border-ink/[0.08] py-3">
+                  <span className="block text-[1.02rem] leading-snug text-green">{r.label}</span>
+                  {chips(r)}
+                </li>
+              ))}
+            </ul>
+          </article>
+        </div>
+
+        {/* Desktop: one grid, so each point lines up across both cards. */}
+        <div
+          data-a-layout="wide"
+          className="relative mt-14 hidden grid-cols-[minmax(0,1fr)_5.5rem_minmax(0,1fr)] lg:grid"
+        >
+          {/* Card backgrounds and the "vs", behind the cells. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 grid grid-cols-[minmax(0,1fr)_5.5rem_minmax(0,1fr)]"
+          >
+            <span data-a-side="us" className="relative rounded-card bg-green">
+              {light}
+            </span>
+            <span className="grid place-items-center">{vs}</span>
+            <span data-a-side="them" className="rounded-card bg-surface" />
+          </div>
+
+          <div data-a-side="us" className="relative flex items-center gap-4 px-8 pb-5 pt-8 text-cream">
+            {/* Desktop: a compact header (round photo + name), level with "The rest". */}
+            <span className="relative shrink-0">
+              <span className="block h-16 w-16 overflow-hidden rounded-full bg-green-soft">
+                <span data-a-photo className="block h-full w-full">
+                  <Img
+                    media={media.comparison}
+                    sizes="4rem"
+                    className="h-full w-full object-[62%_50%]"
                   />
-                </g>
-              </svg>
-            </div>
-            <figcaption
-              data-cmp-chip
-              className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-cream py-2 pl-2 pr-4 text-sm text-green"
-            >
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground">
+                </span>
+              </span>
+              <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border-2 border-green bg-primary text-primary-foreground">
                 <Leaf size={14} weight="light" aria-hidden="true" />
               </span>
-              {comparison.photoCaption}
-            </figcaption>
-          </figure>
-
-          {/* The board: SkinFusion against both at once. */}
-          <div>
-            <div data-cmp-board className="relative rounded-card bg-surface px-3 pb-4 pt-2 sm:px-6">
-              <div className="relative">
-                {/* A soft coral glow that travels down the board with the row in focus. */}
-                <span
-                  data-cmp-glow
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-1/2 top-0 h-52 w-[70%] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl"
-                />
-                {/* A thin coral line that draws down the side as the rows reveal. */}
-                <span
-                  data-cmp-line
-                  aria-hidden="true"
-                  className="absolute -left-3 bottom-6 top-10 w-[2px] origin-top rounded-full bg-primary sm:-left-6"
-                />
-                {/* The raised green SkinFusion column (tablet and up). */}
-                <div
-                  aria-hidden="true"
-                  className={`pointer-events-none absolute inset-x-0 -bottom-2 top-0 hidden gap-3 md:grid ${cols}`}
-                >
-                  <span />
-                  <span
-                    data-cmp-col
-                    className="relative origin-top overflow-hidden rounded-[1.25rem] bg-green"
-                  >
-                    <span className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-cream/[0.14] to-transparent" />
-                  </span>
-                  <span />
-                  <span />
-                </div>
-
-                <table role="table" className="relative w-full border-separate border-spacing-0">
-                  <caption className="sr-only">
-                    {ours} compared with {others.join(" and ")}
-                  </caption>
-                  <thead>
-                    <tr role="row" className={`grid items-end gap-2 pb-4 pt-5 sm:gap-3 ${cols}`}>
-                      <td role="cell" className="hidden md:block" />
-                      {comparison.columns.map((name, ci) => {
-                        const HeadIcon = ci === 0 ? Leaf : (OTHER_ICONS[ci - 1] ?? Coffee);
-                        return (
-                          <th
-                            key={name}
-                            scope="col"
-                            role="columnheader"
-                            data-cmp-head
-                            className="flex flex-col items-center text-center font-normal"
-                          >
-                            <span
-                              className={`mb-2 grid h-9 w-9 place-items-center rounded-full md:h-10 md:w-10 ${ci === 0 ? "bg-primary text-primary-foreground" : "bg-beige text-muted-foreground"}`}
-                            >
-                              <HeadIcon size={18} weight="light" aria-hidden="true" />
-                            </span>
-                            <span
-                              className={`text-xs leading-tight sm:text-sm md:text-base ${ci === 0 ? "text-green md:text-cream" : "text-muted-foreground"}`}
-                            >
-                              {name}
-                            </span>
-                          </th>
-                        );
-                      })}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {comparison.rows.map((row) => (
-                      <tr
-                        key={row.label}
-                        role="row"
-                        data-cmp-row
-                        className={`grid gap-2 border-t border-ink/[0.06] py-4 sm:gap-3 md:items-center md:py-5 ${cols}`}
-                      >
-                        <th
-                          scope="row"
-                          role="rowheader"
-                          data-cmp-label
-                          className="col-span-3 text-left text-[1.05rem] font-normal leading-snug text-green md:col-span-1 md:text-lg"
-                        >
-                          {row.label}
-                        </th>
-                        {row.values.map((v, ci) => (
-                          <td
-                            key={ci}
-                            role="cell"
-                            data-cmp-tile={ci === 0 ? "ours" : "other"}
-                            className="flex"
-                          >
-                            {ci === 0 ? (
-                              <span className="flex w-full items-center justify-center gap-2 rounded-[0.9rem] bg-green bg-gradient-to-b from-cream/[0.12] to-transparent px-2 py-3 text-sm text-cream md:bg-transparent md:bg-none md:p-0">
-                                <span
-                                  data-cmp-mark
-                                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground md:h-8 md:w-8"
-                                >
-                                  <Check size={14} weight="bold" aria-hidden="true" />
-                                </span>
-                                {answer(v)}
-                              </span>
-                            ) : (
-                              <span className="flex w-full items-center justify-center gap-1.5 rounded-[0.9rem] bg-beige px-2 py-3 text-center text-[0.8rem] leading-tight text-ink md:bg-transparent md:p-0 md:text-sm md:text-muted-foreground">
-                                {v === true ? (
-                                  <Check
-                                    size={15}
-                                    weight="light"
-                                    className="shrink-0 text-green"
-                                    aria-hidden="true"
-                                  />
-                                ) : v === false ? (
-                                  <Minus
-                                    size={15}
-                                    weight="light"
-                                    className="shrink-0 text-ink/40"
-                                    aria-hidden="true"
-                                  />
-                                ) : null}
-                                {answer(v)}
-                              </span>
-                            )}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {cta && (
-                  <div className={`relative grid gap-3 pt-3 ${cols}`}>
-                    <span className="hidden md:block" />
-                    <span data-cmp-cta className="col-span-3 block md:col-span-1 md:px-2">
-                      <a
-                        href={comparison.cta.href}
-                        className="btn btn-primary w-full md:px-3 md:text-sm"
-                      >
-                        {comparison.cta.label}
-                      </a>
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Ticks out of five. */}
-              <div data-cmp-score className="relative mt-5 border-t border-ink/[0.06] pt-5">
-                <p className="text-sm text-muted-foreground">{comparison.scoreTitle}</p>
-                <ul className="mt-3 flex flex-col gap-3">
-                  {comparison.columns.map((name, ci) => {
-                    const n = score[ci] ?? 0;
-                    return (
-                      <li
-                        key={name}
-                        className="grid grid-cols-[7.5rem_minmax(0,1fr)_2.5rem] items-center gap-3 sm:grid-cols-[10rem_minmax(0,1fr)_3rem]"
-                      >
-                        <span
-                          className={`text-sm leading-tight ${ci === 0 ? "text-green" : "text-muted-foreground"}`}
-                        >
-                          {name}
-                        </span>
-                        <span className="h-2 overflow-hidden rounded-full bg-beige">
-                          <span
-                            data-cmp-bar
-                            className={`block h-full origin-left rounded-full ${ci === 0 ? "bg-primary" : "bg-ink/25"}`}
-                            style={{ width: `${(n / total) * 100}%` }}
-                          />
-                        </span>
-                        <span
-                          className={`text-right text-sm tabular-nums ${ci === 0 ? "text-green" : "text-muted-foreground"}`}
-                        >
-                          <span data-cmp-count>{`${n}/${total}`}</span>
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </div>
-            <p className="mt-4 text-sm text-muted-foreground">{comparison.note}</p>
+            </span>
+            <span>
+              <span className="block text-2xl leading-tight">{ours}</span>
+              <span className="block text-sm text-cream/70">{comparison.ourTag}</span>
+            </span>
           </div>
+          <span />
+          <div data-a-side="them" className="relative flex items-center px-8 pb-5 pt-8">
+            {themHeader}
+          </div>
+
+          {rows.map((r) => (
+            <Fragment key={r.label}>
+              <div data-a-side="us" className="relative px-8">
+                <span className="flex h-full items-center gap-3 border-t border-cream/15 py-4 text-lg leading-snug text-cream">
+                  {tick}
+                  {r.label}
+                  <span className="sr-only">: {answer(r.values[0] ?? false)}</span>
+                </span>
+              </div>
+              <span />
+              <div data-a-side="them" className="relative px-8">
+                <span
+                  data-a-row
+                  className="flex h-full flex-col justify-center border-t border-ink/[0.08] py-4"
+                >
+                  <span className="sr-only">{r.label}: </span>
+                  {chips(r)}
+                </span>
+              </div>
+            </Fragment>
+          ))}
+
+          <div data-a-side="us" className="relative px-8 pb-8 pt-3">
+            {button}
+          </div>
+          <span />
+          <span />
         </div>
+
+        {/* The score, and the small print. */}
+        <p data-a-score className="mt-8 text-center text-sm text-muted-foreground">
+          {comparison.scoreTitle}:{" "}
+          <span className="font-medium text-green">
+            {ours} {score[0]}
+          </span>
+          {comparison.shortNames.map((n, i) => (
+            <span key={n}>
+              {" · "}
+              {n} {score[i + 1]}
+            </span>
+          ))}
+        </p>
+        <p className="mt-2 text-center text-xs text-muted-foreground">{comparison.note}</p>
       </div>
     </section>
   );

@@ -429,17 +429,6 @@
     animation: hero-scroll-cue 1.8s ease-in-out infinite;
   }
 }
-/* Comparison: the circular text badge turns slowly (desktop with a mouse; paused off-screen). */
-@keyframes cmp-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .cmp-spin {
-    animation: cmp-spin 24s linear infinite;
-  }
-}
 @keyframes hero-word {
   from {
     transform: translateY(110%);
