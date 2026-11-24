@@ -8,12 +8,11 @@ import { CLEAR_PROPS, failsafe, safely } from "./safety";
 /**
  * "SkinFusion vs. the rest" scroll animation. Each part plays once as it scrolls in:
  * - intro: the title's words rise out of a mask one by one, eyebrow and line rise;
- * - the arch collage: the arch rises while the cup photo settles from 1.18 to 1, the jujube
+ * - the arch collage: the arch rises while the cup photo settles from 1.18 to 1, the red-dates
  *   circle and the circular text badge pop in, then the caption pill (desktop with a mouse:
- *   the photo drifts inside the arch and the jujube circle at another speed, for depth);
- * - focus (scrubbed, every device): only the row in the middle of the screen is fully lit;
- *   rows above and below fade back to 30%, and a soft coral glow travels down the board
- *   with the scroll;
+ *   the photo drifts inside the arch and the red-dates circle at another speed, for depth);
+ * - a soft coral glow travels down behind the board with the scroll (scrubbed); every row
+ *   stays fully readable;
  * - the board: rises; the green SkinFusion column grows down from the top (scaleY, from md);
  *   the three column heads come in; then the rows one by one: the row rises (phones), the
  *   label comes in, then its tiles cascade left to right: the SkinFusion tile settles with
@@ -201,17 +200,6 @@ export function useComparisonReveal(scope: RefObject<HTMLElement | null>) {
               );
             }
 
-            // Focus: the row in the middle of the screen is lit, the others fade back.
-            for (const row of qa(root, "[data-cmp-row]")) {
-              gsap
-                .timeline({
-                  defaults: { ease: "none" },
-                  scrollTrigger: { trigger: row, start: "top 88%", end: "bottom 12%", scrub: 0.5 },
-                })
-                .fromTo(row, { opacity: 0.3 }, { opacity: 1, duration: 1 })
-                .to(row, { opacity: 1, duration: 1.2 })
-                .to(row, { opacity: 0.3, duration: 1 });
-            }
             // The coral glow travels down the board with the scroll.
             const glow = qa(root, "[data-cmp-glow]")[0];
             const glowBox = glow?.parentElement;

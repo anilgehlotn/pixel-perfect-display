@@ -356,8 +356,9 @@ export const media = {
     ginger: site.ginger,
   },
   ritual: { image: site.ritual, video: videos.teaSteam },
-  // "SkinFusion vs. the rest": the cup in the orbit circle.
-  comparison: site.brew,
+  // "SkinFusion vs. the rest": the arch photo and the small round inset. Both are photos used
+  // nowhere else on the homepage (the brewed cup and the jujube bowl already are).
+  comparison: { main: photos.glassTeapot, inset: photos.redDates },
   reviews: [photos.windowTea, photos.handsGlass, site.ritual],
   // Homepage results section: one before/after slider per card (same order as
   // home.results.items). These are DEMO stock photos for the design preview (isDemo: true,

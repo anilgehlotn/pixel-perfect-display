@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { gsap } from "@/lib/animations/gsap";
+import { useRef, useState, type ReactNode } from "react";
 import { usePauseWhenHidden } from "@/lib/animations/usePauseWhenHidden";
-import { Check, CircleHalf, Coffee, Leaf, Minus, Pill, Plus } from "@phosphor-icons/react";
+import { Check, Coffee, Leaf, Minus, Pill, Plus } from "@phosphor-icons/react";
 import {
   comparison,
   reviews,
@@ -83,27 +82,13 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
   const scope = useRef<HTMLElement>(null);
   usePauseWhenHidden(scope);
   useComparisonReveal(scope);
-  // One point open at a time; its detail panel fades in under the row.
-  const [openRow, setOpenRow] = useState<number | null>(null);
-  const toggle = (i: number) => setOpenRow((cur) => (cur === i ? null : i));
-  useEffect(() => {
-    if (openRow === null) return;
-    const panel = scope.current?.querySelector(`#cmp-detail-${openRow} [data-cmp-detail]`);
-    if (!panel || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.fromTo(
-      panel,
-      { y: -8, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.45, ease: "power3.out", clearProps: "transform,opacity" },
-    );
-  }, [openRow]);
   const total = comparison.rows.length;
   const score = comparison.columns.map(
     (_, ci) => comparison.rows.filter((r) => r.values[ci] === true).length,
   );
   // Phones: three tile columns (SkinFusion a little wider). md+: a label column first.
-  // Phones: the point, then three slim columns. md+: wider columns with words.
   const cols =
-    "grid-cols-[minmax(0,1fr)_2.5rem_2.5rem_2.5rem] md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]";
+    "grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)] md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]";
   return (
     <section ref={scope} aria-labelledby="compare-title" className="section-y px-4 md:px-6">
       <div className="relative mx-auto max-w-[84rem] overflow-hidden rounded-card bg-blush px-4 py-12 sm:px-10 sm:py-14 lg:p-16">
@@ -130,20 +115,20 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
             <div className="relative aspect-[4/5] overflow-hidden rounded-b-[1.75rem] rounded-t-[50%_40%] bg-beige">
               <div data-cmp-depth className="absolute -inset-6">
                 <Img
-                  media={media.comparison}
+                  media={media.comparison.main}
                   sizes="(min-width: 1024px) 30vw, 60vw"
-                  className="h-full w-full"
+                  className="h-full w-full object-[62%_50%]"
                 />
               </div>
             </div>
-            {/* Inset photo of whole jujubes, overlapping the arch's corner. */}
+            {/* Inset photo of red dates, overlapping the arch's corner. */}
             <div className="absolute -right-3 bottom-20 w-[40%] sm:-right-6">
               <div
                 data-cmp-inset
                 className="aspect-square overflow-hidden rounded-full border-4 border-blush"
               >
                 <Img
-                  media={media.ingredients.jujube}
+                  media={media.comparison.inset}
                   sizes="(min-width: 1024px) 12vw, 30vw"
                   className="h-full w-full"
                 />
@@ -182,36 +167,9 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
             </figcaption>
           </figure>
 
-          {/* The board: SkinFusion against both at once; each point opens a detail. */}
+          {/* The board: SkinFusion against both at once. */}
           <div>
             <div data-cmp-board className="relative rounded-card bg-surface px-3 pb-4 pt-2 sm:px-6">
-              {/* Phones: the tap hint and which symbol means what (above the columns). */}
-              <p className="relative pt-3 text-sm text-green md:hidden">{comparison.tapHint}</p>
-              {/* Phones: which icon is which, and what the symbols mean. */}
-              <div className="relative mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[0.9rem] bg-beige/60 px-3 py-2 text-xs text-muted-foreground md:hidden">
-                {comparison.columns.map((name, ci) => {
-                  const KeyIcon = ci === 0 ? Leaf : (OTHER_ICONS[ci - 1] ?? Coffee);
-                  return (
-                    <span key={name} className="inline-flex items-center gap-1">
-                      <KeyIcon size={13} weight="light" aria-hidden="true" />
-                      {name}
-                    </span>
-                  );
-                })}
-                <span className="inline-flex items-center gap-1">
-                  <Check size={13} weight="light" aria-hidden="true" />
-                  {comparison.legend.yes}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <CircleHalf size={13} weight="light" aria-hidden="true" />
-                  {comparison.legend.partly}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Minus size={13} weight="light" aria-hidden="true" />
-                  {comparison.legend.no}
-                </span>
-              </div>
-
               <div className="relative">
                 {/* A soft coral glow that travels down the board with the row in focus. */}
                 <span
@@ -225,15 +183,15 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
                   aria-hidden="true"
                   className="absolute -left-3 bottom-6 top-10 w-[2px] origin-top rounded-full bg-primary sm:-left-6"
                 />
-                {/* The raised green SkinFusion column. */}
+                {/* The raised green SkinFusion column (tablet and up). */}
                 <div
                   aria-hidden="true"
-                  className={`pointer-events-none absolute inset-x-0 -bottom-2 top-0 grid gap-2 md:gap-3 ${cols}`}
+                  className={`pointer-events-none absolute inset-x-0 -bottom-2 top-0 hidden gap-3 md:grid ${cols}`}
                 >
                   <span />
                   <span
                     data-cmp-col
-                    className="relative origin-top overflow-hidden rounded-full bg-green md:rounded-[1.25rem]"
+                    className="relative origin-top overflow-hidden rounded-[1.25rem] bg-green"
                   >
                     <span className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-cream/[0.14] to-transparent" />
                   </span>
@@ -241,154 +199,112 @@ export function ComparisonTable({ cta = true }: { cta?: boolean }) {
                   <span />
                 </div>
 
-                {/* Column heads. */}
-                <div
-                  aria-hidden="true"
-                  className={`relative grid items-end gap-2 pb-3 pt-5 md:gap-3 md:pb-4 ${cols}`}
-                >
-                  <span />
-                  {comparison.columns.map((name, ci) => {
-                    const HeadIcon = ci === 0 ? Leaf : (OTHER_ICONS[ci - 1] ?? Coffee);
-                    return (
-                      <span
-                        key={name}
-                        data-cmp-head
-                        className="flex flex-col items-center text-center"
-                      >
-                        <span
-                          className={`grid h-8 w-8 place-items-center rounded-full md:mb-2 md:h-10 md:w-10 ${ci === 0 ? "bg-primary text-primary-foreground" : "bg-beige text-muted-foreground"}`}
-                        >
-                          <HeadIcon size={16} weight="light" aria-hidden="true" />
-                        </span>
-                        <span
-                          className={`hidden text-base md:block ${ci === 0 ? "text-cream" : "text-muted-foreground"}`}
-                        >
-                          {name}
-                        </span>
-                      </span>
-                    );
-                  })}
-                </div>
-
-                <ul
-                  className="relative"
-                  aria-label={`${ours} compared with ${others.join(" and ")}`}
-                >
-                  {comparison.rows.map((row, ri) => {
-                    const open = openRow === ri;
-                    const panelId = `cmp-detail-${ri}`;
-                    return (
-                      <li key={row.label} data-cmp-row className="border-t border-ink/[0.06]">
-                        <button
-                          type="button"
-                          aria-expanded={open}
-                          aria-controls={panelId}
-                          onClick={() => toggle(ri)}
-                          className={`group grid min-h-14 w-full items-center gap-2 py-3 text-left md:gap-3 md:py-5 ${cols}`}
-                        >
-                          <span
-                            data-cmp-label
-                            className="flex items-center gap-2 pr-1 text-[0.98rem] leading-snug text-green md:text-lg"
+                <table role="table" className="relative w-full border-separate border-spacing-0">
+                  <caption className="sr-only">
+                    {ours} compared with {others.join(" and ")}
+                  </caption>
+                  <thead>
+                    <tr role="row" className={`grid items-end gap-2 pb-4 pt-5 sm:gap-3 ${cols}`}>
+                      <td role="cell" className="hidden md:block" />
+                      {comparison.columns.map((name, ci) => {
+                        const HeadIcon = ci === 0 ? Leaf : (OTHER_ICONS[ci - 1] ?? Coffee);
+                        return (
+                          <th
+                            key={name}
+                            scope="col"
+                            role="columnheader"
+                            data-cmp-head
+                            className="flex flex-col items-center text-center font-normal"
                           >
-                            <Plus
-                              size={14}
-                              weight="light"
-                              aria-hidden="true"
-                              className={`shrink-0 text-primary transition-transform duration-300 ${open ? "rotate-45" : ""}`}
-                            />
-                            {row.label}
-                          </span>
-                          {row.values.map((v, ci) => (
                             <span
-                              key={ci}
-                              data-cmp-tile={ci === 0 ? "ours" : "other"}
-                              className="flex items-center justify-center gap-2 text-sm"
+                              className={`mb-2 grid h-9 w-9 place-items-center rounded-full md:h-10 md:w-10 ${ci === 0 ? "bg-primary text-primary-foreground" : "bg-beige text-muted-foreground"}`}
                             >
-                              <span className="sr-only">
-                                {comparison.columns[ci]}: {answer(v)}
-                              </span>
-                              {ci === 0 ? (
-                                <>
-                                  <span
-                                    data-cmp-mark
-                                    aria-hidden="true"
-                                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground md:h-8 md:w-8"
-                                  >
-                                    <Check size={14} weight="bold" />
-                                  </span>
-                                  <span aria-hidden="true" className="hidden text-cream md:inline">
-                                    {answer(v)}
-                                  </span>
-                                </>
-                              ) : (
-                                <span
-                                  aria-hidden="true"
-                                  className="flex items-center gap-1.5 text-muted-foreground"
-                                >
-                                  {v === true ? (
-                                    <Check
-                                      size={17}
-                                      weight="light"
-                                      className="shrink-0 text-green"
-                                    />
-                                  ) : v === false ? (
-                                    <Minus
-                                      size={17}
-                                      weight="light"
-                                      className="shrink-0 text-ink/40"
-                                    />
-                                  ) : (
-                                    <CircleHalf
-                                      size={17}
-                                      weight="light"
-                                      className="shrink-0 text-ink/55 md:hidden"
-                                    />
-                                  )}
-                                  <span className="hidden md:inline">{answer(v)}</span>
-                                </span>
-                              )}
+                              <HeadIcon size={18} weight="light" aria-hidden="true" />
                             </span>
-                          ))}
-                        </button>
-                        <div id={panelId} hidden={!open} className="relative pb-4">
-                          <div
-                            data-cmp-detail
-                            className="rounded-[1.1rem] bg-blush px-4 py-3.5 text-sm leading-relaxed text-ink"
+                            <span
+                              className={`text-xs leading-tight sm:text-sm md:text-base ${ci === 0 ? "text-green md:text-cream" : "text-muted-foreground"}`}
+                            >
+                              {name}
+                            </span>
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comparison.rows.map((row) => (
+                      <tr
+                        key={row.label}
+                        role="row"
+                        data-cmp-row
+                        className={`grid gap-2 border-t border-ink/[0.06] py-4 sm:gap-3 md:items-center md:py-5 ${cols}`}
+                      >
+                        <th
+                          scope="row"
+                          role="rowheader"
+                          data-cmp-label
+                          className="col-span-3 text-left text-[1.05rem] font-normal leading-snug text-green md:col-span-1 md:text-lg"
+                        >
+                          {row.label}
+                        </th>
+                        {row.values.map((v, ci) => (
+                          <td
+                            key={ci}
+                            role="cell"
+                            data-cmp-tile={ci === 0 ? "ours" : "other"}
+                            className="flex"
                           >
-                            <p>{row.detail}</p>
-                            <ul className="mt-2 flex flex-col gap-1 text-muted-foreground md:hidden">
-                              {others.map((name, oi) => (
-                                <li key={name}>
-                                  {name}: {answer(row.values[oi + 1] ?? false)}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+                            {ci === 0 ? (
+                              <span className="flex w-full items-center justify-center gap-2 rounded-[0.9rem] bg-green bg-gradient-to-b from-cream/[0.12] to-transparent px-2 py-3 text-sm text-cream md:bg-transparent md:bg-none md:p-0">
+                                <span
+                                  data-cmp-mark
+                                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground md:h-8 md:w-8"
+                                >
+                                  <Check size={14} weight="bold" aria-hidden="true" />
+                                </span>
+                                {answer(v)}
+                              </span>
+                            ) : (
+                              <span className="flex w-full items-center justify-center gap-1.5 rounded-[0.9rem] bg-beige px-2 py-3 text-center text-[0.8rem] leading-tight text-ink md:bg-transparent md:p-0 md:text-sm md:text-muted-foreground">
+                                {v === true ? (
+                                  <Check
+                                    size={15}
+                                    weight="light"
+                                    className="shrink-0 text-green"
+                                    aria-hidden="true"
+                                  />
+                                ) : v === false ? (
+                                  <Minus
+                                    size={15}
+                                    weight="light"
+                                    className="shrink-0 text-ink/40"
+                                    aria-hidden="true"
+                                  />
+                                ) : null}
+                                {answer(v)}
+                              </span>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
                 {cta && (
-                  <div className={`relative hidden gap-3 pt-3 md:grid ${cols}`}>
-                    <span />
-                    <span data-cmp-cta className="block px-2">
-                      <a href={comparison.cta.href} className="btn btn-primary w-full px-3 text-sm">
+                  <div className={`relative grid gap-3 pt-3 ${cols}`}>
+                    <span className="hidden md:block" />
+                    <span data-cmp-cta className="col-span-3 block md:col-span-1 md:px-2">
+                      <a
+                        href={comparison.cta.href}
+                        className="btn btn-primary w-full md:px-3 md:text-sm"
+                      >
                         {comparison.cta.label}
                       </a>
                     </span>
                   </div>
                 )}
               </div>
-
-              {cta && (
-                <div data-cmp-cta className="relative mt-5 md:hidden">
-                  <a href={comparison.cta.href} className="btn btn-primary w-full">
-                    {comparison.cta.label}
-                  </a>
-                </div>
-              )}
 
               {/* Ticks out of five. */}
               <div data-cmp-score className="relative mt-5 border-t border-ink/[0.06] pt-5">

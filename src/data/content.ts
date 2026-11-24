@@ -489,42 +489,13 @@ export const comparison = {
   yes: "Yes",
   no: "No",
   cta: { label: "See Skin Glow Tea", href: "/products/skin-glow-tea" },
-  // Each point opens a one-line detail (plain facts, no claims).
   rows: [
-    {
-      label: "Whole ingredients you can see",
-      values: [true, "Crushed leaf", "Pills or powder"],
-      detail:
-        "Every jujube, piece of snow fungus and goji berry stays whole in the bag, so you can see exactly what you drink.",
-    },
-    {
-      label: "Caffeine free",
-      values: [true, "Usually not", "Varies"],
-      detail:
-        "There is no tea leaf in the blend, so there is no caffeine. Easy to enjoy in the evening.",
-    },
-    {
-      label: "No added sugar or flavourings",
-      values: [true, "Often flavoured", "Varies"],
-      detail:
-        "The sweetness comes from the jujubes themselves. Nothing is added for flavour or colour.",
-    },
-    {
-      label: "Rooted in Traditional Chinese Medicine",
-      values: [true, false, false],
-      detail:
-        "Jujube, snow fungus and goji have been cooked together in Chinese homes for generations.",
-    },
-    {
-      label: "A warm ritual you look forward to",
-      values: [true, true, false],
-      detail:
-        "Five minutes, one cup, once a day. A small warm habit, not another step on the shelf.",
-    },
-  ] as { label: string; values: (string | boolean)[]; detail: string }[],
-  // Phones: the symbol key and the tap hint.
-  legend: { yes: "Yes", partly: "Partly or varies", no: "No" },
-  tapHint: "Tap a point for details",
+    { label: "Whole ingredients you can see", values: [true, "Crushed leaf", "Pills or powder"] },
+    { label: "Caffeine free", values: [true, "Usually not", "Varies"] },
+    { label: "No added sugar or flavourings", values: [true, "Often flavoured", "Varies"] },
+    { label: "Rooted in Traditional Chinese Medicine", values: [true, false, false] },
+    { label: "A warm ritual you look forward to", values: [true, true, false] },
+  ] as { label: string; values: (string | boolean)[] }[],
 };
 
 // Icon row ("Our standards"). True facts only.

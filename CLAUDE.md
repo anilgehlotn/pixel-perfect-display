@@ -223,35 +223,32 @@ order (`src/routes/index.tsx`):
    rest" on the left, the line on the right. No numbers or chips repeated from the
    ingredients block.
    - Everything sits in a blush rounded panel. Below the intro: an arch collage (sticky on
-     desktop): the cup (`media.comparison`) in a tall arch like the ingredient cards, a round
-     inset of whole jujubes (`media.ingredients.jujube`) over its corner, a circular text
-     badge (`badge`, turns slowly on desktop, CSS `cmp-spin`, paused off-screen) and a "One
-     cup a day" pill; beside it a white board that shows SkinFusion and BOTH competitors at
-     once (no switch), with a raised green SkinFusion column running down it (a slim pill on
-     phones, wider from `md`; leaf badge, coral ticks; from `md` "See Skin Glow Tea" at its
-     foot). Each point is a button: tap or click it and a blush detail panel opens under the
-     row (one open at a time, plus icon turns into a cross) with one plain line (`detail` in
-     `rows`); on phones the panel also lists both competitors' wording.
-   - Phones, compact: "Tap a point for details" and a symbol key (`legend`: which icon is
-     which; tick yes, half circle partly or varies, dash no) above the columns; each row is
-     the point plus three slim icon columns (no words), roughly half the old height; the
-     button below the board. From `md`: the competitors' words show in the board.
-   - Under the rows, "Ticks out of five" (`scoreTitle`): three bars counted from the
-     table's `true` values (5/5, 1/5, 0/5). A small note under the board.
+     desktop): `media.comparison.main` (the glass teapot) in a tall arch like the ingredient
+     cards, a round inset of red dates (`media.comparison.inset`) over its corner, a circular
+     text badge (`badge`, turns slowly on desktop, CSS `cmp-spin`, paused off-screen) and a
+     "One cup a day" pill. Both photos are used nowhere else on the homepage (the brewed cup
+     and the jujube bowl already appear in the product row and the ingredients block).
+   - Beside it, a white board that shows SkinFusion and BOTH competitors at once (no
+     switch). From `md`: a 4-column table with a raised green SkinFusion column (soft top
+     light, leaf badge, coral ticks, "See Skin Glow Tea" at its foot). Phones: three icon
+     heads, then each point with three tiles under it (a slightly wider green SkinFusion
+     tile with the tick, two beige competitor tiles with words). Under the rows, "Ticks out
+     of five" (`scoreTitle`): three bars counted from the table's `true` values (5/5, 1/5,
+     0/5). A small note under the board. The table keeps explicit ARIA roles because its
+     rows are laid out as grids. Every row stays fully readable: no scroll dimming (tried,
+     the client found it hard to read; a compact icon-only phone layout was also rejected).
    - Arch shape: `rounded-t-[50%_40%]` (half the width, for a 4:5 box), not `rounded-t-full`:
      a 9999px radius makes the browser shrink every corner, so the bottom corners went
      square. The ingredient cards use the same fix.
-   - The green SkinFusion column and the phone tiles carry a soft top light (cream gradient).
    - Scroll (`lib/animations/comparison.ts`): the title's words rise out of a mask (SplitText)
-     with the intro; the arch rises while the photo settles from 1.18 to 1, the jujube circle
-     and the badge pop, then the pill (desktop: photo and jujube circle drift at different
-     speeds); a scrubbed focus on every device: only the row in the middle of the screen is
-     fully lit, the others fade to 30%, and a soft coral glow (`data-cmp-glow`) travels down
-     the board; once: the board rises, the green column grows down (scaleY), the
-     heads come in, then each row: the row rises (phones), label in, the green tile settles
-     with its tick popping, the two competitor tiles slide in from the right; a thin coral
-     line draws down the side; the button rises; the score bars fill (scaleX) while the
-     numbers count up. Reduced motion: nothing moves.
+     with the intro; the arch rises while the photo settles from 1.18 to 1, the red-dates
+     circle and the badge pop, then the pill (desktop: photo and circle drift at different
+     speeds); a soft coral glow (`data-cmp-glow`) travels down behind the board (scrubbed);
+     once: the board rises, the green column grows down (scaleY), the heads come in, then
+     each row: label in, the green tile settles with its tick popping, the two competitor
+     tiles slide in from the right; a thin coral line draws down the side; the button
+     rises; the score bars fill (scaleX) while the numbers count up. Reduced motion:
+     nothing moves.
      The product page uses it with `cta={false}`.
 7. **TCM 101** (`#learn`): stacked copy, "Discover" pill, wide video thumbnail with a "Play" pill
    that opens the full-screen `VideoDialog`.
